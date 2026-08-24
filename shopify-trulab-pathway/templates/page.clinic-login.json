@@ -1,0 +1,9 @@
+{
+  "sections": {
+    "main": {
+      "type": "trulab-clinic-login",
+      "settings": {}
+    }
+  },
+  "order": ["main"]
+}

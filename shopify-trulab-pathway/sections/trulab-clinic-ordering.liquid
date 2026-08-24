@@ -1,0 +1,192 @@
+{% assign tco_is_clinic = false %}
+{% if customer and customer.tags contains 'clinics' %}
+  {% assign tco_is_clinic = true %}
+{% endif %}
+
+{% assign clinic_product = section.settings.product %}
+{% if clinic_product == blank %}
+  {% assign clinic_product = all_products['trulab-dx-pathway-genetic-test'] %}
+{% endif %}
+{% assign clinic_variant = clinic_product.selected_or_first_available_variant %}
+
+<section class="tco tco-{{ section.id }}" aria-label="Trinity Cell Sciences clinic ordering portal">
+  <div class="tco-announcement">APPROVED CLINIC PARTNER ORDERING</div>
+
+  <header class="tco-header">
+    <div class="tco-shell tco-nav">
+      <a class="tco-logo" href="/" aria-label="{{ shop.name | escape }} home">
+        {% if settings.logo != blank %}
+          {{ settings.logo | image_url: width: 520 | image_tag: loading: 'eager', widths: '220, 320, 420, 520', alt: shop.name }}
+        {% else %}
+          <span class="tco-logo-mark" aria-hidden="true">◉</span>
+          <span class="tco-logo-type"><strong>TRINITY</strong><small>CELL SCIENCES</small></span>
+        {% endif %}
+      </a>
+
+      {% if tco_is_clinic %}
+      <nav class="tco-links" aria-label="Clinic portal navigation">
+        <a href="#tco-order-{{ section.id }}">Order kits</a>
+        <a href="/pages/clinic-portal">Clinic portal</a>
+      </nav>
+        <a class="tco-nav-cta" href="{{ routes.account_logout_url }}">Sign out <span aria-hidden="true">→</span></a>
+      {% else %}
+        <nav class="tco-links" aria-label="Clinic access navigation">
+          <a href="/pages/trulab-pathway-genetic-test">PATHWAY test</a>
+          <a href="/pages/register">Clinic registration</a>
+        </nav>
+        <a class="tco-nav-cta" href="/pages/register">Apply for access <span aria-hidden="true">→</span></a>
+      {% endif %}
+    </div>
+  </header>
+
+  {% if tco_is_clinic %}
+    <main class="tco-main" id="tco-order-{{ section.id }}">
+      <div class="tco-shell">
+        <div class="tco-intro">
+          <div>
+            <p class="tco-eyebrow">Clinic partner portal</p>
+            <h1>{% if customer.first_name != blank %}Welcome, {{ customer.first_name | escape }}.{% else %}Welcome back.{% endif %}</h1>
+            <p>Order PATHWAY genetic testing kits for your practice using the approved pricing connected to your clinic account.</p>
+          </div>
+          <div class="tco-account-status"><span aria-hidden="true">✓</span><div><strong>Approved clinic account</strong><small>Partner pricing is active for this login.</small></div></div>
+        </div>
+
+        {% if clinic_product != blank and clinic_variant != blank %}
+          <article class="tco-product product" data-product-id="{{ clinic_product.id }}" data-variant-id="{{ clinic_variant.id }}" data-product-url="{{ clinic_product.url }}">
+            <div class="tco-media">
+              <span class="tco-product-badge">CLINIC ORDERING</span>
+              {% if clinic_product.featured_image != blank %}
+                {{ clinic_product.featured_image | image_url: width: 1200 | image_tag: loading: 'eager', widths: '420, 640, 850, 1200', sizes: '(max-width: 760px) 90vw, 46vw', alt: clinic_product.title }}
+              {% else %}
+                <div class="tco-image-placeholder">PATHWAY™</div>
+              {% endif %}
+            </div>
+
+            <div class="tco-product-copy">
+              <p class="tco-eyebrow">PATHWAY™ powered by TruLab Dx</p>
+              <h2>{{ clinic_product.title | escape }}</h2>
+              <p class="tco-product-lede">A simple at-home cheek swab with a personalized 170-page report designed to support provider-guided wellness and optimization conversations.</p>
+
+              <ul class="tco-features">
+                <li><span aria-hidden="true">✓</span>149 SNPs representing more than 600 gene markers</li>
+                <li><span aria-hidden="true">✓</span>CLIA-certified laboratory analysis</li>
+                <li><span aria-hidden="true">✓</span>Results delivered in approximately 2–3 weeks</li>
+              </ul>
+
+              <div class="tco-price-wrap">
+                <span>YOUR CLINIC PRICE</span>
+                <div class="price price--large price--show-badge tco-price" id="price-{{ section.id }}" role="status">
+                  <div class="price__container">
+                    <div class="price__regular">
+                      <span class="visually-hidden visually-hidden--inline">Regular price</span>
+                      <span class="price-item price-item--regular money" data-product-price data-variant-id="{{ clinic_variant.id }}">{{ clinic_variant.price | money }}</span>
+                    </div>
+                    <div class="price__sale">
+                      <span class="visually-hidden visually-hidden--inline">Regular price</span>
+                      <span><s class="price-item price-item--regular"></s></span>
+                      <span class="visually-hidden visually-hidden--inline">Sale price</span>
+                      <span class="price-item price-item--sale price-item--last money">{{ clinic_variant.price | money }}</span>
+                    </div>
+                  </div>
+                </div>
+                <small>Approved partner pricing is applied through your signed-in clinic account.</small>
+              </div>
+
+              {% assign product_form_id = 'tco-product-form-' | append: section.id %}
+              {% form 'product', clinic_product, id: product_form_id, class: 'tco-product-form', novalidate: 'novalidate', data-type: 'add-to-cart-form' %}
+                <input type="hidden" name="id" value="{{ clinic_variant.id }}" data-product-variant-id>
+                <div class="tco-order-row">
+                  <div class="tco-quantity">
+                    <label for="TcoQuantity-{{ section.id }}">Quantity</label>
+                    <div class="tco-quantity-control">
+                      <button type="button" data-quantity-minus aria-label="Decrease quantity">−</button>
+                      <input id="TcoQuantity-{{ section.id }}" type="number" name="quantity" value="1" min="1" step="1" inputmode="numeric">
+                      <button type="button" data-quantity-plus aria-label="Increase quantity">+</button>
+                    </div>
+                  </div>
+                  <button class="tco-add-button" type="submit" name="add" {% unless clinic_variant.available %}disabled{% endunless %}>
+                    {% if clinic_variant.available %}Add kits to cart{% else %}Contact us to order{% endif %}
+                    <span aria-hidden="true">→</span>
+                  </button>
+                </div>
+              {% endform %}
+
+              <div class="tco-order-notes">
+                <span><i aria-hidden="true">●</i> Secure Shopify checkout</span>
+                <span><i aria-hidden="true">●</i> Clinic account pricing</span>
+                <span><i aria-hidden="true">●</i> Direct kit fulfillment</span>
+              </div>
+            </div>
+          </article>
+        {% else %}
+          <div class="tco-empty"><h2>PATHWAY ordering is temporarily unavailable.</h2><p>Please contact Trinity Cell Sciences for assistance with your clinic order.</p></div>
+        {% endif %}
+
+        <div class="tco-support">
+          <div><p class="tco-eyebrow">Clinic partner hub</p><h2>Track orders and access education.</h2><p>Open your clinic portal to review Shopify order status, submit kit assignments, and download PATHWAY resources.</p></div>
+          <a href="/pages/clinic-portal">Open clinic portal <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </main>
+  {% else %}
+    <main class="tco-access-main">
+      <div class="tco-shell tco-access-grid">
+        <div class="tco-access-copy">
+          <p class="tco-eyebrow">Protected clinic portal</p>
+          <h1>Clinic partner access required.</h1>
+          {% if customer %}
+            <p>The account currently signed in has not been approved for clinic partner access. Register your practice or sign in with the email connected to your approved application.</p>
+          {% else %}
+            <p>Sign in with the email connected to your approved clinic account to view PATHWAY ordering and partner pricing.</p>
+          {% endif %}
+        </div>
+        <aside class="tco-access-card">
+          <div class="tco-lock" aria-hidden="true">●</div>
+          <h2>{% if customer %}Clinic access not found{% else %}Sign in to continue{% endif %}</h2>
+          <p>Wholesale pricing is available only to approved TrinityMD clinic partners.</p>
+          {% if customer %}
+            <a class="tco-access-button" href="{{ routes.account_logout_url }}">Sign out and use another email <span aria-hidden="true">→</span></a>
+          {% else %}
+            <a class="tco-access-button" href="/account/login?return_url=%2Fpages%2Fclinic-ordering">Continue to secure sign-in <span aria-hidden="true">→</span></a>
+          {% endif %}
+          <a class="tco-register-link" href="/pages/register">Not registered? Apply for clinic access</a>
+        </aside>
+      </div>
+    </main>
+  {% endif %}
+
+  <footer class="tco-footer"><div class="tco-shell"><strong>PATHWAY™ powered by TruLab Dx</strong><span>Provider-guided genetic insights for more personalized wellness.</span></div></footer>
+</section>
+
+<script>
+  document.documentElement.classList.add('tco-page-active');
+  document.body.classList.add('tco-page');
+  (function () {
+    var root = document.querySelector('.tco-{{ section.id }}');
+    if (!root) return;
+    var input = root.querySelector('.tco-quantity-control input');
+    if (!input) return;
+    var minus = root.querySelector('[data-quantity-minus]');
+    var plus = root.querySelector('[data-quantity-plus]');
+    minus.addEventListener('click', function () { input.value = Math.max(1, Number(input.value || 1) - 1); });
+    plus.addEventListener('click', function () { input.value = Math.max(1, Number(input.value || 1) + 1); });
+  })();
+</script>
+
+{% style %}
+  .tco-page .shopify-section-group-header-group,.tco-page .shopify-section-group-footer-group{display:none!important}.tco-page #MainContent{min-height:100vh}.tco-page{background:#f5fafb}.tco-{{ section.id }}{--navy:#061d3f;--navy2:#082a55;--blue:#0872ad;--teal:#0ea6ad;--aqua:#26c4c3;--lime:#9edc4b;--ink:#102741;--muted:#5d7084;--line:#dbe8eb;min-height:100svh;color:var(--ink);font-family:var(--font-body-family,Arial,sans-serif)}.tco-{{ section.id }} *{box-sizing:border-box}.tco-{{ section.id }} h1,.tco-{{ section.id }} h2,.tco-{{ section.id }} p{margin:0}.tco-shell{width:min(1180px,calc(100% - 48px));margin:0 auto}.tco-announcement{min-height:39px;padding:10px 20px;display:grid;place-items:center;background:var(--navy);color:#d9f4f2;font-size:10px;font-weight:900;letter-spacing:.18em;text-align:center}.tco-header{position:relative;z-index:3;border-bottom:1px solid #dfebee;background:rgba(255,255,255,.97)}.tco-nav{min-height:99px;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:42px}.tco-logo{max-width:260px;display:inline-flex;align-items:center;gap:13px;color:var(--navy)!important;text-decoration:none}.tco-logo img{width:auto;max-width:245px;height:auto;max-height:67px;display:block}.tco-logo-mark{width:46px;height:46px;display:grid;place-items:center;border:2px solid var(--teal);border-radius:50%;color:var(--teal)}.tco-logo-type{display:grid;gap:4px}.tco-logo-type strong{font-size:25px;letter-spacing:.17em;line-height:1}.tco-logo-type small{color:var(--teal);font-size:8px;font-weight:900;letter-spacing:.25em}.tco-links{display:flex;align-items:center;gap:34px}.tco-links a{color:#29445d!important;font-size:12px;font-weight:850;text-decoration:none}.tco-nav-cta{min-height:48px;padding:0 22px;display:flex;align-items:center;justify-content:center;gap:15px;border-radius:100px;background:linear-gradient(135deg,var(--teal),var(--blue));box-shadow:0 12px 25px rgba(8,114,173,.17);color:#fff!important;font-size:11px;font-weight:900;text-decoration:none!important}.tco-main{padding:78px 0 86px;background:radial-gradient(circle at 10% 4%,rgba(38,196,195,.12),transparent 25%),linear-gradient(150deg,#f9fcfc,#eff8f7)}.tco-eyebrow{color:var(--teal);font-size:11px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}.tco-intro{display:grid;grid-template-columns:1fr auto;gap:50px;align-items:end}.tco-intro h1{margin-top:14px;color:var(--navy);font-family:var(--font-heading-family,Arial,sans-serif);font-size:clamp(45px,5vw,68px);font-weight:800;letter-spacing:-.045em;line-height:1}.tco-intro>div:first-child>p:last-child{max-width:720px;margin-top:20px;color:var(--muted);font-size:16px;line-height:1.7}.tco-account-status{min-width:250px;padding:18px 20px;display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:center;border:1px solid #cce5df;border-radius:15px;background:rgba(255,255,255,.8)}.tco-account-status>span{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:#e6f7ef;color:#20805c;font-weight:900}.tco-account-status div{display:grid;gap:3px}.tco-account-status strong{color:var(--navy2);font-size:11px}.tco-account-status small{color:#728493;font-size:9px}.tco-product{margin-top:50px;display:grid;grid-template-columns:minmax(380px,.88fr) minmax(480px,1.12fr);overflow:hidden;border:1px solid rgba(8,42,85,.09);border-radius:28px;background:#fff;box-shadow:0 30px 75px rgba(6,45,70,.13)}.tco-media{min-height:610px;padding:55px;position:relative;display:grid;place-items:center;background:linear-gradient(145deg,#edf8f7,#f9fcfc)}.tco-media:before{content:"";width:420px;height:420px;position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(38,196,195,.16),rgba(38,196,195,0) 70%)}.tco-media img{width:100%;height:auto;max-height:490px;position:relative;z-index:1;object-fit:contain;filter:drop-shadow(0 22px 28px rgba(6,45,70,.16))}.tco-product-badge{padding:9px 12px;position:absolute;top:26px;left:27px;z-index:2;border-radius:100px;background:var(--navy);color:#fff;font-size:9px;font-weight:900;letter-spacing:.13em}.tco-image-placeholder{position:relative;z-index:1;color:var(--navy);font-size:40px;font-weight:900}.tco-product-copy{padding:58px 58px 50px}.tco-product-copy h2{margin-top:14px;color:var(--navy);font-family:var(--font-heading-family,Arial,sans-serif);font-size:clamp(38px,4vw,53px);font-weight:800;letter-spacing:-.045em;line-height:1.03}.tco-product-lede{margin-top:21px!important;color:var(--muted);font-size:14px;line-height:1.75}.tco-features{margin:27px 0 0;padding:0;display:grid;gap:12px;list-style:none}.tco-features li{display:grid;grid-template-columns:22px 1fr;gap:9px;align-items:start;color:#405a70;font-size:12px;line-height:1.55}.tco-features li span{width:20px;height:20px;display:grid;place-items:center;border-radius:50%;background:rgba(14,166,173,.12);color:var(--teal);font-size:9px;font-weight:900}.tco-price-wrap{margin-top:29px;padding:25px 27px;border:1px solid #d7e9e7;border-radius:17px;background:#f3faf9}.tco-price-wrap>span{color:var(--teal);font-size:9px;font-weight:900;letter-spacing:.16em}.tco-price{margin-top:5px;color:var(--navy);font-size:42px;font-weight:900;letter-spacing:-.035em}.tco-price-wrap small{margin-top:3px;display:block;color:#718493;font-size:9px;line-height:1.5}.tco-product-form{margin-top:24px}.tco-order-row{display:grid;grid-template-columns:126px 1fr;gap:14px;align-items:end}.tco-quantity label{margin-bottom:7px;display:block;color:#3d566b;font-size:10px;font-weight:900}.tco-quantity-control{height:54px;display:grid;grid-template-columns:38px 1fr 38px;border:1px solid #cfdee3;border-radius:11px;overflow:hidden;background:#fff}.tco-quantity-control button{padding:0;border:0;background:#f5f9fa;color:var(--navy);font-size:20px;cursor:pointer}.tco-quantity-control input{width:100%;padding:0;border:0;background:#fff;color:var(--navy);font:800 14px var(--font-body-family,Arial,sans-serif);text-align:center;appearance:textfield}.tco-quantity-control input::-webkit-inner-spin-button{appearance:none}.tco-add-button{min-height:54px;padding:0 25px;border:0;border-radius:100px;display:flex;align-items:center;justify-content:center;gap:17px;background:linear-gradient(135deg,var(--teal),var(--blue));box-shadow:0 14px 28px rgba(8,114,173,.2);color:#fff;font:900 12px var(--font-body-family,Arial,sans-serif);cursor:pointer}.tco-add-button span{font-size:19px}.tco-add-button:disabled{background:#94a6b0;box-shadow:none;cursor:not-allowed}.tco-order-notes{margin-top:22px;display:flex;flex-wrap:wrap;gap:14px}.tco-order-notes span{color:#788b99;font-size:9px}.tco-order-notes i{margin-right:5px;color:var(--teal);font-size:7px}.tco-support{margin-top:34px;padding:31px 34px;display:grid;grid-template-columns:1fr auto;gap:35px;align-items:center;border:1px solid #d7e6e9;border-radius:20px;background:rgba(255,255,255,.77)}.tco-support h2{margin-top:8px;color:var(--navy);font-size:26px}.tco-support div>p:last-child{margin-top:7px;color:var(--muted);font-size:11px}.tco-support>a{min-height:49px;padding:0 22px;display:flex;align-items:center;justify-content:center;gap:14px;border:1px solid #bddfdc;border-radius:100px;color:var(--teal)!important;font-size:11px;font-weight:900;text-decoration:none}.tco-empty{margin-top:50px;padding:60px;border-radius:24px;background:#fff;text-align:center}.tco-empty h2{color:var(--navy)}.tco-empty p{margin-top:12px;color:var(--muted)}.tco-access-main{min-height:calc(100svh - 138px);display:grid;align-items:center;background:radial-gradient(circle at 10% 20%,rgba(38,196,195,.13),transparent 28%),linear-gradient(145deg,#f9fcfc,#eff8f7)}.tco-access-grid{padding:75px 0;display:grid;grid-template-columns:1fr 480px;gap:90px;align-items:center}.tco-access-copy h1{margin-top:17px;color:var(--navy);font-family:var(--font-heading-family,Arial,sans-serif);font-size:clamp(50px,5.3vw,74px);font-weight:800;letter-spacing:-.05em;line-height:1}.tco-access-copy>p:last-child{max-width:650px;margin-top:25px;color:var(--muted);font-size:16px;line-height:1.75}.tco-access-card{padding:46px 43px 38px;border:1px solid rgba(8,42,85,.08);border-radius:25px;background:#fff;box-shadow:0 30px 75px rgba(6,45,70,.15);text-align:center}.tco-lock{width:56px;height:56px;margin:0 auto 22px;display:grid;place-items:center;border-radius:18px;background:rgba(14,166,173,.12);color:var(--teal)}.tco-access-card h2{color:var(--navy);font-size:34px}.tco-access-card p{margin-top:13px;color:var(--muted);font-size:13px;line-height:1.65}.tco-access-button{min-height:55px;margin-top:26px;padding:0 22px;display:flex;align-items:center;justify-content:center;gap:15px;border-radius:100px;background:linear-gradient(135deg,var(--teal),var(--blue));color:#fff!important;font-size:11px;font-weight:900;text-decoration:none!important}.tco-register-link{margin-top:19px;display:block;color:var(--teal)!important;font-size:10px;font-weight:900;text-decoration:underline;text-underline-offset:4px}.tco-footer{padding:25px 0;background:var(--navy);color:#fff}.tco-footer .tco-shell{display:flex;align-items:center;justify-content:space-between;gap:30px}.tco-footer strong{font-size:11px}.tco-footer span{color:#b7d0d8;font-size:9px}.tco-nav-cta:hover,.tco-add-button:hover,.tco-access-button:hover{filter:brightness(1.04)}.tco-links a:hover{text-decoration:underline;text-underline-offset:4px}
+  @media(max-width:980px){.tco-nav{grid-template-columns:1fr auto}.tco-links{display:none}.tco-intro{grid-template-columns:1fr;gap:25px}.tco-account-status{width:fit-content}.tco-product{grid-template-columns:1fr}.tco-media{min-height:480px}.tco-product-copy{padding:48px}.tco-access-grid{grid-template-columns:1fr;gap:42px}.tco-access-card{width:min(100%,600px)}}
+  @media(max-width:640px){.tco-shell{width:calc(100% - 32px)}.tco-announcement{font-size:8px;letter-spacing:.13em}.tco-nav{min-height:78px;gap:12px}.tco-logo{max-width:160px}.tco-logo img{max-width:154px;max-height:47px}.tco-logo-type strong{font-size:17px}.tco-logo-type small{font-size:6px}.tco-nav-cta{min-height:42px;padding:0 14px;font-size:9px}.tco-main{padding:55px 0 60px}.tco-intro h1{font-size:46px}.tco-intro>div:first-child>p:last-child{font-size:14px}.tco-account-status{min-width:0;width:100%}.tco-product{margin-top:34px;border-radius:21px}.tco-media{min-height:340px;padding:42px 28px}.tco-media img{max-height:300px}.tco-media:before{width:280px;height:280px}.tco-product-copy{padding:36px 23px 31px}.tco-product-copy h2{font-size:38px}.tco-price{font-size:38px}.tco-order-row{grid-template-columns:1fr}.tco-add-button{min-height:55px}.tco-order-notes{align-items:flex-start;flex-direction:column;gap:8px}.tco-support{padding:27px 23px;grid-template-columns:1fr}.tco-support>a{width:100%}.tco-access-main{min-height:auto}.tco-access-grid{padding:55px 0 65px}.tco-access-copy h1{font-size:47px}.tco-access-copy>p:last-child{font-size:14px}.tco-access-card{padding:38px 23px 31px}.tco-footer .tco-shell{align-items:flex-start;flex-direction:column;gap:6px}}
+  .tco-{{ section.id }},.tco-{{ section.id }} button,.tco-{{ section.id }} input,.tco-{{ section.id }} select,.tco-{{ section.id }} textarea,.tco-{{ section.id }} h1,.tco-{{ section.id }} h2,.tco-{{ section.id }} h3{font-family:"Segoe UI",Arial,Helvetica,sans-serif!important;font-kerning:normal;font-synthesis:none;text-rendering:optimizeLegibility}
+  .tco-{{ section.id }} .tco-price,.tco-{{ section.id }} [class*="massy-"]{font-family:"Segoe UI",Arial,Helvetica,sans-serif!important;font-kerning:normal!important;font-variant-ligatures:none!important;letter-spacing:0!important;text-rendering:optimizeLegibility}
+{% endstyle %}
+
+{% schema %}
+{
+  "name": "Clinic ordering portal",
+  "settings": [
+    { "type": "product", "id": "product", "label": "Clinic ordering product" }
+  ],
+  "presets": [{ "name": "Clinic ordering portal" }]
+}
+{% endschema %}

@@ -1,0 +1,440 @@
+{% assign tch_is_clinic = false %}
+{% if customer and customer.tags contains 'clinics' %}
+  {% assign tch_is_clinic = true %}
+{% endif %}
+
+{% assign tch_unfulfilled_count = 0 %}
+{% if tch_is_clinic %}
+  {% for order in customer.orders %}
+    {% if order.fulfillment_status != 'fulfilled' %}
+      {% assign tch_unfulfilled_count = tch_unfulfilled_count | plus: 1 %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% assign tch_patient_pdf_url = section.settings.patient_pdf_url %}
+{% if tch_patient_pdf_url == blank %}
+  {% assign tch_patient_pdf_url = 'PATHWAY-Patient-Overview.pdf' | asset_url %}
+{% endif %}
+{% assign tch_clinic_pdf_url = section.settings.clinic_pdf_url %}
+{% if tch_clinic_pdf_url == blank %}
+  {% assign tch_clinic_pdf_url = 'PATHWAY-Clinic-Overview.pdf' | asset_url %}
+{% endif %}
+{% assign tch_assignment_api_path = section.settings.assignment_api_path | default: '/apps/pathway-portal/api/assignments' %}
+
+<section class="tch tch-{{ section.id }}" aria-label="TrinityMD PATHWAY clinic hub">
+  <div class="tch-announcement">PATHWAY CLINIC PARTNER HUB · APPROVED ACCOUNTS ONLY</div>
+
+  <header class="tch-header">
+    <div class="tch-shell tch-nav">
+      <a class="tch-logo" href="/" aria-label="{{ shop.name | escape }} home">
+        {% if settings.logo != blank %}
+          {{ settings.logo | image_url: width: 520 | image_tag: loading: 'eager', widths: '220, 320, 420, 520', alt: shop.name }}
+        {% else %}
+          <span class="tch-logo-mark" aria-hidden="true">◉</span>
+          <span class="tch-logo-type"><strong>TRINITY</strong><small>CELL SCIENCES</small></span>
+        {% endif %}
+      </a>
+
+      {% if tch_is_clinic %}
+        <nav class="tch-links" aria-label="Clinic portal navigation">
+          <a href="#tch-orders-{{ section.id }}">Orders</a>
+          <a href="#tch-assigned-{{ section.id }}">Assigned kits</a>
+          <a href="#tch-assignment-{{ section.id }}">Assign kits</a>
+          <a href="#tch-education-{{ section.id }}">Education</a>
+          <a href="/pages/clinic-ordering">Order kits</a>
+        </nav>
+        <a class="tch-nav-cta" href="{{ routes.account_logout_url }}">Sign out <span aria-hidden="true">→</span></a>
+      {% else %}
+        <nav class="tch-links" aria-label="Clinic access navigation">
+          <a href="/pages/trulab-pathway-genetic-test">PATHWAY test</a>
+          <a href="/pages/register">Clinic registration</a>
+        </nav>
+        <a class="tch-nav-cta" href="/pages/register">Apply for access <span aria-hidden="true">→</span></a>
+      {% endif %}
+    </div>
+  </header>
+
+  {% if tch_is_clinic %}
+    <main class="tch-main">
+      <div class="tch-shell">
+        <div class="tch-intro">
+          <div>
+            <p class="tch-eyebrow">Clinic partner workspace</p>
+            <h1>{% if customer.first_name != blank %}Welcome, {{ customer.first_name | escape }}.{% else %}Welcome to your clinic hub.{% endif %}</h1>
+            <p>Review your PATHWAY kit orders, submit a kit assignment, and download approved clinic education.</p>
+          </div>
+          <a class="tch-order-button" href="/pages/clinic-ordering">Order PATHWAY kits <span aria-hidden="true">→</span></a>
+        </div>
+
+        <div class="tch-stats" aria-label="Clinic account summary">
+          <article><span class="tch-stat-icon" aria-hidden="true">●</span><div><strong>{{ customer.orders_count | default: customer.orders.size }}</strong><p>Total Shopify orders</p><small>Orders placed by this clinic account</small></div></article>
+          <article><span class="tch-stat-icon tch-stat-icon--blue" aria-hidden="true">●</span><div><strong>{{ tch_unfulfilled_count }}</strong><p>Orders in progress</p><small>Unfulfilled or partially fulfilled orders</small></div></article>
+          <article><span class="tch-stat-icon tch-stat-icon--lime" aria-hidden="true">✓</span><div><strong data-assigned-count>—</strong><p>Assigned kits</p><small>Saved to this clinic account</small></div></article>
+        </div>
+
+        <section class="tch-panel" id="tch-orders-{{ section.id }}">
+          <div class="tch-panel-heading">
+            <div><p class="tch-eyebrow">Shopify fulfillment</p><h2>Kit order status</h2><p>Track payment and shipment progress for orders placed through your clinic account.</p></div>
+          </div>
+
+          {% if customer.orders.size > 0 %}
+            <div class="tch-order-list">
+              <div class="tch-order-head" aria-hidden="true"><span>Order</span><span>Date</span><span>Payment</span><span>Fulfillment</span><span>Total</span></div>
+              {% for order in customer.orders limit: 10 %}
+                <article class="tch-order-row">
+                  <div><strong>{{ order.name | escape }}</strong><small>{{ order.line_items.size }} item{% if order.line_items.size != 1 %}s{% endif %}</small></div>
+                  <time datetime="{{ order.created_at | date: '%Y-%m-%d' }}">{{ order.created_at | date: '%b %d, %Y' }}</time>
+                  <span class="tch-status tch-status--payment">{{ order.financial_status_label | default: order.financial_status | capitalize }}</span>
+                  <span class="tch-status{% if order.fulfillment_status == 'fulfilled' %} tch-status--complete{% elsif order.fulfillment_status == 'partial' %} tch-status--partial{% endif %}">{{ order.fulfillment_status_label | default: order.fulfillment_status | default: 'Unfulfilled' | replace: '_', ' ' | capitalize }}</span>
+                  <strong class="tch-order-total">{{ order.total_price | money }}</strong>
+                </article>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="tch-empty"><span aria-hidden="true">□</span><h3>No clinic orders yet.</h3><p>Your PATHWAY kit orders will appear here after checkout.</p><a href="/pages/clinic-ordering">Place your first order <span aria-hidden="true">→</span></a></div>
+          {% endif %}
+          <p class="tch-order-disclaimer"><span aria-hidden="true">i</span> This section shows Shopify purchase and fulfillment status. Laboratory sample status will be added through the secure PATHWAY portal integration.</p>
+        </section>
+
+        <section class="tch-panel tch-assigned" id="tch-assigned-{{ section.id }}" data-assignment-history data-hj-suppress data-dd-privacy="mask" data-clarity-mask="true">
+          <div class="tch-panel-heading tch-assigned-heading">
+            <div><p class="tch-eyebrow">Clinic assignment records</p><h2>Assigned kits</h2><p>Search previously assigned PATHWAY kits saved to this clinic account.</p></div>
+            <label class="tch-record-search"><span class="visually-hidden">Search assigned kits</span><input type="search" data-record-search placeholder="Search kit, client, or email" disabled></label>
+          </div>
+          <div class="tch-record-state" data-record-state role="status">Connecting to secure kit records…</div>
+          <div class="tch-record-list" data-record-list hidden>
+            <div class="tch-record-head" aria-hidden="true"><span>Kit ID</span><span>Client</span><span>Email</span><span>Assigned</span><span>Status</span></div>
+            <div data-record-rows></div>
+          </div>
+        </section>
+
+        <section class="tch-assignment" id="tch-assignment-{{ section.id }}">
+          <div class="tch-assignment-copy">
+            <p class="tch-eyebrow">Secure kit assignment</p>
+            <h2>Assign one or multiple kits.</h2>
+            <p>Add the kit ID, client email address, and only the client’s first initial plus full last name. Submit up to 25 kit assignments together.</p>
+            <div class="tch-privacy-note"><span aria-hidden="true">!</span><div><strong>Enter only the requested minimum information.</strong><p>Use a format such as <em>J. Smith</em>. Do not enter a full first name, date of birth, diagnosis, genetic result, medication, or treatment information.</p></div></div>
+            <ul><li><span>1</span>Locate the unique ID printed on each PATHWAY kit.</li><li><span>2</span>Add the client email and first initial with last name.</li><li><span>3</span>Save the batch to this clinic’s assignment history.</li></ul>
+          </div>
+
+          <div class="tch-assignment-card">
+            {% assign tch_form_id = 'TchAssignmentForm-' | append: section.id %}
+            <form id="{{ tch_form_id }}" class="tch-form" data-assignment-api="{{ tch_assignment_api_path | escape }}" data-hj-suppress data-dd-privacy="mask" data-clarity-mask="true">
+              <div class="tch-form-heading"><p class="tch-eyebrow">Secure clinic record</p><h3>Kit assignment batch</h3><span>Signed in as {{ customer.email | escape }}</span></div>
+              <div class="tch-form-errors" data-form-error role="alert" hidden></div>
+              <div class="tch-form-success tch-form-success--inline" data-form-success tabindex="-1" hidden><span aria-hidden="true">✓</span><div><strong>Assignments saved.</strong><p>The kits are now available in this clinic’s assignment history.</p></div></div>
+
+              <div class="tch-fields">
+                <div class="tch-kit-list" data-kit-list>
+                  <div class="tch-kit-row" data-kit-row>
+                    <div class="tch-kit-row-heading"><strong data-kit-label>Kit 1</strong><button type="button" data-remove-kit aria-label="Remove kit 1">Remove</button></div>
+                    <label><span>PATHWAY kit ID</span><input type="text" data-kit-id maxlength="64" autocomplete="off" autocapitalize="characters" pattern="[A-Za-z0-9._-]{4,64}" required placeholder="ID printed on the kit"></label>
+                    <label><span>Client email address</span><input type="email" data-client-email maxlength="254" autocomplete="email" required placeholder="client@example.com"></label>
+                    <label class="tch-client-name-field"><span>Client first initial + last name</span><input type="text" data-client-name maxlength="90" autocomplete="off" required placeholder="Example: J. Smith"></label>
+                  </div>
+                </div>
+                <button class="tch-add-kit" type="button" data-add-kit><span aria-hidden="true">+</span> Add another kit</button>
+                <p class="tch-kit-limit">Up to 25 kits per submission. Each PATHWAY kit ID can be assigned only once.</p>
+                <label class="tch-check"><input type="checkbox" required><span>I confirm that I entered only the kit ID, client email, and first initial with last name—and did not include a full first name, date of birth, diagnosis, test result, medication, or treatment information.</span></label>
+              </div>
+              <button class="tch-submit" type="submit" disabled>Connect secure records to submit <span aria-hidden="true">→</span></button>
+              <p class="tch-form-footnote">Assignments are encrypted before database storage and are shown only for the signed-in clinic account.</p>
+            </form>
+          </div>
+        </section>
+
+        <section class="tch-panel tch-education" id="tch-education-{{ section.id }}">
+          <div class="tch-panel-heading">
+            <div><p class="tch-eyebrow">PATHWAY resource center</p><h2>Education materials</h2><p>Download approved resources for staff education and provider-guided client conversations.</p></div>
+          </div>
+          <div class="tch-resource-grid">
+            <article><span class="tch-pdf">PDF</span><div><small>Patient education</small><h3>PATHWAY Patient Overview</h3><p>A concise introduction to sample collection and the personalized genetic report.</p><a href="{{ tch_patient_pdf_url }}" target="_blank" rel="noopener">Download patient PDF <span aria-hidden="true">↓</span></a></div></article>
+            <article><span class="tch-pdf">PDF</span><div><small>Clinic education</small><h3>PATHWAY Clinic Overview</h3><p>Extended provider-facing information on workflow, reporting, and clinic use.</p><a href="{{ tch_clinic_pdf_url }}" target="_blank" rel="noopener">Download clinic PDF <span aria-hidden="true">↓</span></a></div></article>
+            <article><span class="tch-pdf tch-pdf--guide">170</span><div><small>Report support</small><h3>Provider Review Resources</h3><p>Access approved material for navigating PATHWAY insights with clients.</p>{% if section.settings.education_page_url != blank %}<a href="{{ section.settings.education_page_url }}">Open education center <span aria-hidden="true">→</span></a>{% else %}<span class="tch-resource-pending">Add education link in theme settings</span>{% endif %}</div></article>
+          </div>
+          <p class="tch-education-note">PATHWAY resources support provider-guided wellness discussions and do not replace clinical judgment or prescribe treatment.</p>
+        </section>
+
+        <section class="tch-support"><div><p class="tch-eyebrow">Clinic support</p><h2>Need help with an order or assignment?</h2><p>Contact the TrinityMD clinic team and include your clinic email and Shopify order number.</p></div><a href="mailto:{{ section.settings.support_email | default: shop.email | escape }}">Contact clinic support <span aria-hidden="true">→</span></a></section>
+      </div>
+    </main>
+  {% else %}
+    <main class="tch-access-main">
+      <div class="tch-shell tch-access-grid">
+        <div><p class="tch-eyebrow">Protected clinic hub</p><h1>Approved clinic access required.</h1><p>Sign in with the email connected to your approved TrinityMD clinic account to view orders, assignment requests, and education.</p></div>
+        <aside><span class="tch-lock" aria-hidden="true">●</span><h2>{% if customer %}Clinic access not found{% else %}Sign in to continue{% endif %}</h2><p>This hub is available only to approved clinic accounts tagged for partner access.</p>{% if customer %}<a class="tch-access-button" href="{{ routes.account_logout_url }}">Sign out and use another email <span aria-hidden="true">→</span></a>{% else %}<a class="tch-access-button" href="/account/login?return_url=%2Fpages%2Fclinic-portal">Continue to secure sign-in <span aria-hidden="true">→</span></a>{% endif %}<a class="tch-register-link" href="/pages/register">Not registered? Apply for clinic access</a></aside>
+      </div>
+    </main>
+  {% endif %}
+
+  <footer class="tch-footer"><div class="tch-shell"><strong>PATHWAY™ powered by TruLab Dx</strong><span>Provider-guided genetic insights for more personalized wellness.</span></div></footer>
+</section>
+
+<script>
+  document.documentElement.classList.add('tch-page-active');
+  document.body.classList.add('tch-page');
+  (function () {
+    var root = document.querySelector('.tch-{{ section.id }}');
+    if (!root) return;
+    var form = root.querySelector('.tch-form');
+    if (!form) return;
+    var list = form.querySelector('[data-kit-list]');
+    var addButton = form.querySelector('[data-add-kit]');
+    var submitButton = form.querySelector('.tch-submit');
+    var formError = form.querySelector('[data-form-error]');
+    var formSuccess = form.querySelector('[data-form-success]');
+    var recordState = root.querySelector('[data-record-state]');
+    var recordList = root.querySelector('[data-record-list]');
+    var recordRows = root.querySelector('[data-record-rows]');
+    var recordSearch = root.querySelector('[data-record-search]');
+    var assignedCount = root.querySelector('[data-assigned-count]');
+    var apiPath = form.getAttribute('data-assignment-api');
+    var maxKits = 25;
+    var csrfToken = '';
+    var assignments = [];
+    var clientNamePattern = /^(\p{L})\.?\s+([\p{L}\p{M}'’.-]+(?:\s+[\p{L}\p{M}'’.-]+)*)$/u;
+    if (!list || !addButton || !submitButton || !recordState || !recordList || !recordRows || !recordSearch || !apiPath) return;
+
+    function setFormReady(ready) {
+      submitButton.disabled = !ready;
+      submitButton.innerHTML = ready ? 'Save assignment batch <span aria-hidden="true">→</span>' : 'Connect secure records to submit <span aria-hidden="true">→</span>';
+    }
+
+    function showFormError(message) {
+      formError.textContent = message || '';
+      formError.hidden = !message;
+      if (message) formSuccess.hidden = true;
+    }
+
+    function statusLabel(value) {
+      return String(value || 'assigned').replace(/_/g, ' ').replace(/\b\w/g, function (letter) { return letter.toUpperCase(); });
+    }
+
+    function recordCell(label, value, className) {
+      var cell = document.createElement('div');
+      cell.className = 'tch-record-cell ' + (className || '');
+      var small = document.createElement('small');
+      small.textContent = label;
+      var strong = document.createElement('strong');
+      strong.textContent = value;
+      cell.appendChild(small);
+      cell.appendChild(strong);
+      return cell;
+    }
+
+    function renderAssignments() {
+      var query = recordSearch.value.trim().toLowerCase();
+      var filtered = assignments.filter(function (item) {
+        return !query || [item.kitId, item.clientName, item.clientEmail, item.status].join(' ').toLowerCase().indexOf(query) !== -1;
+      });
+      recordRows.replaceChildren();
+      assignedCount.textContent = assignments.length;
+
+      if (!filtered.length) {
+        recordList.hidden = true;
+        recordState.hidden = false;
+        recordState.classList.remove('is-error');
+        recordState.textContent = assignments.length ? 'No assigned kits match that search.' : 'No kits have been assigned to this clinic yet.';
+        return;
+      }
+
+      filtered.forEach(function (item) {
+        var row = document.createElement('article');
+        row.className = 'tch-record-row';
+        row.appendChild(recordCell('Kit ID', item.kitId, 'tch-record-kit'));
+        row.appendChild(recordCell('Client', item.clientName, 'tch-record-client'));
+        row.appendChild(recordCell('Email', item.clientEmail, 'tch-record-email'));
+
+        var dateCell = document.createElement('div');
+        dateCell.className = 'tch-record-cell tch-record-date';
+        var dateLabel = document.createElement('small');
+        dateLabel.textContent = 'Assigned';
+        var date = document.createElement('time');
+        var createdAt = new Date(item.createdAt);
+        date.dateTime = item.createdAt;
+        date.textContent = Number.isNaN(createdAt.getTime()) ? '—' : createdAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        dateCell.appendChild(dateLabel);
+        dateCell.appendChild(date);
+        row.appendChild(dateCell);
+
+        var status = document.createElement('span');
+        status.className = 'tch-status tch-status--assignment';
+        status.textContent = statusLabel(item.status);
+        row.appendChild(status);
+        recordRows.appendChild(row);
+      });
+      recordState.hidden = true;
+      recordList.hidden = false;
+    }
+
+    async function responsePayload(response) {
+      try { return await response.json(); } catch (error) { return {}; }
+    }
+
+    async function loadAssignments() {
+      recordState.hidden = false;
+      recordState.classList.remove('is-error');
+      recordState.textContent = 'Loading secure kit records…';
+      recordList.hidden = true;
+      setFormReady(false);
+      try {
+        var response = await fetch(apiPath, { headers: { Accept: 'application/json' }, credentials: 'same-origin', cache: 'no-store' });
+        var payload = await responsePayload(response);
+        if (!response.ok) throw new Error(payload.error || 'Secure kit records are not connected yet.');
+        assignments = Array.isArray(payload.assignments) ? payload.assignments : [];
+        csrfToken = payload.csrfToken || '';
+        if (!csrfToken) throw new Error('The secure portal session could not be started.');
+        recordSearch.disabled = false;
+        renderAssignments();
+        setFormReady(true);
+      } catch (error) {
+        csrfToken = '';
+        assignedCount.textContent = '—';
+        recordSearch.disabled = true;
+        recordState.hidden = false;
+        recordState.classList.add('is-error');
+        recordState.textContent = error.message || 'Secure kit records are unavailable.';
+        setFormReady(false);
+      }
+    }
+
+    function updateRows() {
+      var rows = list.querySelectorAll('[data-kit-row]');
+      rows.forEach(function (row, index) {
+        var number = index + 1;
+        row.querySelector('[data-kit-label]').textContent = 'Kit ' + number;
+        var remove = row.querySelector('[data-remove-kit]');
+        remove.hidden = rows.length === 1;
+        remove.setAttribute('aria-label', 'Remove kit ' + number);
+      });
+      addButton.disabled = rows.length >= maxKits;
+      addButton.hidden = rows.length >= maxKits;
+    }
+
+    addButton.addEventListener('click', function () {
+      var rows = list.querySelectorAll('[data-kit-row]');
+      if (rows.length >= maxKits) return;
+      var row = rows[0].cloneNode(true);
+      row.querySelectorAll('input').forEach(function (input) {
+        input.value = '';
+        input.setCustomValidity('');
+      });
+      list.appendChild(row);
+      updateRows();
+      row.querySelector('[data-kit-id]').focus();
+    });
+
+    list.addEventListener('click', function (event) {
+      var remove = event.target.closest('[data-remove-kit]');
+      if (!remove) return;
+      var rows = list.querySelectorAll('[data-kit-row]');
+      if (rows.length === 1) return;
+      remove.closest('[data-kit-row]').remove();
+      updateRows();
+    });
+
+    list.addEventListener('input', function (event) {
+      if (event.target.matches('input')) event.target.setCustomValidity('');
+      showFormError('');
+      formSuccess.hidden = true;
+    });
+
+    recordSearch.addEventListener('input', renderAssignments);
+
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      showFormError('');
+      formSuccess.hidden = true;
+      if (!csrfToken) {
+        showFormError('Secure kit records are not connected. Please try again after the portal connection is completed.');
+        return;
+      }
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      var batch = [];
+      var seenKitIds = {};
+      var duplicateInput = null;
+      var invalidNameInput = null;
+      list.querySelectorAll('[data-kit-row]').forEach(function (row) {
+        var kitInput = row.querySelector('[data-kit-id]');
+        var emailInput = row.querySelector('[data-client-email]');
+        var nameInput = row.querySelector('[data-client-name]');
+        var kitId = kitInput.value.trim().toUpperCase();
+        var clientEmail = emailInput.value.trim().toLowerCase();
+        var suppliedName = nameInput.value.trim().replace(/\s+/g, ' ');
+        var nameMatch = suppliedName.match(clientNamePattern);
+        kitInput.value = kitId;
+        emailInput.value = clientEmail;
+        if (!nameMatch) invalidNameInput = invalidNameInput || nameInput;
+        var clientName = nameMatch ? nameMatch[1].toLocaleUpperCase() + '. ' + nameMatch[2] : suppliedName;
+        nameInput.value = clientName;
+        if (seenKitIds[kitId]) duplicateInput = kitInput;
+        seenKitIds[kitId] = true;
+        batch.push({ kitId: kitId, clientEmail: clientEmail, clientName: clientName });
+      });
+      if (invalidNameInput) {
+        invalidNameInput.setCustomValidity('Use only the first initial and full last name, such as J. Smith.');
+        invalidNameInput.reportValidity();
+        return;
+      }
+      if (duplicateInput) {
+        duplicateInput.setCustomValidity('Each PATHWAY kit ID can be entered only once.');
+        duplicateInput.reportValidity();
+        return;
+      }
+
+      submitButton.disabled = true;
+      submitButton.textContent = 'Saving assignments…';
+      try {
+        var response = await fetch(apiPath, {
+          method: 'POST',
+          headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          cache: 'no-store',
+          body: JSON.stringify({ csrfToken: csrfToken, assignments: batch })
+        });
+        var payload = await responsePayload(response);
+        if (!response.ok) throw new Error(payload.error || 'The assignments could not be saved.');
+
+        while (list.querySelectorAll('[data-kit-row]').length > 1) list.lastElementChild.remove();
+        list.querySelectorAll('input').forEach(function (input) { input.value = ''; input.setCustomValidity(''); });
+        form.querySelector('.tch-check input').checked = false;
+        updateRows();
+        formSuccess.hidden = false;
+        formSuccess.focus();
+        await loadAssignments();
+      } catch (error) {
+        showFormError(error.message || 'The assignments could not be saved.');
+        setFormReady(Boolean(csrfToken));
+      }
+    });
+    updateRows();
+    loadAssignments();
+  })();
+</script>
+
+{% style %}
+  .tch-page .shopify-section-group-header-group,.tch-page .shopify-section-group-footer-group{display:none!important}.tch-page #MainContent{min-height:100vh}.tch-page{background:#f4f9fa}.tch-{{ section.id }}{--navy:#061d3f;--navy2:#082a55;--blue:#0872ad;--teal:#0ea6ad;--aqua:#26c4c3;--lime:#9edc4b;--ink:#102741;--muted:#5d7084;--line:#dbe8eb;min-height:100svh;color:var(--ink);font-family:"Segoe UI",Arial,Helvetica,sans-serif!important;font-kerning:normal;font-synthesis:none;text-rendering:optimizeLegibility}.tch-{{ section.id }} *{box-sizing:border-box}.tch-{{ section.id }} h1,.tch-{{ section.id }} h2,.tch-{{ section.id }} h3,.tch-{{ section.id }} p{margin:0;font-family:"Segoe UI",Arial,Helvetica,sans-serif!important}.tch-{{ section.id }} button,.tch-{{ section.id }} input,.tch-{{ section.id }} select,.tch-{{ section.id }} textarea{font-family:"Segoe UI",Arial,Helvetica,sans-serif!important}.tch-shell{width:min(1180px,calc(100% - 48px));margin:0 auto}.tch-announcement{min-height:39px;padding:10px 20px;display:grid;place-items:center;background:var(--navy);color:#d9f4f2;font-size:10px;font-weight:900;letter-spacing:.18em;text-align:center}.tch-header{position:relative;z-index:4;border-bottom:1px solid #dfebee;background:rgba(255,255,255,.97)}.tch-nav{min-height:99px;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:37px}.tch-logo{max-width:260px;display:inline-flex;align-items:center;gap:13px;color:var(--navy)!important;text-decoration:none}.tch-logo img{width:auto;max-width:245px;height:auto;max-height:67px;display:block}.tch-logo-mark{width:46px;height:46px;display:grid;place-items:center;border:2px solid var(--teal);border-radius:50%;color:var(--teal)}.tch-logo-type{display:grid;gap:4px}.tch-logo-type strong{font-size:25px;letter-spacing:.17em;line-height:1}.tch-logo-type small{color:var(--teal);font-size:8px;font-weight:900;letter-spacing:.25em}.tch-links{display:flex;align-items:center;gap:26px}.tch-links a{color:#29445d!important;font-size:11px;font-weight:850;text-decoration:none}.tch-nav-cta,.tch-order-button,.tch-submit,.tch-access-button{display:flex;align-items:center;justify-content:center;gap:15px;border-radius:100px;background:linear-gradient(135deg,var(--teal),var(--blue));box-shadow:0 12px 25px rgba(8,114,173,.17);color:#fff!important;font-weight:900;text-decoration:none!important}.tch-nav-cta{min-height:48px;padding:0 22px;font-size:11px}.tch-main{padding:70px 0 86px;background:radial-gradient(circle at 10% 3%,rgba(38,196,195,.12),transparent 23%),linear-gradient(150deg,#f9fcfc,#eff8f7)}.tch-eyebrow{color:var(--teal);font-size:10px;font-weight:900;letter-spacing:.17em;text-transform:uppercase}.tch-intro{display:grid;grid-template-columns:1fr auto;gap:45px;align-items:end}.tch-intro h1{margin-top:13px;color:var(--navy);font-size:clamp(44px,5vw,66px);font-weight:800;letter-spacing:-.048em;line-height:1}.tch-intro>div>p:last-child{max-width:720px;margin-top:18px;color:var(--muted);font-size:15px;line-height:1.7}.tch-order-button{min-height:52px;padding:0 24px;font-size:11px}.tch-stats{margin-top:38px;display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.tch-stats article{min-height:132px;padding:24px;border:1px solid rgba(8,42,85,.08);border-radius:17px;display:grid;grid-template-columns:39px 1fr;gap:14px;background:#fff;box-shadow:0 13px 32px rgba(6,45,70,.06)}.tch-stat-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:rgba(14,166,173,.11);color:var(--teal);font-size:8px;font-weight:900}.tch-stat-icon--blue{background:rgba(8,114,173,.11);color:var(--blue)}.tch-stat-icon--lime{background:rgba(158,220,75,.17);color:#67931d;font-size:11px}.tch-stats article div{display:grid;grid-template-columns:1fr auto;align-items:start}.tch-stats strong{grid-column:2;grid-row:1/span 2;color:var(--navy);font-size:28px;letter-spacing:-.04em}.tch-stats p{margin-top:3px;color:#486277;font-size:11px;font-weight:850}.tch-stats small{grid-column:1/-1;margin-top:17px;color:#8797a2;font-size:8px}.tch-panel{margin-top:24px;padding:31px 32px;border:1px solid rgba(8,42,85,.08);border-radius:21px;background:#fff;box-shadow:0 17px 44px rgba(6,45,70,.07);scroll-margin-top:25px}.tch-panel-heading{display:flex;align-items:end;justify-content:space-between;gap:35px}.tch-panel-heading h2{margin-top:8px;color:var(--navy);font-size:31px;letter-spacing:-.035em}.tch-panel-heading div>p:last-child{margin-top:9px;color:var(--muted);font-size:10px;line-height:1.6}.tch-panel-heading>a{color:var(--teal)!important;font-size:9px;font-weight:900;text-decoration:none}.tch-order-list{margin-top:25px;border:1px solid #e0eaec;border-radius:14px;overflow:hidden}.tch-order-head,.tch-order-row{display:grid;grid-template-columns:1.15fr .9fr .8fr .95fr .7fr;gap:12px;align-items:center}.tch-order-head{min-height:42px;padding:0 18px;background:#f4f9f9;color:#78909c;font-size:7px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.tch-order-row{min-height:68px;padding:12px 18px;border-top:1px solid #e7eef0}.tch-order-row:first-of-type{border-top:0}.tch-order-row>div{display:grid;gap:3px}.tch-order-row>div strong{color:#29445d;font-size:10px}.tch-order-row small,.tch-order-row time{color:#81929d;font-size:8px}.tch-status{width:fit-content;padding:7px 9px;border-radius:100px;background:#edf3f4;color:#526a7a;font-size:7px;font-weight:850}.tch-status--payment{background:#e8f4fb;color:#17658e}.tch-status--complete{background:#e5f7ef;color:#267554}.tch-status--partial{background:#fff7e6;color:#97691d}.tch-order-total{color:#405a70;font-size:10px}.tch-empty{min-height:235px;margin-top:25px;display:grid;place-items:center;align-content:center;gap:8px;border:1px dashed #cfdfe2;border-radius:14px;background:#f9fcfc;text-align:center}.tch-empty>span{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:#e7f7f5;color:var(--teal)}.tch-empty h3{color:var(--navy);font-size:18px}.tch-empty p{color:#778a97;font-size:9px}.tch-empty a{margin-top:6px;color:var(--teal)!important;font-size:9px;font-weight:900}.tch-order-disclaimer{margin-top:15px!important;padding:11px 13px;display:flex;gap:8px;border-radius:9px;background:#f2f8f8;color:#718591;font-size:8px;line-height:1.5}.tch-order-disclaimer span{color:var(--teal);font-weight:900}.tch-assignment{margin-top:24px;padding:43px 43px 40px;border-radius:22px;display:grid;grid-template-columns:1fr 500px;gap:63px;align-items:center;background:linear-gradient(135deg,var(--navy),var(--navy2));box-shadow:0 22px 55px rgba(6,29,63,.18);scroll-margin-top:25px}.tch-assignment-copy h2{max-width:560px;margin-top:12px;color:#fff;font-size:37px;letter-spacing:-.04em;line-height:1.08}.tch-assignment-copy>p:nth-of-type(2){max-width:580px;margin-top:17px;color:#b9ced8;font-size:11px;line-height:1.72}.tch-privacy-note{margin-top:23px;padding:16px 17px;border:1px solid rgba(255,255,255,.12);border-left:3px solid var(--lime);border-radius:0 12px 12px 0;display:grid;grid-template-columns:29px 1fr;gap:12px;background:rgba(255,255,255,.065)}.tch-privacy-note>span{width:28px;height:28px;display:grid;place-items:center;border-radius:9px;background:rgba(158,220,75,.16);color:var(--lime);font-size:10px;font-weight:900}.tch-privacy-note div{display:grid;gap:4px}.tch-privacy-note strong{color:#fff;font-size:10px}.tch-privacy-note p{color:#aac1cc;font-size:8px;line-height:1.5}.tch-privacy-note em{color:#dce9ed}.tch-assignment-copy ul{margin:24px 0 0;padding:0;display:grid;gap:12px;list-style:none}.tch-assignment-copy li{display:grid;grid-template-columns:27px 1fr;gap:11px;align-items:center;color:#c5d7de;font-size:9px}.tch-assignment-copy li span{width:26px;height:26px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.18);border-radius:50%;color:var(--aqua);font-size:8px;font-weight:900}.tch-assignment-card{padding:29px 29px 25px;border-radius:18px;background:#fff;box-shadow:0 20px 50px rgba(0,0,0,.18)}.tch-form-heading h3{margin-top:7px;color:var(--navy);font-size:26px;letter-spacing:-.035em}.tch-form-heading>span{margin-top:6px;display:block;color:#7c8e9a;font-size:8px}.tch-fields{margin-top:21px;display:grid;gap:14px}.tch-fields label:not(.tch-check){display:grid;gap:7px}.tch-fields label>span{color:#3d566b;font-size:9px;font-weight:850}.tch-fields label>span small{margin-left:5px;color:#8a9aa5;font-size:7px;font-weight:600}.tch-fields input[type=text]{min-height:45px;width:100%;padding:0 12px;border:1px solid #cfdee1;border-radius:10px;outline:0;background:#fff;color:var(--ink);font-size:10px}.tch-fields input[type=text]:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(14,166,173,.1)}.tch-fields label>small{color:#83949f;font-size:7px}.tch-kit-list{display:grid;gap:11px}.tch-kit-row{padding:14px;border:1px solid #d9e5e8;border-radius:12px;display:grid;grid-template-columns:1fr 1fr;gap:11px;background:#f8fbfb}.tch-kit-row-heading{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:15px}.tch-kit-row-heading strong{color:var(--navy);font-size:10px}.tch-kit-row-heading button{padding:0;border:0;background:transparent;color:#9b4d45;font-size:8px;font-weight:800;cursor:pointer}.tch-add-kit{min-height:42px;border:1px dashed #96d2ce;border-radius:10px;background:#f0faf9;color:var(--teal);font-size:9px;font-weight:900;cursor:pointer}.tch-add-kit span{margin-right:5px;font-size:14px}.tch-kit-limit{margin-top:-6px!important;color:#83949f;font-size:7px;line-height:1.45}.tch-check{display:grid;grid-template-columns:17px 1fr;gap:9px;align-items:start}.tch-check input{width:15px;height:15px;margin:1px 0 0;accent-color:var(--teal)}.tch-check span{color:#718493!important;font-size:7px!important;font-weight:600!important;line-height:1.5}.tch-submit{width:100%;min-height:49px;margin-top:20px;padding:0 20px;border:0;font-size:10px;cursor:pointer}.tch-form-footnote{margin-top:12px!important;color:#8898a2;font-size:7px;line-height:1.45;text-align:center}.tch-form-errors{margin-top:15px;padding:11px;border-radius:8px;background:#fff0ed;color:#a03a2c;font-size:8px}.tch-form-success{min-height:285px;display:grid;place-items:center;align-content:center;gap:13px;text-align:center}.tch-form-success>span{width:55px;height:55px;display:grid;place-items:center;border-radius:18px;background:#e6f7ef;color:#26805b;font-size:18px;font-weight:900}.tch-form-success div{display:grid;gap:7px}.tch-form-success strong{color:var(--navy);font-size:18px}.tch-form-success p{max-width:340px;color:#728591;font-size:9px;line-height:1.6}.tch-resource-grid{margin-top:25px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.tch-resource-grid article{min-height:230px;padding:23px;border:1px solid #dbe7e9;border-radius:16px;display:grid;grid-template-columns:47px 1fr;gap:14px;background:#fbfdfd}.tch-pdf{width:46px;height:53px;display:grid;place-items:center;border-radius:7px;background:linear-gradient(145deg,#e5f7f5,#d9efed);color:var(--teal);font-size:8px;font-weight:900;box-shadow:0 7px 15px rgba(6,45,70,.08)}.tch-pdf--guide{background:linear-gradient(145deg,var(--navy),var(--navy2));color:#fff;font-size:12px}.tch-resource-grid article>div{display:flex;flex-direction:column}.tch-resource-grid small{color:var(--teal);font-size:7px;font-weight:900;letter-spacing:.11em;text-transform:uppercase}.tch-resource-grid h3{margin-top:8px;color:var(--navy);font-size:16px;line-height:1.25}.tch-resource-grid p{margin-top:9px;color:#6b7f8e;font-size:8px;line-height:1.55}.tch-resource-grid a{width:fit-content;margin-top:auto;padding-top:15px;color:var(--teal)!important;font-size:8px;font-weight:900;text-decoration:none}.tch-resource-pending{margin-top:auto;padding-top:15px;color:#93a1aa;font-size:7px}.tch-education-note{margin-top:17px!important;padding:12px 14px;border-radius:9px;background:#f1f7f7;color:#6f8390;font-size:8px;line-height:1.55}.tch-support{margin-top:24px;padding:29px 32px;border:1px solid #d7e6e9;border-radius:19px;display:grid;grid-template-columns:1fr auto;gap:35px;align-items:center;background:rgba(255,255,255,.8)}.tch-support h2{margin-top:7px;color:var(--navy);font-size:24px}.tch-support div>p:last-child{margin-top:7px;color:var(--muted);font-size:9px}.tch-support>a{min-height:46px;padding:0 20px;border:1px solid #bce0dc;border-radius:100px;display:flex;align-items:center;gap:13px;color:var(--teal)!important;font-size:9px;font-weight:900;text-decoration:none}.tch-access-main{min-height:calc(100svh - 138px);display:grid;align-items:center;background:radial-gradient(circle at 10% 20%,rgba(38,196,195,.13),transparent 28%),linear-gradient(145deg,#f9fcfc,#eff8f7)}.tch-access-grid{padding:75px 0;display:grid;grid-template-columns:1fr 470px;gap:85px;align-items:center}.tch-access-grid>div h1{margin-top:16px;color:var(--navy);font-size:clamp(48px,5vw,70px);letter-spacing:-.05em;line-height:1}.tch-access-grid>div>p:last-child{max-width:650px;margin-top:23px;color:var(--muted);font-size:15px;line-height:1.75}.tch-access-grid aside{padding:43px 40px 35px;border:1px solid rgba(8,42,85,.08);border-radius:23px;background:#fff;box-shadow:0 28px 70px rgba(6,45,70,.14);text-align:center}.tch-lock{width:54px;height:54px;margin:0 auto 20px;display:grid;place-items:center;border-radius:17px;background:rgba(14,166,173,.12);color:var(--teal)}.tch-access-grid aside h2{color:var(--navy);font-size:31px}.tch-access-grid aside p{margin-top:12px;color:var(--muted);font-size:11px;line-height:1.65}.tch-access-button{min-height:53px;margin-top:24px;padding:0 20px;font-size:10px}.tch-register-link{margin-top:17px;display:block;color:var(--teal)!important;font-size:9px;font-weight:900}.tch-footer{padding:25px 0;background:var(--navy);color:#fff}.tch-footer .tch-shell{display:flex;align-items:center;justify-content:space-between;gap:30px}.tch-footer strong{font-size:10px}.tch-footer span{color:#b7d0d8;font-size:8px}.tch-nav-cta:hover,.tch-order-button:hover,.tch-submit:hover,.tch-access-button:hover{filter:brightness(1.04)}.tch-links a:hover,.tch-resource-grid a:hover{text-decoration:underline;text-underline-offset:4px}
+  .tch-{{ section.id }} .visually-hidden{width:1px;height:1px;padding:0;position:absolute;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.tch-assigned-heading{align-items:center}.tch-record-search{width:min(100%,280px)}.tch-record-search input{width:100%;min-height:43px;padding:0 14px;border:1px solid #cfdee1;border-radius:100px;background:#f8fbfb;color:var(--ink);font-size:9px;outline:0}.tch-record-search input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(14,166,173,.1)}.tch-record-search input:disabled{opacity:.55}.tch-record-state{min-height:120px;margin-top:24px;padding:25px;border:1px dashed #cfdfe2;border-radius:13px;display:grid;place-items:center;background:#f9fcfc;color:#718591;font-size:9px;text-align:center}.tch-record-state.is-error{border-color:#edc9c3;background:#fff7f5;color:#9b4538}.tch-record-list{margin-top:24px;border:1px solid #e0eaec;border-radius:14px;overflow:hidden}.tch-record-head,.tch-record-row{display:grid;grid-template-columns:1fr 1fr 1.5fr .9fr .7fr;gap:12px;align-items:center}.tch-record-head{min-height:42px;padding:0 18px;background:#f4f9f9;color:#78909c;font-size:7px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.tch-record-row{min-height:69px;padding:12px 18px;border-top:1px solid #e7eef0}.tch-record-row:first-child{border-top:0}.tch-record-cell{min-width:0;display:grid;gap:3px}.tch-record-cell small{display:none;color:#8a9aa5;font-size:7px;font-weight:850;text-transform:uppercase}.tch-record-cell strong,.tch-record-cell time{min-width:0;overflow:hidden;color:#29445d;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.tch-record-email strong{color:#526a7a;font-weight:650}.tch-status--assignment{background:#e5f7ef;color:#267554}.tch-fields input[type=text],.tch-fields input[type=email]{min-height:45px;width:100%;padding:0 12px;border:1px solid #cfdee1;border-radius:10px;outline:0;background:#fff;color:var(--ink);font-size:10px}.tch-fields input[type=text]:focus,.tch-fields input[type=email]:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(14,166,173,.1)}.tch-kit-row{grid-template-columns:1fr 1.25fr}.tch-client-name-field{grid-column:1/-1}.tch-submit:disabled,.tch-add-kit:disabled{filter:none!important;opacity:.62;cursor:not-allowed}.tch-form-success--inline{min-height:0;margin-top:15px;padding:13px;border-radius:10px;grid-template-columns:34px 1fr;place-items:center start;gap:10px;background:#edf9f4;text-align:left}.tch-form-success--inline>span{width:34px;height:34px;border-radius:10px;font-size:11px}.tch-form-success--inline strong{font-size:11px}.tch-form-success--inline p{font-size:8px}
+  @media(max-width:1050px){.tch-nav{grid-template-columns:1fr auto}.tch-links{display:none}.tch-intro{grid-template-columns:1fr}.tch-order-button{width:fit-content}.tch-stats{grid-template-columns:1fr 1fr}.tch-assignment{grid-template-columns:1fr;gap:35px}.tch-assignment-card{width:min(100%,650px)}.tch-resource-grid{grid-template-columns:1fr}.tch-resource-grid article{min-height:180px}.tch-access-grid{grid-template-columns:1fr;gap:42px}.tch-access-grid aside{width:min(100%,600px)}}
+  @media(max-width:700px){.tch-shell{width:calc(100% - 32px)}.tch-announcement{font-size:8px;letter-spacing:.12em}.tch-nav{min-height:78px;gap:12px}.tch-logo{max-width:160px}.tch-logo img{max-width:154px;max-height:47px}.tch-logo-type strong{font-size:17px}.tch-logo-type small{font-size:6px}.tch-nav-cta{min-height:42px;padding:0 14px;font-size:9px}.tch-main{padding:52px 0 60px}.tch-intro h1{font-size:45px}.tch-intro>div>p:last-child{font-size:13px}.tch-order-button{width:100%}.tch-stats{grid-template-columns:1fr}.tch-panel{padding:26px 19px}.tch-panel-heading{align-items:flex-start;flex-direction:column}.tch-order-head{display:none}.tch-order-list{border:0;display:grid;gap:11px;overflow:visible}.tch-order-row{min-height:0;padding:18px;border:1px solid #dfe9eb;border-radius:12px;grid-template-columns:1fr auto}.tch-order-row>*{grid-column:auto}.tch-order-row>div{grid-column:1}.tch-order-row time{grid-column:2;grid-row:1}.tch-order-row .tch-status{grid-column:auto}.tch-order-total{grid-column:1}.tch-assignment{padding:31px 20px;gap:29px}.tch-assignment-copy h2{font-size:32px}.tch-assignment-card{padding:25px 20px}.tch-kit-row{grid-template-columns:1fr}.tch-kit-row-heading{grid-column:1}.tch-resource-grid article{grid-template-columns:47px 1fr}.tch-support{padding:26px 20px;grid-template-columns:1fr}.tch-support>a{width:100%;justify-content:center}.tch-access-main{min-height:auto}.tch-access-grid{padding:55px 0}.tch-access-grid>div h1{font-size:45px}.tch-access-grid>div>p:last-child{font-size:13px}.tch-access-grid aside{padding:37px 22px}.tch-footer .tch-shell{align-items:flex-start;flex-direction:column;gap:6px}}
+  @media(max-width:700px){.tch-record-search{width:100%}.tch-record-head{display:none}.tch-record-list{border:0;overflow:visible}.tch-record-list>div{display:grid;gap:10px}.tch-record-row,.tch-record-row:first-child{min-height:0;padding:17px;border:1px solid #dfe9eb;border-radius:12px;grid-template-columns:1fr auto;gap:12px}.tch-record-cell small{display:block}.tch-record-client,.tch-record-email{grid-column:1/-1}.tch-record-date{grid-column:1}.tch-record-row>.tch-status{grid-column:2;grid-row:1;align-self:start}.tch-client-name-field{grid-column:1}}
+{% endstyle %}
+
+{% schema %}
+{
+  "name": "PATHWAY Clinic Hub",
+  "settings": [
+    { "type": "url", "id": "patient_pdf_url", "label": "Patient education PDF link" },
+    { "type": "url", "id": "clinic_pdf_url", "label": "Clinic education PDF link" },
+    { "type": "url", "id": "education_page_url", "label": "Provider education page link" },
+    { "type": "text", "id": "assignment_api_path", "label": "Assignment API path", "default": "/apps/pathway-portal/api/assignments" },
+    { "type": "text", "id": "support_email", "label": "Clinic support email" }
+  ],
+  "presets": [{ "name": "PATHWAY Clinic Hub" }]
+}
+{% endschema %}

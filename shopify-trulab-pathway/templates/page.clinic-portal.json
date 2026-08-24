@@ -1,0 +1,14 @@
+{
+  "sections": {
+    "main": {
+      "type": "trulab-clinic-hub",
+      "settings": {
+        "patient_pdf_url": "",
+        "clinic_pdf_url": "",
+        "education_page_url": "",
+        "support_email": ""
+      }
+    }
+  },
+  "order": ["main"]
+}

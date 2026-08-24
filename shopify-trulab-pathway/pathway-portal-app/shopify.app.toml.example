@@ -1,0 +1,77 @@
+name = "TrinityMD PATHWAY Portal"
+client_id = "replace-with-app-client-id"
+application_url = "https://your-pathway-portal.netlify.app"
+embedded = false
+
+[access_scopes]
+scopes = "read_customers,write_customers,read_metaobjects,write_metaobjects,write_app_proxy"
+
+[metaobjects.app.pathway_assignment]
+name = "PATHWAY Kit Assignment"
+description = "Clinic-owned PATHWAY kit assignment record. Client identifiers are application encrypted."
+display_name_field = "kit_id"
+access.admin = "merchant_read"
+access.storefront = "none"
+
+[metaobjects.app.pathway_assignment.fields.kit_id]
+name = "Kit ID"
+description = "Normalized TruLab Dx PATHWAY kit identifier."
+type = "single_line_text_field"
+required = true
+
+[metaobjects.app.pathway_assignment.fields.clinic_customer_id]
+name = "Clinic customer ID"
+description = "Shopify customer ID for the clinic that owns this assignment."
+type = "single_line_text_field"
+required = true
+
+[metaobjects.app.pathway_assignment.fields.client_email_encrypted]
+name = "Encrypted client email"
+description = "AES-256-GCM encrypted client email; readable only through the portal service."
+type = "single_line_text_field"
+required = true
+
+[metaobjects.app.pathway_assignment.fields.client_name_encrypted]
+name = "Encrypted client name"
+description = "AES-256-GCM encrypted first initial and last name; readable only through the portal service."
+type = "single_line_text_field"
+required = true
+
+[metaobjects.app.pathway_assignment.fields.status]
+name = "Kit status"
+type = "single_line_text_field"
+required = true
+validations.choices = ["assigned", "kit_received", "processing", "report_ready", "complete", "cancelled"]
+
+[metaobjects.app.pathway_assignment.fields.provider_review_status]
+name = "Provider review status"
+type = "single_line_text_field"
+required = true
+validations.choices = ["not_started", "pending", "reviewed"]
+
+[metaobjects.app.pathway_assignment.fields.assigned_at]
+name = "Assigned at"
+type = "date_time"
+required = true
+
+[metaobjects.app.pathway_assignment.fields.updated_at]
+name = "Record updated at"
+type = "date_time"
+required = true
+
+[customer.metafields.app.pathway_assignments]
+name = "PATHWAY kit assignments"
+description = "Private reference index for this clinic's PATHWAY kit assignment records."
+type = "list.metaobject_reference<$app:pathway_assignment>"
+access.admin = "merchant_read"
+access.storefront = "none"
+access.customer_account = "none"
+
+[app_proxy]
+url = "/proxy"
+prefix = "apps"
+subpath = "pathway-portal"
+
+[build]
+automatically_update_urls_on_dev = false
+include_config_on_deploy = true

@@ -1,0 +1,324 @@
+{% if page.handle == 'register' and customer and customer.tags contains 'clinics' %}
+  <script>window.location.replace('/pages/clinic-ordering');</script>
+  <style>.tcr-{{ section.id }}{display:none!important}</style>
+{% endif %}
+
+{% if page.handle == 'clinic-application-received' %}
+<section class="tcr tcr-{{ section.id }} tcr-confirmation-page" id="pathway-clinic-confirmation-{{ section.id }}">
+  <header class="tcr-header" aria-label="PATHWAY clinic confirmation navigation">
+    <div class="tcr-announcement">Provider-guided genetic insights for more personalized wellness</div>
+    <div class="tcr-nav-shell">
+      <a class="tcr-logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }} home">
+        {% if settings.logo != blank %}
+          {{ settings.logo | image_url: width: 420 | image_tag: loading: 'eager', widths: '180, 260, 360, 420', alt: shop.name }}
+        {% else %}
+          <span class="tcr-logo-mark" aria-hidden="true">◉</span>
+          <span class="tcr-logo-type"><strong>TRINITY</strong><small>CELL SCIENCES</small></span>
+        {% endif %}
+      </a>
+      <nav class="tcr-nav-links" aria-label="Clinic confirmation links">
+        <a href="/pages/trulab-pathway-genetic-test">Patient test</a>
+        <a href="{{ routes.root_url }}">Shop home</a>
+        <a href="/pages/register">Clinic registration</a>
+      </nav>
+      <a class="tcr-nav-cta" href="/pages/clinic-login">Clinic login <span aria-hidden="true">→</span></a>
+    </div>
+  </header>
+
+  <div class="tcr-confirmation-hero">
+    <div class="tcr-shell tcr-confirmation-shell">
+      <div class="tcr-confirmation-card">
+        <div class="tcr-confirmation-check" aria-hidden="true">✓</div>
+        <p class="tcr-eyebrow">Clinic application received</p>
+        <h1>Thank you. Your PATHWAY partner application is in review.</h1>
+        <p class="tcr-confirmation-lede">The Trinity Cell Sciences team will review your clinic information and follow up by email with approval status, wholesale access, and ordering instructions.</p>
+
+        <div class="tcr-confirmation-progress" aria-label="Clinic partner approval process">
+          <article class="is-complete"><span>✓</span><div><strong>Application submitted</strong><p>Your clinic information has been received.</p></div></article>
+          <article><span>02</span><div><strong>Partner review</strong><p>Our team confirms your clinic's eligibility.</p></div></article>
+          <article><span>03</span><div><strong>Ordering access</strong><p>Approved partners receive login and ordering details.</p></div></article>
+        </div>
+
+        <div class="tcr-confirmation-note">
+          <strong>What happens next?</strong>
+          <p>No additional action is required right now. Please watch the email address used on your application—including the spam or promotions folder—for a message from Trinity Cell Sciences.</p>
+        </div>
+
+        <div class="tcr-confirmation-actions">
+          <a class="tcr-button" href="/pages/trulab-pathway-genetic-test">Explore the PATHWAY test <span aria-hidden="true">→</span></a>
+          <a class="tcr-text-link" href="/pages/clinic-login">Already approved? Clinic login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tcr-confirmation-footer">
+    <div class="tcr-shell">
+      <strong>PATHWAY™ powered by TruLab Dx</strong>
+      <p>Designed for provider-guided wellness and optimization discussions. Not intended to diagnose, treat, cure, or prevent disease.</p>
+    </div>
+  </div>
+</section>
+{% else %}
+<section class="tcr tcr-{{ section.id }}" id="pathway-clinic-register-{{ section.id }}">
+  <header class="tcr-header" aria-label="PATHWAY clinic page navigation">
+    <div class="tcr-announcement">Provider-guided genetic insights for more personalized wellness</div>
+    <div class="tcr-nav-shell">
+      <a class="tcr-logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }} home">
+        {% if settings.logo != blank %}
+          {{ settings.logo | image_url: width: 420 | image_tag: loading: 'eager', widths: '180, 260, 360, 420', alt: shop.name }}
+        {% else %}
+          <span class="tcr-logo-mark" aria-hidden="true">◉</span>
+          <span class="tcr-logo-type"><strong>TRINITY</strong><small>CELL SCIENCES</small></span>
+        {% endif %}
+      </a>
+      <nav class="tcr-nav-links" aria-label="Clinic page sections">
+        <a href="#tcr-benefits-{{ section.id }}">Clinic benefits</a>
+        <a href="#tcr-insights-{{ section.id }}">The report</a>
+        <a href="#tcr-process-{{ section.id }}">How it works</a>
+        <a href="/pages/trulab-pathway-genetic-test">Patient test</a>
+      </nav>
+      <a class="tcr-nav-cta" href="#tcr-form-{{ section.id }}">Register <span aria-hidden="true">→</span></a>
+    </div>
+  </header>
+
+  <div class="tcr-hero">
+    <div class="tcr-shell tcr-hero-grid">
+      <div class="tcr-hero-copy">
+        <p class="tcr-eyebrow">For clinics, med spas &amp; telehealth providers</p>
+        <h1>Turn one genetic test into a more personal care pathway.</h1>
+        <p class="tcr-lede">PATHWAY gives your clinic a provider-guided framework for connecting genetics with wellness planning, follow-up labs, nutrition, supplements, and peptide education—without adding laboratory equipment or a complicated new workflow.</p>
+        <div class="tcr-actions">
+          <a class="tcr-button" href="#tcr-form-{{ section.id }}">Apply for wholesale access<span aria-hidden="true">→</span></a>
+          <a class="tcr-text-link" href="#tcr-benefits-{{ section.id }}">Explore the clinic opportunity</a>
+        </div>
+        <div class="tcr-trust"><span>CLIA-certified lab</span><span>At-home cheek swab</span><span>170-page report</span><span>Results in 2–3 weeks</span></div>
+      </div>
+
+      <aside class="tcr-opportunity" aria-label="Clinic pricing opportunity">
+        <img src="{{ 'pathway-logo.png' | asset_url }}" width="620" height="190" alt="PATHWAY - The Future of Personalized Health" loading="eager">
+        <p>Clinic partner access</p>
+        <h2>Log in to view your wholesale discount.</h2>
+        <div class="tcr-access-note">Wholesale pricing is available only to approved clinic partners.</div>
+        <a class="tcr-button tcr-login-button" href="/pages/clinic-login">Clinic partner login<span aria-hidden="true">→</span></a>
+        <a class="tcr-apply-link" href="#tcr-form-{{ section.id }}">Not registered? Apply below</a>
+      </aside>
+    </div>
+  </div>
+
+  <div class="tcr-intro">
+    <div class="tcr-shell tcr-intro-grid">
+      <h2>Differentiate your clinic with biology-grounded personalization.</h2>
+      <p>PATHWAY helps move the patient conversation beyond generic protocols by organizing complex genetic information into clear, provider-friendly wellness pathways.</p>
+    </div>
+  </div>
+
+  <div class="tcr-section" id="tcr-benefits-{{ section.id }}">
+    <div class="tcr-shell">
+      <div class="tcr-heading tcr-heading-split">
+        <div><p class="tcr-eyebrow">Why clinics add PATHWAY</p><h2>A cash-pay service that can support the full patient relationship.</h2></div>
+        <p>The value extends beyond the test itself. PATHWAY can create a more structured starting point for provider review, follow-up testing, personalized wellness planning, and continuity-based care.</p>
+      </div>
+      <div class="tcr-benefit-grid">
+        <article><span>01</span><h3>Stand apart in a crowded market</h3><p>Offer a patient-friendly genetic experience that supports premium, personalized positioning for your clinic.</p></article>
+        <article><span>02</span><h3>Create better care conversations</h3><p>Use pathway-level insights to guide more focused discussions around labs, nutrition, supplements, lifestyle, and peptide research.</p></article>
+        <article><span>03</span><h3>Support additional services</h3><p>Each report may surface 5–8 follow-up lab areas for provider consideration, including metabolic, hormone, and wellness panels.</p></article>
+        <article><span>04</span><h3>Increase patient confidence</h3><p>Give patients an understandable explanation of why a personalized approach may be more appropriate than a generic protocol.</p></article>
+        <article><span>05</span><h3>Strengthen continuity</h3><p>Build a clearer framework for follow-up visits, progress reviews, and longer-term provider-guided optimization planning.</p></article>
+        <article><span>06</span><h3>Add a straightforward cash-pay offer</h3><p>Approved partners can access wholesale pricing without purchasing laboratory equipment or building an in-house testing workflow.</p></article>
+      </div>
+    </div>
+  </div>
+
+  <div class="tcr-section tcr-insights" id="tcr-insights-{{ section.id }}">
+    <div class="tcr-shell tcr-insights-grid">
+      <div>
+        <p class="tcr-eyebrow">One test. Multiple care pathways.</p>
+        <h2>Give your team a clearer way to connect the dots.</h2>
+        <p class="tcr-insights-lede">The 170-page report organizes genetics into high, medium, and low priority bands across wellness categories that patients and providers can review together.</p>
+        <div class="tcr-pathways">
+          <span>Recovery &amp; inflammation</span><span>Longevity &amp; cellular health</span><span>Metabolism &amp; energy</span><span>Cognitive performance</span><span>Stress, mood &amp; resilience</span><span>Micronutrients &amp; methylation</span><span>Food-sensitivity response</span><span>Peptide pathway education</span>
+        </div>
+      </div>
+      <div class="tcr-metrics">
+        <article><strong>149</strong><span>SNPs evaluated</span></article>
+        <article><strong>600+</strong><span>gene markers represented</span></article>
+        <article><strong>14</strong><span>peptide &amp; metabolic pathways</span></article>
+        <article><strong>170</strong><span>pages of personalized insights</span></article>
+      </div>
+    </div>
+  </div>
+
+  <div class="tcr-section tcr-conversations">
+    <div class="tcr-shell tcr-conversation-card">
+      <div><p class="tcr-eyebrow">From testing to follow-through</p><h2>A report designed to open useful next-step conversations.</h2></div>
+      <div class="tcr-conversation-steps">
+        <article><span>01</span><div><h3>Understand the pathway</h3><p>Review priority markers and translate the findings into patient-friendly context.</p></div></article>
+        <article><span>02</span><div><h3>Consider relevant follow-up</h3><p>Discuss labs, nutrition, supplements, lifestyle strategies, and other appropriate provider-led evaluation.</p></div></article>
+        <article><span>03</span><div><h3>Build continuity</h3><p>Use the report as a reference point for future visits and personalized wellness planning.</p></div></article>
+      </div>
+    </div>
+  </div>
+
+  <div class="tcr-section tcr-partners">
+    <div class="tcr-shell">
+      <div class="tcr-heading tcr-centered"><p class="tcr-eyebrow">Built for provider-led wellness</p><h2>Is PATHWAY a fit for your practice?</h2><p>PATHWAY is especially relevant for clinics already focused on optimization, longevity, hormone health, metabolic wellness, recovery, or personalized medicine.</p></div>
+      <div class="tcr-partner-grid">
+        <article><span>+</span><h3>Medical &amp; wellness clinics</h3></article>
+        <article><span>+</span><h3>Longevity practices</h3></article>
+        <article><span>+</span><h3>Med spas</h3></article>
+        <article><span>+</span><h3>Telehealth providers</h3></article>
+      </div>
+    </div>
+  </div>
+
+  <div class="tcr-section tcr-process" id="tcr-process-{{ section.id }}">
+    <div class="tcr-shell">
+      <div class="tcr-heading tcr-centered"><p class="tcr-eyebrow">A simple clinic workflow</p><h2>From registration to patient results.</h2></div>
+      <div class="tcr-steps">
+        <article><span>01</span><h3>Register your clinic</h3><p>Tell us about your practice and request access to approved partner pricing.</p></article>
+        <article><span>02</span><h3>Order kits</h3><p>Once approved, purchase PATHWAY kits at the clinic partner price.</p></article>
+        <article><span>03</span><h3>Patients swab at home</h3><p>The simple cheek swab is returned for processing by a CLIA-certified laboratory.</p></article>
+        <article><span>04</span><h3>Review the report</h3><p>Results are generally ready in 2–3 weeks for a provider-guided patient conversation.</p></article>
+      </div>
+    </div>
+  </div>
+
+  <div class="tcr-form-section" id="tcr-form-{{ section.id }}">
+    <div class="tcr-shell tcr-form-grid">
+      <div class="tcr-form-copy">
+        <p class="tcr-eyebrow">Clinic partner registration</p>
+        <h2>Request wholesale PATHWAY access.</h2>
+        <p>Complete the registration form and the Trinity Cell Sciences team will review your information and follow up with approval and ordering details.</p>
+        <div class="tcr-next">
+          <article><span>1</span><div><strong>Submit your clinic information</strong><p>Tell us about your practice and the patients you serve.</p></div></article>
+          <article><span>2</span><div><strong>Partner review</strong><p>Our team will review your request and confirm eligibility.</p></div></article>
+          <article><span>3</span><div><strong>Receive ordering access</strong><p>Approved partners receive wholesale pricing and next-step instructions.</p></div></article>
+        </div>
+        <small>Questions? Contact Trinity Cell Sciences through your existing account representative or store contact channel.</small>
+      </div>
+      <div class="tcr-form-card">
+        <div class="tcr-form-card-head"><span>Secure clinic application</span><strong>Register your practice</strong></div>
+        <div class="tcr-form-app-blocks">
+          {% if section.blocks.size > 0 %}
+            {% for block in section.blocks %}
+              <div class="tcr-form-app-block" {{ block.shopify_attributes }}>
+                {% render block %}
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="tcr-form-app-empty">
+              <span class="tcr-form-app-icon" aria-hidden="true">→</span>
+              <h3>Continue to secure clinic registration.</h3>
+              <p>Complete the Massy partner application to request wholesale PATHWAY access.</p>
+              <a class="tcr-button" href="{{ section.settings.form_url | escape }}">Open registration form <span aria-hidden="true">→</span></a>
+            </div>
+          {% endif %}
+        </div>
+        <div class="tcr-form-fallback">Prefer a separate window? <a href="{{ section.settings.form_url | escape }}" target="_blank" rel="noopener">Open the registration form</a>.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tcr-section tcr-faq">
+    <div class="tcr-shell tcr-faq-grid">
+      <div><p class="tcr-eyebrow">Clinic questions</p><h2>What to know before registering.</h2><p>PATHWAY is an educational, provider-guided wellness tool and does not diagnose or prescribe treatment.</p></div>
+      <div class="tcr-faq-list">
+        <details><summary>What is included with each kit?<span>+</span></summary><p>Each order includes the at-home cheek-swab kit, laboratory processing, and a digital 170-page personalized report.</p></details>
+        <details><summary>How do I view clinic partner pricing?<span>+</span></summary><p>Wholesale pricing is available only to approved clinic partners. Once approved, sign in to your clinic account to view your discount and ordering details.</p></details>
+        <details><summary>Does the report prescribe peptides or treatment?<span>+</span></summary><p>No. The report provides educational pathway research and personalized wellness context. Clinical decisions remain with the qualified healthcare provider.</p></details>
+        <details><summary>How long do results take?<span>+</span></summary><p>Most reports are available approximately 2–3 weeks after the laboratory receives and processes the patient's sample.</p></details>
+        <details><summary>Do we need laboratory equipment?<span>+</span></summary><p>No. The patient completes a cheek swab and sends the sample for laboratory processing using the provided return instructions.</p></details>
+      </div>
+    </div>
+  </div>
+
+  <div class="tcr-disclaimer"><div class="tcr-shell"><strong>PATHWAY™ powered by TruLab Dx</strong><p>Designed for provider-guided wellness and optimization discussions. Not intended to diagnose, treat, cure, or prevent disease. Information about potential services, patient pricing, or practice margin is illustrative and does not guarantee clinical or financial outcomes.</p></div></div>
+</section>
+{% endif %}
+
+<script>
+  (() => {
+    const root = document.querySelector('.tcr-{{ section.id }}');
+    if (!root || root.dataset.motionReady === 'true') return;
+    root.dataset.motionReady = 'true';
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const revealSelectors = [
+      '.tcr-hero-copy', '.tcr-opportunity', '.tcr-intro-grid > *',
+      '.tcr-heading > *', '.tcr-benefit-grid article', '.tcr-insights-grid > *',
+      '.tcr-conversation-card > *', '.tcr-partner-grid article',
+      '.tcr-form-copy', '.tcr-form-card', '.tcr-faq-grid > *',
+      '.tcr-confirmation-card > *', '.tcr-confirmation-footer .tcr-shell'
+    ];
+    const revealItems = [...root.querySelectorAll(revealSelectors.join(','))];
+
+    if (reducedMotion) {
+      revealItems.forEach((item) => item.classList.add('is-visible'));
+      return;
+    }
+
+    root.classList.add('tcr-motion-ready');
+    revealItems.forEach((item, index) => {
+      item.classList.add('tcr-reveal');
+      item.style.setProperty('--tcr-motion-delay', `${(index % 4) * 85}ms`);
+    });
+
+    if (!('IntersectionObserver' in window)) {
+      revealItems.forEach((item) => item.classList.add('is-visible'));
+    } else {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        });
+      }, { threshold: 0.13, rootMargin: '0px 0px -7% 0px' });
+      revealItems.forEach((item) => observer.observe(item));
+    }
+
+    root.querySelectorAll('a[href^="#"]').forEach((link) => {
+      link.addEventListener('click', (event) => {
+        const href = link.getAttribute('href');
+        if (!href || href === '#') return;
+        const target = root.querySelector(href);
+        if (!target) return;
+        event.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  })();
+</script>
+
+{% style %}
+  .tcr-{{ section.id }}{--navy:#061d3f;--navy2:#082a55;--blue:#0872ad;--teal:#0ea6ad;--aqua:#26c4c3;--lime:#9edc4b;--ink:#102741;--muted:#5d7084;--line:#dce7ec;--soft:#f4f9f9;color:var(--ink);font-family:var(--font-body-family,Arial,sans-serif);overflow:hidden}.tcr-{{ section.id }} *{box-sizing:border-box}.tcr-{{ section.id }} h1,.tcr-{{ section.id }} h2,.tcr-{{ section.id }} h3,.tcr-{{ section.id }} p{margin:0}.tcr-{{ section.id }} h1,.tcr-{{ section.id }} h2,.tcr-{{ section.id }} h3{font-family:var(--font-heading-family,Arial,sans-serif);letter-spacing:-.035em}.tcr-shell{width:min(1180px,calc(100% - 48px));margin:0 auto}.tcr-section{padding:105px 0}.tcr-eyebrow{margin-bottom:18px!important;color:var(--teal);font-size:12px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}.tcr-button{min-height:56px;padding:0 28px;border-radius:100px;display:inline-flex;align-items:center;justify-content:center;gap:18px;background:linear-gradient(135deg,var(--teal),var(--blue));box-shadow:0 13px 28px rgba(8,114,173,.19);color:#fff!important;font-size:14px;font-weight:900;text-decoration:none;transition:.2s}.tcr-button:hover,.tcr-nav-cta:hover{transform:translateY(-2px)}.tcr-button span,.tcr-nav-cta span{font-size:21px}.tcr-text-link{padding:12px 0 9px;border-bottom:2px solid var(--teal);color:var(--navy)!important;font-size:14px;font-weight:800;text-decoration:none}
+  .tcr-header{position:relative;z-index:20;background:#fff;border-bottom:1px solid #dfeaec}.tcr-announcement{min-height:40px;padding:9px 24px;display:flex;align-items:center;justify-content:center;background:var(--navy);color:#fff;font-size:12px;font-weight:800;letter-spacing:.19em;line-height:1.45;text-align:center;text-transform:uppercase}.tcr-nav-shell{width:min(1515px,calc(100% - 48px));min-height:103px;margin:0 auto;display:grid;grid-template-columns:minmax(220px,1fr) auto minmax(180px,1fr);align-items:center;gap:42px}.tcr-logo{width:max-content;max-width:260px;display:inline-flex;align-items:center;gap:13px;color:var(--navy)!important;text-decoration:none}.tcr-logo img{width:auto;max-width:230px;height:auto;max-height:62px;display:block}.tcr-logo-mark{width:47px;height:47px;display:grid;place-items:center;border:2px solid var(--teal);border-radius:50%;color:var(--teal);font-size:24px}.tcr-logo-type{display:grid;gap:5px}.tcr-logo-type strong{font-size:25px;letter-spacing:.18em;line-height:1}.tcr-logo-type small{color:var(--teal);font-size:8px;font-weight:900;letter-spacing:.28em}.tcr-nav-links{display:flex;align-items:center;justify-content:center;gap:36px}.tcr-nav-links a{position:relative;padding:15px 0;color:#213a55!important;font-size:14px;font-weight:800;line-height:1;text-decoration:none;white-space:nowrap}.tcr-nav-links a:after{content:"";height:2px;position:absolute;right:0;bottom:7px;left:0;background:var(--teal);transform:scaleX(0);transition:transform .2s}.tcr-nav-links a:hover:after,.tcr-nav-links a:focus-visible:after{transform:scaleX(1)}.tcr-nav-cta{min-height:56px;min-width:160px;padding:0 27px;justify-self:end;display:inline-flex;align-items:center;justify-content:center;gap:17px;border-radius:100px;background:linear-gradient(135deg,#0ca8ad,#0872ad);box-shadow:0 14px 32px rgba(8,114,173,.2);color:#fff!important;font-size:14px;font-weight:900;text-decoration:none;transition:.2s}
+  .tcr-hero{position:relative;background:linear-gradient(125deg,#f8fbfc,#eff9f8 52%,#e5f5f3)}.tcr-hero:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(8,42,85,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(8,42,85,.035) 1px,transparent 1px);background-size:48px 48px}.tcr-hero-grid{min-height:690px;padding:75px 0;position:relative;display:grid;grid-template-columns:1.05fr .75fr;align-items:center;gap:80px}.tcr-hero-copy{position:relative;z-index:1}.tcr-hero h1{max-width:760px;color:var(--navy);font-size:clamp(50px,5.2vw,72px);font-weight:800;line-height:1}.tcr-lede{max-width:720px;margin-top:27px!important;color:#496278;font-size:17px;line-height:1.75}.tcr-actions{margin-top:32px;display:flex;align-items:center;gap:28px}.tcr-trust{margin-top:30px;display:flex;flex-wrap:wrap;gap:16px;color:#50667a;font-size:11px;font-weight:700}.tcr-trust span{display:flex;align-items:center;gap:8px}.tcr-trust span:before{content:"✓";width:19px;height:19px;display:grid;place-items:center;border-radius:50%;background:rgba(14,166,173,.12);color:var(--teal)}.tcr-opportunity{position:relative;z-index:1;padding:38px;border:1px solid #d2e8e6;border-radius:25px;background:rgba(255,255,255,.94);box-shadow:0 30px 65px rgba(5,47,83,.16)}.tcr-opportunity img{width:220px;height:auto;display:block;mix-blend-mode:multiply}.tcr-opportunity>p{margin-top:26px;color:var(--teal);font-size:11px;font-weight:900;letter-spacing:.15em;text-transform:uppercase}.tcr-opportunity h2{margin-top:15px;color:var(--navy);font-size:35px;line-height:1.1}.tcr-access-note{margin-top:20px;padding:17px;border:1px solid var(--line);border-radius:13px;background:var(--soft);color:var(--muted);font-size:13px;line-height:1.6}.tcr-login-button{width:100%;margin-top:23px}.tcr-apply-link{margin-top:17px;display:block;color:var(--teal)!important;font-size:12px;font-weight:800;text-align:center;text-decoration:underline;text-underline-offset:4px}.tcr-intro{padding:43px 0;background:var(--navy2);color:#fff}.tcr-intro-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:85px;align-items:center}.tcr-intro h2{color:#72ddd8;font-size:23px;line-height:1.35}.tcr-intro p{color:#d5e6ec;font-size:15px;line-height:1.75}
+  .tcr-heading{margin-bottom:52px}.tcr-heading h2,.tcr-insights h2,.tcr-conversation-card h2,.tcr-form-copy h2,.tcr-faq h2{color:var(--navy);font-size:clamp(38px,4vw,55px);line-height:1.08}.tcr-heading-split{display:grid;grid-template-columns:1.16fr .84fr;gap:90px;align-items:end}.tcr-heading-split>p{color:var(--muted);font-size:16px;line-height:1.75}.tcr-benefit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.tcr-benefit-grid article{padding:31px;min-height:270px;border:1px solid var(--line);border-radius:18px;background:#fff}.tcr-benefit-grid article>span{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:var(--soft);color:var(--teal);font-size:11px;font-weight:900}.tcr-benefit-grid h3{margin-top:31px;color:var(--navy2);font-size:21px}.tcr-benefit-grid p{margin-top:13px;color:var(--muted);font-size:14px;line-height:1.7}
+  .tcr-insights{background:linear-gradient(130deg,var(--navy),#094f78);color:#fff}.tcr-insights-grid{display:grid;grid-template-columns:1fr .9fr;gap:90px;align-items:center}.tcr-insights .tcr-eyebrow{color:#5ee0da}.tcr-insights h2{color:#fff}.tcr-insights-lede{margin-top:24px!important;color:#c9dce4;font-size:16px;line-height:1.75}.tcr-pathways{margin-top:29px;display:flex;flex-wrap:wrap;gap:10px}.tcr-pathways span{padding:9px 13px;border:1px solid rgba(255,255,255,.15);border-radius:100px;background:rgba(255,255,255,.06);color:#dcebed;font-size:11px}.tcr-metrics{display:grid;grid-template-columns:1fr 1fr;gap:14px}.tcr-metrics article{min-height:175px;padding:28px;display:flex;flex-direction:column;justify-content:flex-end;border:1px solid rgba(255,255,255,.14);border-radius:17px;background:rgba(255,255,255,.07)}.tcr-metrics strong{color:var(--lime);font-size:50px}.tcr-metrics span{margin-top:8px;color:#d8e9ed;font-size:13px}
+  .tcr-conversations{background:var(--soft)}.tcr-conversation-card{padding:62px 70px;display:grid;grid-template-columns:.9fr 1.1fr;gap:85px;border-radius:28px;background:#fff;box-shadow:0 24px 70px rgba(16,64,79,.1)}.tcr-conversation-steps{display:grid;gap:17px}.tcr-conversation-steps article{display:grid;grid-template-columns:48px 1fr;gap:18px}.tcr-conversation-steps article>span{width:48px;height:48px;display:grid;place-items:center;border-radius:50%;background:#e8f7f6;color:var(--teal);font-size:11px;font-weight:900}.tcr-conversation-steps h3{color:var(--navy2);font-size:18px}.tcr-conversation-steps p{margin-top:7px;color:var(--muted);font-size:13px;line-height:1.65}.tcr-centered{max-width:760px;margin-left:auto;margin-right:auto;text-align:center}.tcr-centered>p:last-child{margin-top:17px;color:var(--muted);line-height:1.7}.tcr-partner-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:17px}.tcr-partner-grid article{padding:31px 24px;border:1px solid var(--line);border-radius:17px;text-align:center}.tcr-partner-grid span{width:50px;height:50px;margin:0 auto;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#e6f8f5,#edf1fb);color:var(--teal);font-size:24px}.tcr-partner-grid h3{margin-top:20px;color:var(--navy2);font-size:18px}
+  .tcr-process{background:#f7fbfb}.tcr-steps{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:22px}.tcr-steps:before{content:"";height:1px;position:absolute;top:34px;right:12.5%;left:12.5%;z-index:0;background:linear-gradient(90deg,var(--teal),var(--lime))}.tcr-steps article{position:relative;z-index:1;text-align:center}.tcr-steps article>span{width:68px;height:68px;margin:0 auto;display:grid;place-items:center;border:1px solid #c6e5e3;border-radius:50%;background:#fff;color:var(--teal);font-size:15px;font-weight:900;box-shadow:0 10px 20px rgba(12,88,101,.09)}.tcr-steps h3{margin-top:25px;color:var(--navy2);font-size:20px}.tcr-steps p{margin-top:12px;color:var(--muted);font-size:13px;line-height:1.7}
+  .tcr-form-section{padding:110px 0;background:linear-gradient(125deg,#072448,#0a5c7c);color:#fff}.tcr-form-grid{display:grid;grid-template-columns:.78fr 1.22fr;gap:72px;align-items:start}.tcr-form-copy{padding-top:28px}.tcr-form-copy .tcr-eyebrow{color:#5ee0da}.tcr-form-copy h2{color:#fff}.tcr-form-copy>p{margin-top:23px;color:#cce0e6;font-size:16px;line-height:1.8}.tcr-next{margin-top:30px;display:grid;gap:17px}.tcr-next article{display:grid;grid-template-columns:34px 1fr;gap:14px}.tcr-next article>span{width:34px;height:34px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.18);border-radius:50%;background:rgba(255,255,255,.07);color:#72ddd8;font-size:11px;font-weight:900}.tcr-next strong{font-size:14px}.tcr-next p{margin-top:5px;color:#afcbd3;font-size:12px;line-height:1.6}.tcr-form-copy>small{display:block;margin-top:28px;color:#91adb8;font-size:10px;line-height:1.6}.tcr-form-card{overflow:hidden;border-radius:24px;background:#fff;box-shadow:0 30px 70px rgba(0,16,34,.28)}.tcr-form-card-head{padding:25px 30px 20px;border-bottom:1px solid #dfebed;display:grid;gap:4px}.tcr-form-card-head span{color:var(--teal);font-size:10px;font-weight:900;letter-spacing:.15em;text-transform:uppercase}.tcr-form-card-head strong{color:var(--navy);font-size:22px}.tcr-form-app-blocks{min-height:420px;padding:28px 30px;color:var(--ink)}.tcr-form-app-block{width:100%}.tcr-form-app-empty{min-height:360px;padding:42px 26px;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center}.tcr-form-app-icon{width:54px;height:54px;display:grid;place-items:center;border-radius:50%;background:#e9f7f6;color:var(--teal);font-size:25px;font-weight:900}.tcr-form-app-empty h3{max-width:430px;margin-top:22px!important;color:var(--navy);font-size:28px;line-height:1.15}.tcr-form-app-empty p{max-width:430px;margin-top:13px!important;color:var(--muted);font-size:14px;line-height:1.7}.tcr-form-app-empty .tcr-button{margin-top:24px}.tcr-form-fallback{padding:17px 24px;border-top:1px solid #dfebed;color:#6c7d8c;font-size:11px;text-align:center}.tcr-form-fallback a{color:var(--teal)!important;font-weight:800;text-decoration:underline;text-underline-offset:3px}
+  .tcr-faq-grid{display:grid;grid-template-columns:.78fr 1.22fr;gap:95px}.tcr-faq-grid>div:first-child>p:not(.tcr-eyebrow){margin-top:20px;color:var(--muted);line-height:1.7}.tcr-faq-list{border-top:1px solid var(--line)}.tcr-faq-list details{border-bottom:1px solid var(--line)}.tcr-faq-list summary{padding:25px 0;display:flex;justify-content:space-between;gap:20px;color:var(--navy2);font-size:16px;font-weight:800;cursor:pointer;list-style:none}.tcr-faq-list summary::-webkit-details-marker{display:none}.tcr-faq-list summary span{color:var(--teal);font-size:24px}.tcr-faq-list details[open] summary span{transform:rotate(45deg)}.tcr-faq-list details p{padding:0 35px 25px 0;color:var(--muted);font-size:14px;line-height:1.75}.tcr-disclaimer{padding:27px 0;background:#05182f;color:#fff}.tcr-disclaimer .tcr-shell{display:grid;grid-template-columns:260px 1fr;gap:35px}.tcr-disclaimer strong{font-size:13px}.tcr-disclaimer p{color:#819cab;font-size:10px;line-height:1.6}
+  .tcr-confirmation-hero{min-height:calc(100vh - 143px);padding:88px 0;display:flex;align-items:center;position:relative;background:linear-gradient(125deg,#f8fbfc,#eef9f7 52%,#e3f4f2)}.tcr-confirmation-hero:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(8,42,85,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(8,42,85,.035) 1px,transparent 1px);background-size:48px 48px}.tcr-confirmation-shell{position:relative;z-index:1}.tcr-confirmation-card{max-width:900px;margin:0 auto;padding:62px 72px;border:1px solid #d2e8e6;border-radius:28px;background:rgba(255,255,255,.97);box-shadow:0 32px 75px rgba(5,47,83,.15);text-align:center}.tcr-confirmation-check{width:74px;height:74px;margin:0 auto 25px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--blue));box-shadow:0 14px 30px rgba(8,114,173,.23);color:#fff;font-size:36px;font-weight:900}.tcr-confirmation-card h1{max-width:760px;margin:0 auto;color:var(--navy);font-size:clamp(43px,5vw,64px);line-height:1.03}.tcr-confirmation-lede{max-width:720px;margin:25px auto 0!important;color:#526b80;font-size:17px;line-height:1.75}.tcr-confirmation-progress{margin-top:38px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;text-align:left}.tcr-confirmation-progress article{min-height:145px;padding:22px;display:grid;grid-template-columns:38px 1fr;align-content:start;gap:13px;border:1px solid var(--line);border-radius:15px;background:#fbfdfd}.tcr-confirmation-progress article>span{width:38px;height:38px;display:grid;place-items:center;border-radius:50%;background:#eaf5f5;color:var(--teal);font-size:11px;font-weight:900}.tcr-confirmation-progress article.is-complete{border-color:#bce3df;background:#f0faf8}.tcr-confirmation-progress article.is-complete>span{background:var(--teal);color:#fff;font-size:16px}.tcr-confirmation-progress strong{display:block;margin-top:2px;color:var(--navy2);font-size:14px}.tcr-confirmation-progress p{margin-top:7px!important;color:var(--muted);font-size:11px;line-height:1.55}.tcr-confirmation-note{margin-top:24px;padding:21px 24px;border-left:4px solid var(--teal);border-radius:0 13px 13px 0;background:var(--soft);text-align:left}.tcr-confirmation-note strong{color:var(--navy2);font-size:14px}.tcr-confirmation-note p{margin-top:7px!important;color:var(--muted);font-size:12px;line-height:1.65}.tcr-confirmation-actions{margin-top:30px;display:flex;align-items:center;justify-content:center;gap:28px}.tcr-confirmation-footer{padding:28px 0;background:#05182f;color:#fff}.tcr-confirmation-footer .tcr-shell{display:grid;grid-template-columns:260px 1fr;gap:35px;align-items:center}.tcr-confirmation-footer strong{font-size:13px}.tcr-confirmation-footer p{color:#819cab;font-size:10px;line-height:1.6}
+  @media(prefers-reduced-motion:no-preference){.tcr-{{ section.id }}.tcr-motion-ready .tcr-reveal{opacity:0;transform:translate3d(0,30px,0);transition:opacity .72s ease var(--tcr-motion-delay,0ms),transform .72s cubic-bezier(.2,.72,.25,1) var(--tcr-motion-delay,0ms)}.tcr-{{ section.id }}.tcr-motion-ready .tcr-reveal.is-visible{opacity:1;transform:translate3d(0,0,0)}.tcr-{{ section.id }} .tcr-benefit-grid article,.tcr-{{ section.id }} .tcr-metrics article,.tcr-{{ section.id }} .tcr-partner-grid article,.tcr-{{ section.id }} .tcr-opportunity,.tcr-{{ section.id }} .tcr-form-card,.tcr-{{ section.id }} .tcr-confirmation-progress article{transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease}.tcr-{{ section.id }} .tcr-benefit-grid article:hover,.tcr-{{ section.id }} .tcr-metrics article:hover,.tcr-{{ section.id }} .tcr-partner-grid article:hover,.tcr-{{ section.id }} .tcr-opportunity:hover,.tcr-{{ section.id }} .tcr-form-card:hover,.tcr-{{ section.id }} .tcr-confirmation-progress article:hover,.tcr-{{ section.id }}.tcr-motion-ready .tcr-benefit-grid article.tcr-reveal.is-visible:hover,.tcr-{{ section.id }}.tcr-motion-ready .tcr-partner-grid article.tcr-reveal.is-visible:hover,.tcr-{{ section.id }}.tcr-motion-ready .tcr-opportunity.tcr-reveal.is-visible:hover,.tcr-{{ section.id }}.tcr-motion-ready .tcr-form-card.tcr-reveal.is-visible:hover{transform:translateY(-6px);box-shadow:0 18px 38px rgba(6,45,70,.14)}.tcr-{{ section.id }} .tcr-confirmation-card .tcr-confirmation-check.is-visible{animation:tcr-check-float 4.8s ease-in-out 1s infinite}@keyframes tcr-check-float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-7px,0)}}}
+  @media(max-width:1100px){.tcr-nav-shell{grid-template-columns:auto 1fr auto;gap:25px}.tcr-nav-links{gap:22px}.tcr-logo img{max-width:190px}.tcr-hero-grid{gap:45px}}
+  @media(max-width:990px){.tcr-nav-shell{width:calc(100% - 34px);min-height:84px;grid-template-columns:1fr auto;gap:15px;padding:14px 0}.tcr-logo img{max-width:190px;max-height:54px}.tcr-nav-cta{min-width:auto;min-height:48px;padding:0 21px}.tcr-nav-links{grid-column:1/-1;order:3;justify-content:flex-start;gap:28px;padding:0 0 7px;overflow-x:auto;scrollbar-width:none}.tcr-nav-links::-webkit-scrollbar{display:none}.tcr-hero-grid,.tcr-intro-grid,.tcr-heading-split,.tcr-insights-grid,.tcr-conversation-card,.tcr-form-grid,.tcr-faq-grid{grid-template-columns:1fr}.tcr-hero-grid{padding:75px 0}.tcr-intro-grid,.tcr-heading-split{gap:24px}.tcr-conversation-card{gap:42px}.tcr-form-grid{gap:45px}.tcr-benefit-grid{grid-template-columns:repeat(2,1fr)}.tcr-partner-grid,.tcr-steps{grid-template-columns:repeat(2,1fr);row-gap:45px}.tcr-steps:before{display:none}}
+  @media(max-width:700px){.tcr-announcement{min-height:34px;padding:7px 15px;font-size:9px;letter-spacing:.13em}.tcr-nav-shell{min-height:72px}.tcr-logo{max-width:155px}.tcr-logo img{max-width:150px;max-height:45px}.tcr-logo-mark{width:36px;height:36px;font-size:18px}.tcr-logo-type strong{font-size:17px}.tcr-logo-type small{font-size:6px}.tcr-nav-cta{min-height:43px;padding:0 16px;font-size:12px;gap:9px}.tcr-nav-cta span{font-size:18px}.tcr-nav-links{gap:23px;padding-bottom:5px}.tcr-nav-links a{font-size:12px}.tcr-shell{width:calc(100% - 34px)}.tcr-section{padding:75px 0}.tcr-hero-grid{padding:58px 0;gap:38px}.tcr-hero h1{font-size:44px}.tcr-lede{font-size:16px}.tcr-actions{align-items:stretch;flex-direction:column;gap:12px}.tcr-actions .tcr-button{width:100%}.tcr-opportunity{padding:28px 23px}.tcr-price-main strong{font-size:62px}.tcr-intro{padding:35px 0}.tcr-heading h2,.tcr-insights h2,.tcr-conversation-card h2,.tcr-form-copy h2,.tcr-faq h2{font-size:37px}.tcr-benefit-grid,.tcr-metrics,.tcr-partner-grid,.tcr-steps{grid-template-columns:1fr}.tcr-benefit-grid article{min-height:auto}.tcr-conversation-card{width:calc(100% - 28px);padding:36px 23px}.tcr-form-section{padding:75px 0}.tcr-form-copy{padding-top:0}.tcr-form-card-head{padding:22px}.tcr-form-app-blocks{min-height:320px;padding:20px}.tcr-form-app-empty{min-height:280px;padding:30px 5px}.tcr-form-app-empty h3{font-size:25px}.tcr-form-app-empty .tcr-button{width:100%}.tcr-disclaimer .tcr-shell{grid-template-columns:1fr;gap:10px}.tcr-confirmation-hero{min-height:auto;padding:52px 0}.tcr-confirmation-card{padding:39px 22px;border-radius:21px}.tcr-confirmation-check{width:62px;height:62px;font-size:29px}.tcr-confirmation-card h1{font-size:39px}.tcr-confirmation-lede{font-size:15px}.tcr-confirmation-progress{grid-template-columns:1fr}.tcr-confirmation-actions{align-items:stretch;flex-direction:column;gap:12px}.tcr-confirmation-actions .tcr-button{width:100%}.tcr-confirmation-footer .tcr-shell{grid-template-columns:1fr;gap:9px}}
+{% endstyle %}
+
+{% schema %}
+{
+  "name": "PATHWAY Clinic Page",
+  "tag": "section",
+  "class": "section-trulab-clinic-register",
+  "settings": [
+    { "type": "text", "id": "form_url", "label": "Registration fallback URL", "default": "https://trinitymd.shop/apps/massy/pages/registration-form/parner-wholesale" }
+  ],
+  "blocks": [
+    { "type": "@app" }
+  ],
+  "max_blocks": 1,
+  "presets": [{ "name": "PATHWAY Clinic Page" }]
+}
+{% endschema %}

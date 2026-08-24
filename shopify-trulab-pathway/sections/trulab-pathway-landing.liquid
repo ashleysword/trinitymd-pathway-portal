@@ -1,0 +1,275 @@
+{% liquid
+  assign pathway_product = section.settings.product
+  assign pathway_variant = pathway_product.selected_or_first_available_variant
+%}
+
+{% if customer and customer.tags contains 'clinics' %}
+  <script>window.location.replace('/pages/clinic-ordering');</script>
+  <style>.tdx-{{ section.id }}{display:none!important}</style>
+{% endif %}
+
+<section class="tdx tdx-{{ section.id }}" id="trulab-pathway-{{ section.id }}">
+  <header class="tdx-landing-header" aria-label="PATHWAY page navigation">
+    <div class="tdx-announcement">Provider-guided genetic insights for more personalized wellness</div>
+    <div class="tdx-nav-shell">
+      <a class="tdx-nav-logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }} home">
+        {% if settings.logo != blank %}
+          {{ settings.logo | image_url: width: 420 | image_tag: loading: 'eager', widths: '180, 260, 360, 420', alt: shop.name }}
+        {% else %}
+          <span class="tdx-logo-mark" aria-hidden="true">◉</span>
+          <span class="tdx-logo-type"><strong>TRINITY</strong><small>CELL SCIENCES</small></span>
+        {% endif %}
+      </a>
+      <nav class="tdx-nav-links" aria-label="PATHWAY sections">
+        <a href="#tdx-benefits-{{ section.id }}">Benefits</a>
+        <a href="#tdx-report-{{ section.id }}">The report</a>
+        <a href="#tdx-process-{{ section.id }}">How it works</a>
+        <a href="#tdx-clinic-{{ section.id }}">For clinics</a>
+      </nav>
+      <a class="tdx-nav-order" href="#tdx-order-{{ section.id }}">Order test <span aria-hidden="true">→</span></a>
+    </div>
+  </header>
+
+  <div class="tdx-hero">
+    <div class="tdx-shell tdx-hero-grid">
+      <div class="tdx-hero-copy">
+        <p class="tdx-eyebrow">TruLab Dx PATHWAY™ Genetic Test</p>
+        <h1>Stop guessing.<span>Start with your biology.</span></h1>
+        <p class="tdx-lede">One simple cheek swab unlocks a detailed view of the genetic pathways connected to metabolism, longevity, recovery, nutrition, cognition, and personalized wellness.</p>
+        <div class="tdx-actions">
+          {% if pathway_product != blank %}
+            {% form 'product', pathway_product, class: 'tdx-product-form' %}
+              <input type="hidden" name="id" value="{{ pathway_variant.id }}">
+              <button class="tdx-button" type="submit" name="add" {% unless pathway_variant.available %}disabled{% endunless %}>
+                {% if pathway_variant.available %}Order your kit — {{ pathway_variant.price | money_without_trailing_zeros }}{% else %}Coming soon{% endif %}<span aria-hidden="true">→</span>
+              </button>
+            {% endform %}
+          {% else %}
+            <a class="tdx-button" href="#tdx-order-{{ section.id }}">Order your kit — {{ section.settings.consumer_price }}<span aria-hidden="true">→</span></a>
+          {% endif %}
+          <a class="tdx-text-link" href="#tdx-process-{{ section.id }}">See how it works</a>
+        </div>
+        <div class="tdx-trust"><span>CLIA-certified lab</span><span>At-home cheek swab</span><span>Results in 2–3 weeks</span></div>
+      </div>
+
+      <div class="tdx-product-art" aria-label="PATHWAY report and cheek swab kit illustration">
+        <div class="tdx-orbit tdx-orbit-a"></div><div class="tdx-orbit tdx-orbit-b"></div>
+        <div class="tdx-kit-box">
+          <img src="{{ 'pathway-logo.png' | asset_url }}" width="620" height="190" alt="PATHWAY - The Future of Personalized Health" loading="eager">
+          <div><small>AT-HOME GENETIC TEST</small><strong>Your biology.<br>Your pathway.</strong><span>Powered by TruLab Dx</span></div>
+        </div>
+        <div class="tdx-report-book"><span>PERSONALIZED REPORT</span><strong>170</strong><small>pages of genetic insights</small><i></i><i></i><i></i></div>
+        <div class="tdx-swab"><b></b><span>Simple cheek swab</span></div>
+        <div class="tdx-stat tdx-stat-a"><strong>149</strong>SNPs</div>
+        <div class="tdx-stat tdx-stat-b"><strong>600+</strong>gene markers</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tdx-intro">
+    <div class="tdx-shell tdx-intro-grid">
+      <h2>Personalized health starts with better information.</h2>
+      <p>Not everyone responds to nutrition, supplements, stress, recovery strategies, or peptides the same way. PATHWAY helps translate complex genetics into a clearer starting point for provider-guided wellness.</p>
+    </div>
+  </div>
+
+  <div class="tdx-section" id="tdx-benefits-{{ section.id }}">
+    <div class="tdx-shell">
+      <div class="tdx-heading tdx-heading-split">
+        <div><p class="tdx-eyebrow">What PATHWAY can help you explore</p><h2>A more personal view of your overall health.</h2></div>
+        <p>Your genetics are not your destiny. They are context — a way to understand where your biology may benefit from more thoughtful support.</p>
+      </div>
+      <div class="tdx-benefit-grid">
+        <article><span>01</span><h3>Longevity & cellular support</h3><p>Explore genetic pathways connected to healthy aging, cellular resilience, and long-term wellness planning.</p></article>
+        <article><span>02</span><h3>Metabolism & energy</h3><p>Understand variants related to energy use, metabolic function, appetite regulation, and GLP-1 signaling biology.</p></article>
+        <article><span>03</span><h3>Recovery & inflammation</h3><p>See how your biology may influence recovery, tissue support, and the way your body responds to everyday stressors.</p></article>
+        <article><span>04</span><h3>Cognitive performance</h3><p>Review pathways associated with mental clarity, cognitive resilience, and nervous-system support.</p></article>
+        <article><span>05</span><h3>Nutrition & micronutrients</h3><p>Get context around nutrition response, methylation, B vitamins, MTHFR-related markers, and food sensitivity.</p></article>
+        <article><span>06</span><h3>Personalized peptide education</h3><p>Use biology-grounded research to have more structured conversations with a qualified healthcare provider.</p></article>
+      </div>
+    </div>
+  </div>
+
+  <div class="tdx-section tdx-report" id="tdx-report-{{ section.id }}">
+    <div class="tdx-shell tdx-report-grid">
+      <div class="tdx-report-copy">
+        <p class="tdx-eyebrow">Your 170-page personalized report</p>
+        <h2>From raw genetics to a clearer wellness roadmap.</h2>
+        <p>PATHWAY organizes complex marker-level information into six easy-to-follow health categories, with high, medium, and low priority bands that make your results easier to review with your provider.</p>
+        <ul><li>Pathway-based genetic insights</li><li>Lifestyle and nutrition considerations</li><li>Supplements and labs to discuss</li><li>Provider-guided peptide research</li></ul>
+      </div>
+      <div class="tdx-report-stats">
+        <article><strong>149</strong><span>SNPs evaluated</span></article>
+        <article><strong>600+</strong><span>gene markers represented</span></article>
+        <article><strong>14</strong><span>peptide & metabolic pathways</span></article>
+        <article><strong>6</strong><span>organized health categories</span></article>
+      </div>
+    </div>
+  </div>
+
+  <div class="tdx-section tdx-offer" id="tdx-order-{{ section.id }}">
+    <div class="tdx-shell tdx-offer-card">
+      <div>
+        <p class="tdx-eyebrow">PATHWAY by TruLab Dx</p>
+        <h2>Know more about your biology.</h2>
+        <p>Get the complete at-home kit, laboratory processing, and your personalized 170-page wellness report.</p>
+        <ul><li>Simple, non-invasive cheek swab</li><li>Return materials included</li><li>CLIA-certified laboratory processing</li><li>Digital report ready to review with your provider</li></ul>
+      </div>
+      <aside class="tdx-price-card">
+        <span>One-time purchase</span>
+        <strong>{% if pathway_product != blank %}{{ pathway_variant.price | money_without_trailing_zeros }}{% else %}{{ section.settings.consumer_price }}{% endif %}</strong>
+        <small>Includes kit, processing, and report</small>
+        {% if pathway_product != blank %}
+          {% form 'product', pathway_product, class: 'tdx-product-form' %}
+            <input type="hidden" name="id" value="{{ pathway_variant.id }}">
+            <button class="tdx-button tdx-button-full" type="submit" name="add" {% unless pathway_variant.available %}disabled{% endunless %}>
+              {% if pathway_variant.available %}Add PATHWAY to cart{% else %}Coming soon{% endif %}<span aria-hidden="true">→</span>
+            </button>
+          {% endform %}
+        {% else %}
+          <span class="tdx-button tdx-button-full tdx-disabled">Select product in editor</span>
+        {% endif %}
+        <p>Secure checkout through Trinity Cell Sciences</p>
+      </aside>
+    </div>
+  </div>
+
+  <div class="tdx-section tdx-process" id="tdx-process-{{ section.id }}">
+    <div class="tdx-shell">
+      <div class="tdx-heading tdx-centered"><p class="tdx-eyebrow">Simple & guided</p><h2>How it works</h2><p>From your door to your personalized report in four straightforward steps.</p></div>
+      <div class="tdx-steps">
+        <article><span>01</span><h3>Order your kit</h3><p>Your PATHWAY kit is shipped directly to you with clear collection and return instructions.</p></article>
+        <article><span>02</span><h3>Complete a cheek swab</h3><p>Collect your sample at home in minutes. No needles, lab visit, or complicated preparation.</p></article>
+        <article><span>03</span><h3>Lab analysis</h3><p>Your sample is processed by a CLIA-certified laboratory and evaluated across key genetic markers.</p></article>
+        <article><span>04</span><h3>Review your report</h3><p>Receive your personalized 170-page report in approximately 2–3 weeks and discuss it with your provider.</p></article>
+      </div>
+    </div>
+  </div>
+
+  <div class="tdx-clinic" id="tdx-clinic-{{ section.id }}">
+    <div class="tdx-shell tdx-clinic-cta">
+      <div class="tdx-clinic-copy">
+        <p class="tdx-eyebrow">Are you a clinic?</p>
+        <h2>Receive wholesale pricing by registering today.</h2>
+        <p>Bring provider-guided genetic insights into your clinic with no laboratory equipment or complicated new workflow. Approved partners receive access to wholesale PATHWAY kits, patient-friendly reports, and a structured personalization layer for more informed wellness conversations.</p>
+        <div><span>Wholesale partner pricing</span><span>No lab setup required</span><span>170-page patient report</span></div>
+      </div>
+      <aside class="tdx-clinic-cta-side">
+        <p class="tdx-eyebrow">Approved clinic partner?</p>
+        <h3>Log in to view your wholesale discount.</h3>
+        <p>Wholesale pricing is reserved for approved clinic partners and is displayed after you sign in.</p>
+        <a class="tdx-button tdx-button-lime tdx-button-full" href="/pages/clinic-login">{{ section.settings.clinic_login_label | default: 'Clinic partner login' }}<span aria-hidden="true">→</span></a>
+        <a class="tdx-clinic-register-link" href="/pages/register">Not registered? Apply for access</a>
+      </aside>
+    </div>
+  </div>
+
+  <div class="tdx-section tdx-faq">
+    <div class="tdx-shell tdx-faq-grid">
+      <div><p class="tdx-eyebrow">Questions, answered</p><h2>What to know before you test.</h2><p>PATHWAY is designed for informational, provider-guided wellness and optimization.</p></div>
+      <div class="tdx-faq-list">
+        <details><summary>What does the PATHWAY test analyze?<span>+</span></summary><p>The panel evaluates 149 SNPs representing more than 600 gene markers across peptide, metabolic, recovery, cognitive, nutrition, stress-response, and longevity-related pathways.</p></details>
+        <details><summary>Does this test prescribe peptides or treatment?<span>+</span></summary><p>No. The report is educational and is designed to support a more informed conversation with a qualified healthcare provider. It does not diagnose a condition or prescribe treatment.</p></details>
+        <details><summary>How long do results take?<span>+</span></summary><p>Most reports are available approximately 2–3 weeks after the laboratory receives and processes your sample.</p></details>
+        <details><summary>How do clinics access partner pricing?<span>+</span></summary><p>Clinics can register for partner access through the clinic page. Once approved, sign in to your clinic account to view wholesale pricing and ordering details.</p></details>
+      </div>
+    </div>
+  </div>
+
+  <div class="tdx-final">
+    <div class="tdx-shell"><p class="tdx-eyebrow">Your personalized path starts here</p><h2>Stop guessing. Start with your biology.</h2>
+      {% if pathway_product != blank %}<a class="tdx-button tdx-button-lime" href="{{ pathway_product.url }}">View the PATHWAY kit<span aria-hidden="true">→</span></a>{% else %}<a class="tdx-button tdx-button-lime" href="#tdx-order-{{ section.id }}">Order your kit — {{ section.settings.consumer_price }}<span aria-hidden="true">→</span></a>{% endif %}
+    </div>
+  </div>
+
+  <div class="tdx-disclaimer"><div class="tdx-shell"><strong>PATHWAY™ powered by TruLab Dx</strong><p>For informational use with qualified provider guidance. Intended to support personalized wellness and optimization discussions. Not intended to diagnose, treat, cure, or prevent disease.</p></div></div>
+</section>
+
+<script>
+  (() => {
+    const root = document.querySelector('.tdx-{{ section.id }}');
+    if (!root || root.dataset.motionReady === 'true') return;
+    root.dataset.motionReady = 'true';
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const revealSelectors = [
+      '.tdx-hero-copy', '.tdx-intro-grid > *', '.tdx-heading > *',
+      '.tdx-benefit-grid article', '.tdx-report-copy', '.tdx-report-stats article',
+      '.tdx-offer-card > *', '.tdx-clinic-copy',
+      '.tdx-clinic-cta-side', '.tdx-faq-grid > *', '.tdx-final .tdx-shell'
+    ];
+    const revealItems = [...root.querySelectorAll(revealSelectors.join(','))];
+    const productArt = root.querySelector('.tdx-product-art');
+
+    if (reducedMotion) {
+      revealItems.forEach((item) => item.classList.add('is-visible'));
+      if (productArt) productArt.classList.add('is-visible');
+      return;
+    }
+
+    root.classList.add('tdx-motion-ready');
+    revealItems.forEach((item, index) => {
+      item.classList.add('tdx-reveal');
+      item.style.setProperty('--tdx-motion-delay', `${(index % 4) * 85}ms`);
+    });
+    if (productArt) productArt.classList.add('tdx-motion-fade');
+
+    const items = productArt ? [...revealItems, productArt] : revealItems;
+    if (!('IntersectionObserver' in window)) {
+      items.forEach((item) => item.classList.add('is-visible'));
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -5% 0px' });
+
+    items.forEach((item) => observer.observe(item));
+
+    root.querySelectorAll('a[href^="#"]').forEach((link) => {
+      link.addEventListener('click', (event) => {
+        const href = link.getAttribute('href');
+        if (!href || href === '#') return;
+        const target = root.querySelector(href);
+        if (!target) return;
+        event.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  })();
+</script>
+
+{% style %}
+  .tdx-{{ section.id }}{--navy:#061d3f;--navy2:#082a55;--blue:#0872ad;--teal:#0ea6ad;--aqua:#26c4c3;--lime:#9edc4b;--ink:#102741;--muted:#5d7084;--line:#dce7ec;--soft:#f4f9f9;color:var(--ink);font-family:var(--font-body-family,Arial,sans-serif);overflow:hidden}.tdx-{{ section.id }} *{box-sizing:border-box}.tdx-{{ section.id }} h1,.tdx-{{ section.id }} h2,.tdx-{{ section.id }} h3,.tdx-{{ section.id }} p{margin:0}.tdx-{{ section.id }} h1,.tdx-{{ section.id }} h2,.tdx-{{ section.id }} h3{font-family:var(--font-heading-family,Arial,sans-serif);letter-spacing:-.035em}.tdx-shell{width:min(1180px,calc(100% - 48px));margin:0 auto}.tdx-eyebrow{margin-bottom:18px!important;color:var(--teal);font-size:12px;font-weight:800;letter-spacing:.18em;text-transform:uppercase}.tdx-button{min-height:54px;padding:0 27px;border:0;border-radius:100px;display:inline-flex;align-items:center;justify-content:center;gap:18px;background:linear-gradient(135deg,var(--teal),var(--blue));color:#fff!important;font:800 14px/1 var(--font-body-family,Arial,sans-serif);text-decoration:none;cursor:pointer;box-shadow:0 13px 28px rgba(8,114,173,.19);transition:.2s}.tdx-button:hover{transform:translateY(-2px)}.tdx-button span{font-size:21px}.tdx-button-full{width:100%}.tdx-button-lime{background:var(--lime);color:var(--navy)!important}.tdx-button:disabled,.tdx-disabled{opacity:.6;cursor:not-allowed}.tdx-product-form{margin:0}.tdx-section{padding:110px 0}
+  .tdx-landing-header{position:relative;z-index:20;background:#fff;border-bottom:1px solid #dfeaec}.tdx-announcement{min-height:40px;padding:9px 24px;display:flex;align-items:center;justify-content:center;background:var(--navy);color:#fff;font-size:12px;font-weight:800;letter-spacing:.19em;line-height:1.45;text-align:center;text-transform:uppercase}.tdx-nav-shell{width:min(1515px,calc(100% - 48px));min-height:103px;margin:0 auto;display:grid;grid-template-columns:minmax(220px,1fr) auto minmax(220px,1fr);align-items:center;gap:48px}.tdx-nav-logo{width:max-content;max-width:260px;display:inline-flex;align-items:center;gap:13px;color:var(--navy)!important;text-decoration:none}.tdx-nav-logo img{width:auto;max-width:230px;height:auto;max-height:62px;display:block}.tdx-logo-mark{width:47px;height:47px;display:grid;place-items:center;border:2px solid var(--teal);border-radius:50%;color:var(--teal);font-size:24px}.tdx-logo-type{display:grid;gap:5px}.tdx-logo-type strong{font-size:25px;letter-spacing:.18em;line-height:1}.tdx-logo-type small{color:var(--teal);font-size:8px;font-weight:900;letter-spacing:.28em}.tdx-nav-links{display:flex;align-items:center;justify-content:center;gap:42px}.tdx-nav-links a{position:relative;padding:15px 0;color:#213a55!important;font-size:14px;font-weight:800;line-height:1;text-decoration:none;white-space:nowrap}.tdx-nav-links a:after{content:"";height:2px;position:absolute;right:0;bottom:7px;left:0;background:var(--teal);transform:scaleX(0);transition:transform .2s}.tdx-nav-links a:hover:after,.tdx-nav-links a:focus-visible:after{transform:scaleX(1)}.tdx-nav-order{min-height:56px;min-width:181px;padding:0 27px;justify-self:end;display:inline-flex;align-items:center;justify-content:center;gap:17px;border-radius:100px;background:linear-gradient(135deg,#0ca8ad,#0872ad);box-shadow:0 14px 32px rgba(8,114,173,.2);color:#fff!important;font-size:14px;font-weight:900;letter-spacing:.03em;text-decoration:none}.tdx-nav-order span{font-size:22px}.tdx-nav-order:hover{transform:translateY(-2px)}
+  .tdx-hero{position:relative;background:linear-gradient(125deg,#f8fbfc,#eff9f8 52%,#e5f5f3);border-top:1px solid #edf3f4}.tdx-hero:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(8,42,85,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(8,42,85,.035) 1px,transparent 1px);background-size:48px 48px}.tdx-hero-grid{min-height:680px;display:grid;grid-template-columns:1.04fr .96fr;align-items:center;gap:56px;position:relative}.tdx-hero-copy{position:relative;z-index:2}.tdx-hero h1{color:var(--navy);font-size:clamp(52px,5.4vw,76px);line-height:.98;font-weight:800}.tdx-hero h1 span{display:block;color:var(--teal)}.tdx-lede{max-width:650px;margin-top:28px!important;color:#496278;font-size:18px;line-height:1.7}.tdx-actions{margin-top:33px;display:flex;align-items:center;gap:28px}.tdx-text-link{padding:12px 0 9px;border-bottom:2px solid var(--teal);color:var(--navy)!important;font-size:14px;font-weight:800;text-decoration:none}.tdx-trust{margin-top:31px;display:flex;flex-wrap:wrap;gap:17px;color:#50667a;font-size:12px;font-weight:700}.tdx-trust span{display:flex;align-items:center;gap:8px}.tdx-trust span:before{content:"✓";width:19px;height:19px;display:grid;place-items:center;border-radius:50%;background:rgba(14,166,173,.12);color:var(--teal)}
+  .tdx-product-art{min-height:525px;position:relative}.tdx-orbit{position:absolute;border:1px solid rgba(14,166,173,.27);border-radius:50%;transform:rotate(-18deg)}.tdx-orbit:after{content:"";position:absolute;width:11px;height:11px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 7px rgba(158,220,75,.16)}.tdx-orbit-a{width:500px;height:235px;top:140px;left:-18px}.tdx-orbit-a:after{top:34px;right:82px}.tdx-orbit-b{width:305px;height:490px;top:8px;left:95px;transform:rotate(32deg)}.tdx-orbit-b:after{bottom:76px;left:18px;background:var(--aqua)}.tdx-kit-box{width:335px;height:425px;position:absolute;left:70px;top:36px;z-index:2;padding:28px;border-radius:16px;background:linear-gradient(150deg,#fff 0 57%,#e9f7f6 57%);box-shadow:0 38px 65px rgba(5,47,83,.2);transform:rotate(-4deg)}.tdx-kit-box:after{content:"";position:absolute;inset:11px;border:1px solid rgba(14,166,173,.18);border-radius:10px}.tdx-kit-box img{width:230px;height:auto;mix-blend-mode:multiply}.tdx-kit-box>div{position:absolute;left:38px;bottom:46px;z-index:1}.tdx-kit-box small{display:block;color:var(--teal);font-size:10px;font-weight:900;letter-spacing:.17em}.tdx-kit-box strong{display:block;margin-top:8px;color:var(--navy2);font-size:27px;line-height:1.1}.tdx-kit-box span{display:block;margin-top:14px;color:#7c668e;font-size:11px;font-weight:800}.tdx-report-book{width:185px;height:255px;position:absolute;right:2px;bottom:45px;z-index:3;padding:28px 23px;border-radius:12px;background:var(--navy2);color:#fff;box-shadow:0 28px 44px rgba(6,29,63,.25);transform:rotate(6deg)}.tdx-report-book span{display:block;color:#74ded9;font-size:8px;font-weight:900;letter-spacing:.13em}.tdx-report-book strong{display:block;margin-top:21px;font-size:68px;line-height:.9}.tdx-report-book small{display:block;margin:7px 0 25px;color:#c6e4e6;font-size:10px}.tdx-report-book i{display:block;height:5px;margin-top:8px;border-radius:8px;background:linear-gradient(90deg,var(--aqua) 68%,rgba(255,255,255,.2) 68%)}.tdx-report-book i:nth-of-type(2){background:linear-gradient(90deg,var(--lime) 46%,rgba(255,255,255,.2) 46%)}.tdx-report-book i:nth-of-type(3){background:linear-gradient(90deg,#b178c5 82%,rgba(255,255,255,.2) 82%)}.tdx-swab{width:205px;height:57px;position:absolute;left:-5px;bottom:90px;z-index:4;display:flex;align-items:center;gap:14px;padding:0 17px;border-radius:11px;background:#fff;box-shadow:0 15px 28px rgba(6,29,63,.15);font-size:11px;font-weight:800}.tdx-swab b{width:70px;height:4px;position:relative;border-radius:4px;background:#7dd6d5}.tdx-swab b:after{content:"";position:absolute;width:16px;height:8px;right:-2px;top:-2px;border-radius:50%;background:#edf5f3;border:1px solid #bad8d5}.tdx-stat{position:absolute;z-index:5;padding:11px 15px;border-radius:12px;background:#fff;box-shadow:0 12px 24px rgba(6,29,63,.12);color:#607287;font-size:10px}.tdx-stat strong{display:block;color:var(--teal);font-size:20px}.tdx-stat-a{right:10px;top:35px}.tdx-stat-b{right:-16px;top:120px}
+  .tdx-intro{padding:42px 0;background:var(--navy2);color:#fff}.tdx-intro-grid{display:grid;grid-template-columns:.8fr 1.3fr;gap:90px}.tdx-intro h2{color:#72ddd8;font-size:22px;line-height:1.35}.tdx-intro p{color:#d5e6ec;font-size:15px;line-height:1.75}.tdx-heading{margin-bottom:52px}.tdx-heading h2,.tdx-offer h2,.tdx-clinic h2,.tdx-faq h2{color:var(--navy);font-size:clamp(38px,4vw,56px);line-height:1.08}.tdx-heading-split{display:grid;grid-template-columns:1.2fr .8fr;gap:90px;align-items:end}.tdx-heading-split>p{color:var(--muted);font-size:16px;line-height:1.75}.tdx-benefit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.tdx-benefit-grid article{padding:31px;min-height:255px;border:1px solid var(--line);border-radius:18px}.tdx-benefit-grid article>span{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:var(--soft);color:var(--teal);font-size:11px;font-weight:900}.tdx-benefit-grid h3{margin-top:34px;font-size:21px;color:var(--navy2)}.tdx-benefit-grid p{margin-top:14px;color:var(--muted);font-size:14px;line-height:1.7}
+  .tdx-report{background:linear-gradient(130deg,var(--navy),#094f78);color:#fff}.tdx-report-grid{display:grid;grid-template-columns:1fr 1fr;gap:100px}.tdx-report .tdx-eyebrow,.tdx-clinic .tdx-eyebrow,.tdx-final .tdx-eyebrow{color:#5ee0da}.tdx-report h2{color:#fff;font-size:clamp(40px,4.5vw,58px);line-height:1.06}.tdx-report-copy>p:not(.tdx-eyebrow){margin-top:26px;color:#c9dce4;font-size:16px;line-height:1.8}.tdx-report ul,.tdx-offer ul{margin:30px 0 0;padding:0;list-style:none;display:grid;gap:13px}.tdx-report li,.tdx-offer li{position:relative;padding-left:31px;font-size:14px}.tdx-report li:before,.tdx-offer li:before{content:"✓";width:20px;height:20px;position:absolute;left:0;display:grid;place-items:center;border-radius:50%;background:rgba(38,196,195,.18);color:#68dfd8}.tdx-report-stats{display:grid;grid-template-columns:1fr 1fr;gap:14px}.tdx-report-stats article{min-height:170px;padding:27px;display:flex;flex-direction:column;justify-content:flex-end;border:1px solid rgba(255,255,255,.14);border-radius:17px;background:rgba(255,255,255,.07)}.tdx-report-stats strong{color:var(--lime);font-size:50px}.tdx-report-stats span{margin-top:8px;color:#d8e9ed;font-size:13px}
+  .tdx-offer{background:var(--soft)}.tdx-offer-card{padding:62px 70px;display:grid;grid-template-columns:1fr 390px;gap:80px;align-items:center;border-radius:28px;background:#fff;box-shadow:0 24px 70px rgba(16,64,79,.1)}.tdx-offer-card>div>p:not(.tdx-eyebrow){margin-top:20px;color:var(--muted);font-size:16px;line-height:1.75}.tdx-offer li{color:#41596f}.tdx-offer li:before{background:#e4f7f5;color:var(--teal)}.tdx-price-card{padding:34px;border-radius:20px;background:linear-gradient(145deg,#edf9f8,#f6fbf6);border:1px solid #d6ece8}.tdx-price-card>span{color:var(--teal);font-size:11px;font-weight:900;letter-spacing:.15em;text-transform:uppercase}.tdx-price-card>strong{display:block;margin:9px 0 3px;color:var(--navy);font-size:72px;line-height:1}.tdx-price-card>small{color:var(--muted)}.tdx-price-card form,.tdx-price-card>.tdx-button{margin-top:25px}.tdx-price-card>p{margin-top:12px;color:#748594;font-size:10px;text-align:center}.tdx-centered{max-width:700px;margin-left:auto;margin-right:auto;text-align:center}.tdx-centered h2{margin:0 auto}.tdx-centered>p:last-child{margin-top:16px;color:var(--muted)}.tdx-steps{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:22px}.tdx-steps:before{content:"";height:1px;position:absolute;top:34px;right:12.5%;left:12.5%;z-index:0;background:linear-gradient(90deg,var(--teal),var(--lime))}.tdx-steps article{position:relative;z-index:1;text-align:center}.tdx-steps article>span{width:68px;height:68px;margin:0 auto;display:grid;place-items:center;border:1px solid #c6e5e3;border-radius:50%;background:#fff;color:var(--teal);font-size:15px;font-weight:900;box-shadow:0 10px 20px rgba(12,88,101,.09)}.tdx-steps h3{margin-top:25px;color:var(--navy2);font-size:20px}.tdx-steps p{margin-top:12px;color:var(--muted);font-size:13px;line-height:1.7}
+  .tdx-clinic{padding:110px 0;background:linear-gradient(125deg,#072448,#0a5c7c);color:#fff}.tdx-clinic-grid{display:grid;grid-template-columns:1fr 1fr;gap:85px;align-items:center}.tdx-clinic h2{color:#fff}.tdx-clinic-copy>p:not(.tdx-eyebrow){margin-top:24px;color:#cce0e6;font-size:16px;line-height:1.8}.tdx-clinic-copy>div{margin-top:29px;display:flex;flex-wrap:wrap;gap:10px}.tdx-clinic-copy>div span{padding:9px 13px;border:1px solid rgba(255,255,255,.17);border-radius:100px;background:rgba(255,255,255,.06);font-size:11px}.tdx-clinic-pricing{margin-top:30px;padding:28px;border:1px solid rgba(255,255,255,.16);border-radius:18px;background:rgba(255,255,255,.07)}.tdx-clinic-pricing small{color:#72ddd8;font-weight:900;letter-spacing:.14em}.tdx-clinic-pricing>strong{display:block;margin:9px 0 18px;font-size:56px}.tdx-clinic-pricing em{color:#c8dce2;font-size:14px;font-style:normal;font-weight:500}.tdx-clinic-pricing p{padding:10px 0;display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,.13);color:#d3e6ea;font-size:13px}.tdx-clinic-pricing b{color:#fff}.tdx-form-card{padding:40px;border-radius:23px;background:#fff;color:var(--ink);box-shadow:0 28px 60px rgba(0,16,34,.25)}.tdx-form-card h3{font-size:32px;color:var(--navy)}.tdx-form-card>p:not(.tdx-eyebrow){margin-top:11px;color:var(--muted);font-size:14px;line-height:1.6}.tdx-clinic-form{margin-top:24px;display:grid;gap:14px}.tdx-field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.tdx-clinic-form label{display:grid;gap:6px;color:#3d5267;font-size:11px;font-weight:800}.tdx-clinic-form input,.tdx-clinic-form select,.tdx-clinic-form textarea{width:100%;padding:13px 14px;border:1px solid #d5e2e6;border-radius:9px;background:#fbfdfd;color:var(--ink);font:14px var(--font-body-family,Arial,sans-serif)}.tdx-clinic-form input:focus,.tdx-clinic-form select:focus,.tdx-clinic-form textarea:focus{outline:2px solid rgba(14,166,173,.3);border-color:var(--teal)}.tdx-clinic-form>small{color:#7c8c98;font-size:9px;text-align:center}.tdx-form-success{padding:12px;border-radius:8px;background:#e8f8ef;color:#25653f;font-size:13px;font-weight:700}
+  .tdx-clinic-cta{display:grid;grid-template-columns:1.25fr .75fr;gap:90px;align-items:center}.tdx-clinic-cta-side{padding:34px;border:1px solid rgba(255,255,255,.15);border-radius:24px;background:rgba(255,255,255,.07);box-shadow:0 26px 60px rgba(0,16,34,.22)}.tdx-clinic-cta-side .tdx-eyebrow{margin-bottom:12px!important}.tdx-clinic-cta-side h3{color:#fff;font-size:30px;line-height:1.12}.tdx-clinic-cta-side>p:not(.tdx-eyebrow){margin-top:14px;color:#cce0e6;font-size:13px;line-height:1.7}.tdx-clinic-cta-side .tdx-button{margin-top:24px}.tdx-clinic-register-link{margin-top:17px;display:block;color:#8be5df!important;font-size:12px;font-weight:800;text-align:center;text-decoration:underline;text-underline-offset:4px}
+  .tdx-faq-grid{display:grid;grid-template-columns:.78fr 1.22fr;gap:95px}.tdx-faq-grid>div:first-child>p:not(.tdx-eyebrow){margin-top:20px;color:var(--muted);line-height:1.7}.tdx-faq-list{border-top:1px solid var(--line)}.tdx-faq-list details{border-bottom:1px solid var(--line)}.tdx-faq-list summary{padding:25px 0;display:flex;justify-content:space-between;gap:20px;color:var(--navy2);font-size:16px;font-weight:800;cursor:pointer;list-style:none}.tdx-faq-list summary::-webkit-details-marker{display:none}.tdx-faq-list summary span{color:var(--teal);font-size:24px}.tdx-faq-list details[open] summary span{transform:rotate(45deg)}.tdx-faq-list details p{padding:0 35px 25px 0;color:var(--muted);font-size:14px;line-height:1.75}.tdx-final{padding:92px 0;background:linear-gradient(110deg,#087b99,#0aa6a7);color:#fff;text-align:center}.tdx-final h2{color:#fff;font-size:clamp(40px,5vw,62px)}.tdx-final .tdx-button{margin-top:28px}.tdx-disclaimer{padding:26px 0;background:#05182f;color:#fff}.tdx-disclaimer .tdx-shell{display:grid;grid-template-columns:260px 1fr;gap:35px}.tdx-disclaimer strong{font-size:13px}.tdx-disclaimer p{color:#819cab;font-size:10px;line-height:1.6}
+  @media(prefers-reduced-motion:no-preference){.tdx-{{ section.id }}.tdx-motion-ready .tdx-reveal{opacity:0;transform:translate3d(0,30px,0);transition:opacity .72s ease var(--tdx-motion-delay,0ms),transform .72s cubic-bezier(.2,.72,.25,1) var(--tdx-motion-delay,0ms)}.tdx-{{ section.id }}.tdx-motion-ready .tdx-reveal.is-visible{opacity:1;transform:translate3d(0,0,0)}.tdx-{{ section.id }}.tdx-motion-ready .tdx-motion-fade{opacity:0;transition:opacity .9s ease .15s}.tdx-{{ section.id }}.tdx-motion-ready .tdx-motion-fade.is-visible{opacity:1}.tdx-{{ section.id }} .tdx-benefit-grid article,.tdx-{{ section.id }} .tdx-report-stats article,.tdx-{{ section.id }} .tdx-price-card,.tdx-{{ section.id }} .tdx-clinic-cta-side{transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease}.tdx-{{ section.id }} .tdx-benefit-grid article:hover,.tdx-{{ section.id }} .tdx-report-stats article:hover,.tdx-{{ section.id }} .tdx-price-card:hover,.tdx-{{ section.id }} .tdx-clinic-cta-side:hover,.tdx-{{ section.id }}.tdx-motion-ready .tdx-benefit-grid article.tdx-reveal.is-visible:hover,.tdx-{{ section.id }}.tdx-motion-ready .tdx-report-stats article.tdx-reveal.is-visible:hover,.tdx-{{ section.id }}.tdx-motion-ready .tdx-price-card.tdx-reveal.is-visible:hover,.tdx-{{ section.id }}.tdx-motion-ready .tdx-clinic-cta-side.tdx-reveal.is-visible:hover{transform:translateY(-6px);box-shadow:0 18px 38px rgba(6,45,70,.13)}.tdx-{{ section.id }} .tdx-product-art.is-visible .tdx-stat-a{animation:tdx-float-a 4.8s ease-in-out infinite}.tdx-{{ section.id }} .tdx-product-art.is-visible .tdx-stat-b{animation:tdx-float-b 5.4s ease-in-out .4s infinite}.tdx-{{ section.id }} .tdx-product-art.is-visible .tdx-swab{animation:tdx-float-swab 5.8s ease-in-out .2s infinite}@keyframes tdx-float-a{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-8px,0)}}@keyframes tdx-float-b{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(5px,-7px,0)}}@keyframes tdx-float-swab{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(-4px,-6px,0)}}}
+  @media(max-width:1100px){.tdx-nav-shell{grid-template-columns:auto 1fr auto;gap:26px}.tdx-nav-links{gap:24px}.tdx-nav-logo img{max-width:190px}}
+  @media(max-width:990px){.tdx-nav-shell{width:calc(100% - 34px);min-height:84px;grid-template-columns:1fr auto;gap:15px;padding:14px 0}.tdx-nav-logo img{max-width:190px;max-height:54px}.tdx-nav-order{min-width:auto;min-height:48px;padding:0 21px}.tdx-nav-links{grid-column:1/-1;order:3;justify-content:flex-start;gap:28px;padding:0 0 7px;overflow-x:auto;scrollbar-width:none}.tdx-nav-links::-webkit-scrollbar{display:none}.tdx-hero-grid,.tdx-report-grid,.tdx-clinic-grid,.tdx-clinic-cta,.tdx-faq-grid{grid-template-columns:1fr}.tdx-clinic-cta{gap:42px}.tdx-hero-grid{padding:75px 0 55px}.tdx-product-art{width:min(540px,100%);margin:0 auto}.tdx-heading-split{grid-template-columns:1fr;gap:25px}.tdx-benefit-grid{grid-template-columns:repeat(2,1fr)}.tdx-offer-card{grid-template-columns:1fr 350px;gap:40px;padding:50px}.tdx-steps{grid-template-columns:repeat(2,1fr);row-gap:50px}.tdx-steps:before{display:none}}
+  @media(max-width:700px){.tdx-announcement{min-height:34px;padding:7px 15px;font-size:9px;letter-spacing:.13em}.tdx-nav-shell{min-height:72px}.tdx-nav-logo{max-width:155px}.tdx-nav-logo img{max-width:150px;max-height:45px}.tdx-logo-mark{width:36px;height:36px;font-size:18px}.tdx-logo-type strong{font-size:17px}.tdx-logo-type small{font-size:6px}.tdx-nav-order{min-height:43px;padding:0 16px;font-size:12px;gap:9px}.tdx-nav-order span{font-size:18px}.tdx-nav-links{gap:23px;padding-bottom:5px}.tdx-nav-links a{font-size:12px}.tdx-shell{width:calc(100% - 34px)}.tdx-section{padding:76px 0}.tdx-hero-grid{padding:60px 0 38px;gap:28px}.tdx-hero h1{font-size:48px}.tdx-lede{font-size:16px}.tdx-actions{align-items:stretch;flex-direction:column;gap:12px}.tdx-actions .tdx-button{width:100%}.tdx-product-art{min-height:410px;transform:scale(.8);transform-origin:top center;margin-bottom:-70px}.tdx-kit-box{left:45px}.tdx-stat-b{right:0}.tdx-intro{padding:35px 0}.tdx-intro-grid{grid-template-columns:1fr;gap:16px}.tdx-heading h2,.tdx-offer h2,.tdx-clinic h2,.tdx-faq h2{font-size:38px}.tdx-benefit-grid,.tdx-report-stats,.tdx-steps{grid-template-columns:1fr}.tdx-benefit-grid article{min-height:auto}.tdx-offer-card{width:calc(100% - 28px);grid-template-columns:1fr;padding:36px 23px}.tdx-price-card>strong{font-size:60px}.tdx-clinic{padding:76px 0}.tdx-clinic-grid{gap:45px}.tdx-form-card{padding:30px 22px}.tdx-field-row{grid-template-columns:1fr}.tdx-disclaimer .tdx-shell{grid-template-columns:1fr;gap:10px}}
+{% endstyle %}
+
+{% schema %}
+{
+  "name": "TruLab PATHWAY",
+  "tag": "section",
+  "class": "section-trulab-pathway",
+  "settings": [
+    { "type": "product", "id": "product", "label": "PATHWAY product" },
+    { "type": "text", "id": "consumer_price", "label": "Consumer price fallback", "default": "$499" },
+    { "type": "text", "id": "clinic_login_label", "label": "Clinic login label", "default": "Clinic partner login" }
+  ],
+  "presets": [{ "name": "TruLab PATHWAY" }]
+}
+{% endschema %}

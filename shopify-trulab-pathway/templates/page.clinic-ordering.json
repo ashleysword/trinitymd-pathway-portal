@@ -1,0 +1,11 @@
+{
+  "sections": {
+    "main": {
+      "type": "trulab-clinic-ordering",
+      "settings": {
+        "product": "trulab-dx-pathway-genetic-test"
+      }
+    }
+  },
+  "order": ["main"]
+}

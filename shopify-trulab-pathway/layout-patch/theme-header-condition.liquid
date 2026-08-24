@@ -1,0 +1,11 @@
+{%- liquid
+  assign trulab_hide_standard_header = false
+  if request.page_type == 'page'
+    if template.suffix == 'trulab-pathway' or template.suffix == 'register' or template.suffix == 'clinic-login' or template.suffix == 'clinic-ordering'
+      assign trulab_hide_standard_header = true
+    endif
+  endif
+-%}
+{%- unless trulab_hide_standard_header -%}
+  {% sections 'header-group' %}
+{%- endunless -%}

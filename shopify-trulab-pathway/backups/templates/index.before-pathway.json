@@ -1,0 +1,248 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "blocks_4NdqFt": {
+      "type": "_blocks",
+      "disabled": true,
+      "settings": {}
+    },
+    "blocks_RVhL83": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_3f9cfb5_7nNXpd": {
+          "type": "ai_gen_block_3f9cfb5",
+          "settings": {
+            "desktop_width_percent": 100,
+            "padding_vertical": 32,
+            "padding_horizontal": 20,
+            "item_spacing": 40,
+            "icon_text_gap": 8,
+            "background_color": "#ffffff",
+            "icon_color": "#000000",
+            "text_color": "#0e1b4d",
+            "icon_size": 40,
+            "text_size": 13,
+            "text_weight": "500",
+            "show_item_1": true,
+            "item_1_text": "Third-Party Tested",
+            "show_item_2": true,
+            "item_2_text": "HPLC / MS Verified",
+            "show_item_3": true,
+            "item_3_text": "Batch-Level Traceability",
+            "show_item_4": true,
+            "item_4_text": "U.S.-Based Operations",
+            "show_item_5": true,
+            "item_5_text": "Research Use Only"
+          },
+          "blocks": {}
+        },
+        "ai_gen_block_7e4b1df_Prr7iJ": {
+          "type": "ai_gen_block_7e4b1df",
+          "settings": {
+            "title": "Quality & Testing Process",
+            "subtitle": "Our rigorous quality control ensures pharmaceutical-grade precision",
+            "title_size": 36,
+            "subtitle_size": 16,
+            "header_spacing": 48,
+            "layout": "horizontal",
+            "desktop_width_percent": 100,
+            "section_padding": 60,
+            "step_spacing": 24,
+            "step_1_title": "Controlled Sourcing",
+            "step_1_description": "Raw materials sourced from certified suppliers with full traceability and compliance documentation.",
+            "step_2_title": "Precision Manufacturing",
+            "step_2_description": "GMP-compliant production in controlled environments with validated equipment and processes.",
+            "step_3_title": "Analytical Verification (HPLC/MS)",
+            "step_3_description": "Advanced chromatography and mass spectrometry confirm identity, purity, and potency to specification.",
+            "step_4_title": "Batch-Level Documentation",
+            "step_4_description": "Complete chain of custody with Certificates of Analysis and full audit trail for every batch.",
+            "step_title_size": 18,
+            "step_description_size": 14,
+            "step_padding": 24,
+            "step_border_radius": 12,
+            "step_border_width": 1,
+            "number_size": 50,
+            "number_font_size": 20,
+            "background_color": "#ffffff",
+            "title_color": "#0e1b4d",
+            "subtitle_color": "#0e1b4d",
+            "step_background": "#ffffff",
+            "step_border_color": "#e0e0e0",
+            "step_title_color": "#0e1b4d",
+            "step_description_color": "#666666",
+            "number_background": "#4770db",
+            "number_color": "#ffffff",
+            "connector_color": "#4770db"
+          },
+          "blocks": {}
+        },
+        "ai_gen_block_c5e8e8b_LnMd4V": {
+          "type": "ai_gen_block_c5e8e8b",
+          "settings": {
+            "title": "Precision. Transparency. Scientific Integrity.",
+            "text": "<p>At Trinity Cell Sciences, we are committed to supporting the advancement of scientific research through high-quality, analytically verified materials. Our processes emphasize consistency, traceability, and rigorous testing standards to ensure reliable performance across every batch.</p>",
+            "image": "shopify://shop_images/ChatGPT_Image_Apr_2_2026_01_20_44_PM.png",
+            "image_position": "left",
+            "image_border_radius": 20,
+            "max_width": 1200,
+            "background_color": "#ffffff",
+            "title_color": "#0e1b4d",
+            "text_color": "#0e1b4d",
+            "title_size": 36,
+            "text_size": 16
+          },
+          "blocks": {}
+        },
+        "ai_gen_block_f2a642f_qftWEr": {
+          "type": "ai_gen_block_f2a642f",
+          "settings": {
+            "section_title": "Research Applications",
+            "section_subtitle": "<p>Explore the diverse applications of our research-grade compounds</p>",
+            "text_alignment": "center",
+            "title_size": 36,
+            "subtitle_size": 16,
+            "category_1_title": "Cellular Research",
+            "category_1_description": "<p>Designed for in vitro cellular studies investigating molecular mechanisms and cellular responses in controlled laboratory environments.</p>",
+            "category_2_title": "Regenerative Pathway Studies",
+            "category_2_description": "<p>Supports research into tissue repair mechanisms and cellular regeneration pathways for academic and scientific investigation.</p>",
+            "category_3_title": "Hormone Signaling Research",
+            "category_3_description": "<p>Enables exploration of endocrine signaling pathways and receptor interactions in laboratory research settings.</p>",
+            "desktop_width_percent": 100,
+            "section_padding": 50,
+            "header_spacing": 40,
+            "grid_top_margin": 20,
+            "column_gap": 30,
+            "column_padding": 30,
+            "column_alignment": "center",
+            "column_bg_color": "#f8f9fa",
+            "column_border_radius": 12,
+            "icon_size": 60,
+            "icon_bg_color": "#4770db",
+            "icon_color": "#ffffff",
+            "icon_border_radius": 50,
+            "icon_margin": 20,
+            "title_color": "#0e1b4d",
+            "title_margin": 15,
+            "subtitle_color": "#6b7280",
+            "category_title_size": 20,
+            "category_title_color": "#0e1b4d",
+            "category_title_margin": 15,
+            "description_size": 15,
+            "description_color": "#4b5563"
+          },
+          "blocks": {}
+        },
+        "ai_gen_block_84da35f_Ppa7LK": {
+          "type": "ai_gen_block_84da35f",
+          "settings": {
+            "heading": "Frequently Asked Questions",
+            "description": "",
+            "text_alignment": "left",
+            "faq_1_question": "What are compounds like BPC-157, CJC-1295, and Ipamorelin used for?",
+            "faq_1_answer": "<p>At Trinity Cell Sciences, we supply research-grade materials such as BPC-157, CJC-1295, and Ipamorelin that are commonly utilized in scientific settings to study cellular repair, signaling pathways, and hormone-related mechanisms. These compounds are intended strictly for laboratory research and analytical use.</p>",
+            "faq_2_question": "How does Trinity Cell Sciences ensure purity and quality?",
+            "faq_2_answer": "<p>Every batch undergoes advanced analytical verification, including HPLC and mass spectrometry testing, to confirm identity, purity, and consistency. Our commitment to precision ensures researchers receive dependable, high-integrity materials every time.</p>",
+            "faq_3_question": "Who are Trinity Cell Sciences products designed for?",
+            "faq_3_answer": "<p>Our materials are developed exclusively for qualified researchers, laboratories, and institutions. Trinity Cell Sciences is dedicated to supporting scientific advancement—not consumer or personal use.</p>",
+            "faq_4_question": "What is the difference between BPC-157 and TB-500?",
+            "faq_4_answer": "<p>BPC-157 is widely studied for its role in localized cellular repair and regeneration processes, while TB-500 (Thymosin Beta-4 fragment) is commonly researched for broader systemic recovery, cell migration, and tissue remodeling applications.</p>",
+            "faq_5_question": "Does Trinity Cell Sciences provide Certificates of Analysis (COAs)?",
+            "faq_5_answer": "<p>Yes. Every product includes a Certificate of Analysis (COA) for full transparency. This documentation verifies purity, composition, and batch-specific testing results—ensuring traceability and research confidence.</p>",
+            "faq_6_question": "How should research materials be stored for maximum stability?",
+            "faq_6_answer": "<p>To maintain optimal integrity, store materials in a cool, dry, and dark environment. After reconstitution, refrigeration is typically recommended depending on the compound. Proper storage helps preserve consistency and reliability in research outcomes.</p>",
+            "desktop_width_percent": 100,
+            "section_padding": 40,
+            "spacing_below_heading": 30,
+            "item_spacing": 10,
+            "background_color": "#ffffff",
+            "heading_color": "#0e1b4d",
+            "text_color": "#0e1b4d",
+            "item_background_color": "#ffffff",
+            "question_color": "#0e1b4d",
+            "question_hover_color": "#4770db",
+            "answer_color": "#0e1b4d",
+            "icon_color": "#4770db",
+            "border_color": "#e5e7eb",
+            "border_hover_color": "#4770db",
+            "heading_size": 36,
+            "description_size": 16,
+            "question_size": 18,
+            "answer_size": 15,
+            "border_thickness": 1,
+            "border_radius": 18,
+            "question_padding": 20
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_3f9cfb5_7nNXpd",
+        "ai_gen_block_7e4b1df_Prr7iJ",
+        "ai_gen_block_c5e8e8b_LnMd4V",
+        "ai_gen_block_f2a642f_qftWEr",
+        "ai_gen_block_84da35f_Ppa7LK"
+      ],
+      "disabled": true,
+      "settings": {}
+    },
+    "1775597444a34dfcd5": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_81aa77c_Aqw74F": {
+          "type": "ai_gen_block_81aa77c",
+          "settings": {
+            "image_left": "shopify://shop_images/ChatGPT_Image_Apr_2_2026_12_12_54_PM.png",
+            "heading_left": "For Providers",
+            "subheading_left": "Engineered for medical professionals",
+            "button_text_left": "Learn More",
+            "button_link_left": "shopify://pages/provider-page",
+            "image_right": "shopify://shop_images/ChatGPT_Image_Apr_2_2026_12_15_29_PM.png",
+            "heading_right": "For Customers",
+            "subheading_right": "Built for your best results",
+            "button_text_right": "Shop now",
+            "button_link_right": "shopify://pages/customer-page",
+            "max_width": 1200,
+            "gap": 40,
+            "image_height": 500,
+            "mobile_image_height": 400,
+            "border_radius": 20,
+            "hover_scale": 1.1,
+            "content_vertical_position": "center",
+            "content_horizontal_position": "center",
+            "text_alignment": "center",
+            "background_color": "#ffffff",
+            "overlay_color": "rgba(0, 0, 0, 0.3)",
+            "heading_color": "#ffffff",
+            "subheading_color": "#ffffff",
+            "button_bg_color": "#4770db",
+            "button_hover_bg_color": "#0e1b4d",
+            "button_text_color": "#ffffff",
+            "heading_size": 32,
+            "subheading_size": 16,
+            "button_font_size": 14,
+            "button_border_radius": 40
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_81aa77c_Aqw74F"
+      ],
+      "settings": {}
+    }
+  },
+  "order": [
+    "blocks_4NdqFt",
+    "blocks_RVhL83",
+    "1775597444a34dfcd5"
+  ]
+}
+

@@ -1,0 +1,13 @@
+{
+  "sections": {
+    "main": {
+      "type": "trulab-pathway-landing",
+      "settings": {
+        "product": "trulab-dx-pathway-genetic-test",
+        "consumer_price": "$499",
+        "clinic_login_label": "Clinic partner login"
+      }
+    }
+  },
+  "order": ["main"]
+}

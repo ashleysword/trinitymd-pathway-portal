@@ -1,0 +1,14 @@
+{
+  "name": "trinitymd-pathway-portal-api",
+  "version": "2.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "check": "node --check src/app.js && node --check src/runtime.js && node --check src/server.js && node --check src/security.js && node --check src/shopify.js && node --check src/shopify-storage.js && node --check src/validation.js && node --check netlify/functions/pathway-portal.mjs",
+    "test": "node --test"
+  }
+}

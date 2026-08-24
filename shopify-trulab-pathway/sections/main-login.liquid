@@ -1,0 +1,180 @@
+{%- if section.settings.enable_shop_login_button == false -%}
+  {%- assign hide_shop_login_button = true -%}
+{%- endif -%}
+
+<section class="tml tml-{{ section.id }}" aria-label="Trinity Cell Sciences clinic partner login">
+  <div class="tml-layout">
+    <div class="tml-brand-panel">
+      <div class="tml-grid" aria-hidden="true"></div>
+      <div class="tml-orb tml-orb-one" aria-hidden="true"></div>
+      <div class="tml-orb tml-orb-two" aria-hidden="true"></div>
+
+      <a class="tml-logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }} home">
+        {% if settings.logo != blank %}
+          {{ settings.logo | image_url: width: 520 | image_tag: loading: 'eager', widths: '220, 320, 420, 520', alt: shop.name }}
+        {% else %}
+          <span class="tml-logo-mark" aria-hidden="true">◉</span>
+          <span class="tml-logo-type"><strong>TRINITY</strong><small>CELL SCIENCES</small></span>
+        {% endif %}
+      </a>
+
+      <div class="tml-brand-copy">
+        <p class="tml-eyebrow">Clinic partner portal</p>
+        <h1>Personalized health insights. Secure clinic access.</h1>
+        <p>Manage your Trinity Cell Sciences account, access approved wholesale pricing, and order PATHWAY genetic testing kits for your practice.</p>
+      </div>
+
+      <div class="tml-benefits" aria-label="Clinic portal benefits">
+        <span><i aria-hidden="true">✓</i>Approved partner pricing</span>
+        <span><i aria-hidden="true">✓</i>Secure clinic account</span>
+        <span><i aria-hidden="true">✓</i>PATHWAY kit ordering</span>
+      </div>
+
+      <div class="tml-brand-foot">
+        <strong>PATHWAY™ powered by TruLab Dx</strong>
+        <span>Provider-guided genetic insights for more personalized wellness.</span>
+      </div>
+    </div>
+
+    <div class="tml-access-panel">
+      <a class="tml-mobile-logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }} home">
+        {% if settings.logo != blank %}
+          {{ settings.logo | image_url: width: 360 | image_tag: loading: 'eager', widths: '180, 260, 360', alt: shop.name }}
+        {% else %}
+          <span>TRINITY CELL SCIENCES</span>
+        {% endif %}
+      </a>
+
+      <div class="tml-card">
+        <div id="recover" class="tml-form-panel tml-recover-panel" tabindex="-1">
+          <a class="tml-back-link" href="#login"><span aria-hidden="true">←</span> Back to login</a>
+          <p class="tml-card-eyebrow">Account recovery</p>
+          <h2>Reset your password</h2>
+          <p class="tml-card-lede">Enter the email connected to your clinic account and we’ll send you a password-reset link.</p>
+
+          {%- form 'recover_customer_password', class: 'tml-form' -%}
+            {% assign recover_success = form.posted_successfully? %}
+            <div class="tml-field">
+              <label for="RecoverEmail">Email address</label>
+              <input
+                type="email"
+                value=""
+                name="email"
+                id="RecoverEmail"
+                autocorrect="off"
+                autocapitalize="off"
+                autocomplete="email"
+                placeholder="clinic@example.com"
+                {% if form.errors %}aria-invalid="true" aria-describedby="RecoverEmail-email-error" autofocus{% endif %}
+              >
+            </div>
+            {%- if form.errors -%}
+              <div id="RecoverEmail-email-error" class="tml-alert tml-alert-error" role="alert">
+                {{ form.errors.messages.form }}
+              </div>
+            {%- endif -%}
+            <button class="tml-submit" type="submit">Send reset instructions <span aria-hidden="true">→</span></button>
+          {%- endform -%}
+        </div>
+
+        <div id="login" class="tml-form-panel tml-login-panel" tabindex="-1">
+          <p class="tml-card-eyebrow">Clinic partner access</p>
+          <h2>Welcome back</h2>
+          <p class="tml-card-lede">Sign in to view wholesale pricing, ordering options, and clinic resources.</p>
+
+          {%- if recover_success == true -%}
+            <div class="tml-alert tml-alert-success" tabindex="-1" autofocus role="status">
+              Check your email for a password-reset link.
+            </div>
+          {%- endif -%}
+
+          {%- form 'customer_login', novalidate: 'novalidate', class: 'tml-form' -%}
+            {%- if form.errors -%}
+              <div class="tml-alert tml-alert-error" tabindex="-1" autofocus role="alert">
+                We couldn’t sign you in. Please check your email and password and try again.
+              </div>
+            {%- endif -%}
+
+            <div class="tml-field">
+              <label for="CustomerEmail">Email address</label>
+              <input
+                type="email"
+                name="customer[email]"
+                id="CustomerEmail"
+                autocomplete="email"
+                autocorrect="off"
+                autocapitalize="off"
+                placeholder="clinic@example.com"
+                {% if form.errors contains 'form' %}aria-invalid="true"{% endif %}
+              >
+            </div>
+
+            {%- if form.password_needed -%}
+              <div class="tml-field">
+                <div class="tml-label-row">
+                  <label for="CustomerPassword">Password</label>
+                  <a href="#recover">Forgot password?</a>
+                </div>
+                <input
+                  type="password"
+                  value=""
+                  name="customer[password]"
+                  id="CustomerPassword"
+                  autocomplete="current-password"
+                  placeholder="Enter your password"
+                  {% if form.errors contains 'form' %}aria-invalid="true"{% endif %}
+                >
+              </div>
+            {%- endif -%}
+
+            <button class="tml-submit" type="submit">Sign in to your clinic account <span aria-hidden="true">→</span></button>
+
+            {%- if shop.features.login_with_shop_classic_customer_accounts? and hide_shop_login_button != true -%}
+              <div class="tml-shop-login">
+                <span>or</span>
+                {{ shop | login_button: hide_button: hide_shop_login_button }}
+              </div>
+            {%- endif -%}
+          {%- endform -%}
+
+          <div class="tml-register">
+            <span>Not registered as a clinic partner?</span>
+            <a href="/pages/register">Apply for wholesale access <span aria-hidden="true">→</span></a>
+          </div>
+
+          <a class="tml-pathway-link" href="/pages/trulab-pathway-genetic-test">Explore the PATHWAY genetic test</a>
+        </div>
+      </div>
+
+      <p class="tml-security"><span aria-hidden="true">◉</span> Secure account access through Shopify</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.documentElement.classList.add('tml-login-active');
+  document.body.classList.add('tml-login-page');
+</script>
+
+{% style %}
+  .tml-login-page .shopify-section-group-header-group,.tml-login-page .shopify-section-group-footer-group{display:none!important}.tml-login-page #MainContent{min-height:100vh}.tml-login-page{background:#f5f9fa}.tml-{{ section.id }}{--navy:#061d3f;--navy2:#082a55;--blue:#0872ad;--teal:#0ea6ad;--aqua:#26c4c3;--lime:#9edc4b;--ink:#102741;--muted:#5d7084;--line:#dce7ec;min-height:100svh;color:var(--ink);font-family:var(--font-body-family,Arial,sans-serif)}.tml-{{ section.id }} *{box-sizing:border-box}.tml-{{ section.id }} h1,.tml-{{ section.id }} h2,.tml-{{ section.id }} p{margin:0}.tml-layout{min-height:100svh;display:grid;grid-template-columns:minmax(480px,1.03fr) minmax(520px,.97fr)}
+  .tml-brand-panel{min-height:100svh;padding:62px clamp(55px,7vw,115px);position:relative;overflow:hidden;display:flex;align-items:flex-start;justify-content:center;flex-direction:column;background:linear-gradient(145deg,#f9fcfc 0%,#f1f9f8 55%,#e8f6f3 100%);border-right:1px solid #deeaec}.tml-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(8,42,85,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(8,42,85,.035) 1px,transparent 1px);background-size:52px 52px}.tml-orb{position:absolute;border-radius:50%;filter:blur(2px);pointer-events:none}.tml-orb-one{width:390px;height:390px;top:-230px;left:-130px;background:radial-gradient(circle,rgba(38,196,195,.24),rgba(38,196,195,0) 70%)}.tml-orb-two{width:420px;height:420px;right:-210px;bottom:-210px;background:radial-gradient(circle,rgba(158,220,75,.2),rgba(158,220,75,0) 70%)}.tml-logo{max-width:300px;position:relative;z-index:1;display:inline-flex;align-items:center;gap:14px;color:var(--navy)!important;text-decoration:none}.tml-logo img{width:auto;max-width:280px;height:auto;max-height:76px;display:block}.tml-logo-mark{width:52px;height:52px;display:grid;place-items:center;border:2px solid var(--teal);border-radius:50%;color:var(--teal);font-size:25px}.tml-logo-type{display:grid;gap:5px}.tml-logo-type strong{font-size:29px;letter-spacing:.18em;line-height:1}.tml-logo-type small{color:var(--teal);font-size:9px;font-weight:900;letter-spacing:.28em}.tml-brand-copy{max-width:650px;margin-top:88px;position:relative;z-index:1}.tml-eyebrow,.tml-card-eyebrow{color:var(--teal);font-size:11px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}.tml-brand-copy h1{margin-top:19px;color:var(--navy);font-family:var(--font-heading-family,Arial,sans-serif);font-size:clamp(46px,4.6vw,72px);font-weight:800;letter-spacing:-.045em;line-height:1.02}.tml-brand-copy>p:last-child{max-width:610px;margin-top:27px;color:#50677b;font-size:17px;line-height:1.75}.tml-benefits{margin-top:36px;position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:13px}.tml-benefits>span{padding:10px 14px;display:flex;align-items:center;gap:8px;border:1px solid #d2e7e4;border-radius:100px;background:rgba(255,255,255,.76);color:#37536a;font-size:11px;font-weight:800}.tml-benefits i{width:19px;height:19px;display:grid;place-items:center;border-radius:50%;background:rgba(14,166,173,.12);color:var(--teal);font-style:normal}.tml-brand-foot{margin-top:auto;padding-top:72px;position:relative;z-index:1;display:grid;gap:5px}.tml-brand-foot strong{color:var(--navy2);font-size:12px}.tml-brand-foot span{color:#6c8192;font-size:10px}
+  .tml-access-panel{min-height:100svh;padding:70px 45px;display:flex;align-items:center;justify-content:center;flex-direction:column;background:linear-gradient(135deg,#f7fafb,#eef5f6)}.tml-mobile-logo{display:none}.tml-card{width:min(100%,520px);border:1px solid rgba(8,42,85,.08);border-radius:26px;background:#fff;box-shadow:0 30px 80px rgba(6,45,70,.15);overflow:hidden}.tml-form-panel{padding:48px 50px 0}.tml-form-panel h2{margin-top:12px;color:var(--navy);font-family:var(--font-heading-family,Arial,sans-serif);font-size:42px;font-weight:800;letter-spacing:-.04em;line-height:1.05}.tml-card-lede{margin-top:15px!important;color:var(--muted);font-size:14px;line-height:1.7}.tml-form{margin-top:31px}.tml-field{margin-top:19px}.tml-field:first-child{margin-top:0}.tml-field label{display:block;margin-bottom:8px;color:#29445d;font-size:11px;font-weight:850;letter-spacing:.02em}.tml-label-row{display:flex;align-items:center;justify-content:space-between;gap:20px}.tml-label-row a{margin-bottom:8px;color:var(--teal)!important;font-size:10px;font-weight:800;text-decoration:none}.tml-field input{width:100%;height:54px;margin:0;padding:0 16px;border:1px solid #cfdee3;border-radius:11px;background:#fbfdfd;color:var(--ink);font:14px var(--font-body-family,Arial,sans-serif);box-shadow:none;outline:none}.tml-field input::placeholder{color:#98a7b2}.tml-field input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(14,166,173,.13)}.tml-submit{width:100%;min-height:56px;margin-top:24px;padding:0 24px;border:0;border-radius:100px;display:flex;align-items:center;justify-content:center;gap:17px;background:linear-gradient(135deg,var(--teal),var(--blue));box-shadow:0 14px 28px rgba(8,114,173,.2);color:#fff;font:900 13px/1 var(--font-body-family,Arial,sans-serif);letter-spacing:.02em;cursor:pointer}.tml-submit:hover{filter:brightness(1.04)}.tml-submit span{font-size:20px}.tml-alert{margin:23px 0 0;padding:13px 15px;border-radius:10px;font-size:11px;line-height:1.55}.tml-alert-error{border:1px solid #f0c7c7;background:#fff3f3;color:#8b3030}.tml-alert-success{border:1px solid #bfe1d3;background:#effaf5;color:#236647}.tml-shop-login{margin-top:22px;display:grid;gap:13px;text-align:center}.tml-shop-login>span{position:relative;color:#8a9aa6;font-size:10px}.tml-shop-login>span:before,.tml-shop-login>span:after{content:"";width:44%;height:1px;position:absolute;top:50%;background:#e0e9ec}.tml-shop-login>span:before{left:0}.tml-shop-login>span:after{right:0}.tml-register{margin:34px -50px 0;padding:24px 50px;display:grid;gap:6px;background:#f3f9f8;border-top:1px solid #e0ecec;text-align:center}.tml-register>span{color:#687b8b;font-size:11px}.tml-register a{color:var(--teal)!important;font-size:12px;font-weight:900;text-decoration:none}.tml-pathway-link{margin:19px 0 23px;display:block;color:#5d7183!important;font-size:10px;font-weight:800;text-align:center;text-decoration:underline;text-underline-offset:4px}.tml-security{margin-top:23px!important;color:#7d8e9a;font-size:10px}.tml-security span{margin-right:6px;color:var(--teal)}.tml-recover-panel{display:none;padding-bottom:48px}.tml-recover-panel:target{display:block}.tml-recover-panel:target~.tml-login-panel{display:none}.tml-back-link{display:inline-flex;align-items:center;gap:8px;color:var(--teal)!important;font-size:11px;font-weight:800;text-decoration:none}.tml-recover-panel .tml-card-eyebrow{margin-top:31px}.tml-recover-panel .tml-form{margin-top:29px}
+  @media(max-width:1050px){.tml-layout{grid-template-columns:minmax(410px,.9fr) minmax(500px,1.1fr)}.tml-brand-panel{padding:52px 48px}.tml-brand-copy h1{font-size:48px}.tml-brand-copy{margin-top:70px}.tml-form-panel{padding-right:40px;padding-left:40px}.tml-register{margin-right:-40px;margin-left:-40px;padding-right:40px;padding-left:40px}}
+  @media(max-width:820px){.tml-layout{display:block}.tml-brand-panel{min-height:auto;padding:42px 30px 46px;display:block;text-align:center}.tml-brand-panel>.tml-logo,.tml-brand-foot{display:none}.tml-brand-copy{max-width:620px;margin:0 auto}.tml-brand-copy h1{font-size:42px}.tml-brand-copy>p:last-child{margin-right:auto;margin-left:auto;font-size:15px}.tml-benefits{justify-content:center}.tml-access-panel{min-height:auto;padding:42px 22px 70px}.tml-mobile-logo{max-width:220px;margin:0 auto 29px;display:block;color:var(--navy)!important;text-decoration:none}.tml-mobile-logo img{width:auto;max-width:220px;height:auto;max-height:60px;display:block}.tml-mobile-logo span{font-size:17px;font-weight:900;letter-spacing:.1em}.tml-card{max-width:540px}}
+  @media(max-width:560px){.tml-brand-panel{padding:36px 20px 39px}.tml-brand-copy h1{font-size:35px}.tml-brand-copy>p:last-child{margin-top:19px;font-size:14px}.tml-benefits{gap:8px}.tml-benefits>span{padding:8px 10px;font-size:9px}.tml-access-panel{padding:36px 16px 55px}.tml-form-panel{padding:37px 24px 0}.tml-form-panel h2{font-size:35px}.tml-card-lede{font-size:13px}.tml-register{margin-right:-24px;margin-left:-24px;padding-right:24px;padding-left:24px}.tml-pathway-link{margin-bottom:21px}.tml-recover-panel{padding-bottom:37px}}
+{% endstyle %}
+
+{% schema %}
+{
+  "name": "Clinic partner login",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enable_shop_login_button",
+      "label": "Show Sign in with Shop",
+      "default": false
+    }
+  ]
+}
+{% endschema %}

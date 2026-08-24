@@ -1,0 +1,89 @@
+{% if customer and customer.tags contains 'clinics' %}
+  <script>window.location.replace('/pages/clinic-ordering');</script>
+  <style>.tcl-{{ section.id }}{display:none!important}</style>
+{% endif %}
+
+<section class="tcl tcl-{{ section.id }}" aria-label="Trinity Cell Sciences clinic partner access">
+  <div class="tcl-announcement">SECURE ACCESS FOR APPROVED TRINITYMD CLINIC PARTNERS</div>
+
+  <header class="tcl-header">
+    <div class="tcl-shell tcl-nav">
+      <a class="tcl-logo" href="/" aria-label="{{ shop.name | escape }} home">
+        {% if settings.logo != blank %}
+          {{ settings.logo | image_url: width: 520 | image_tag: loading: 'eager', widths: '220, 320, 420, 520', alt: shop.name }}
+        {% else %}
+          <span class="tcl-logo-mark" aria-hidden="true">◉</span>
+          <span class="tcl-logo-type"><strong>TRINITY</strong><small>CELL SCIENCES</small></span>
+        {% endif %}
+      </a>
+      <nav class="tcl-links" aria-label="Clinic access navigation">
+        <a href="/pages/trulab-pathway-genetic-test">PATHWAY test</a>
+        <a href="/pages/register">Clinic registration</a>
+      </nav>
+      <a class="tcl-nav-cta" href="/pages/register">Apply for access <span aria-hidden="true">→</span></a>
+    </div>
+  </header>
+
+  <main class="tcl-main">
+    <div class="tcl-shell tcl-grid">
+      <div class="tcl-copy">
+        <p class="tcl-eyebrow">Clinic partner portal</p>
+        <h1>Welcome back to <span>TrinityMD.</span></h1>
+        <p class="tcl-lede">Sign in with the email connected to your approved clinic account to access partner pricing and order PATHWAY genetic testing kits for your practice.</p>
+
+        <div class="tcl-benefits" aria-label="Clinic account benefits">
+          <span><i aria-hidden="true">✓</i>Approved wholesale pricing</span>
+          <span><i aria-hidden="true">✓</i>Secure passwordless access</span>
+          <span><i aria-hidden="true">✓</i>PATHWAY kit ordering</span>
+        </div>
+
+        <div class="tcl-note">
+          <strong>New to TrinityMD?</strong>
+          <p>Register your practice first. Once approved, use the same email from your application when signing in.</p>
+          <a class="tcl-register-button" href="/pages/register">Register your clinic <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+
+      <aside class="tcl-card" aria-label="Clinic partner sign-in">
+        <div class="tcl-card-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" role="img"><path d="M7 10V8a5 5 0 0 1 10 0v2m-9 0h8a2 2 0 0 1 2 2v7H6v-7a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 14v2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        </div>
+        <p class="tcl-card-eyebrow">Approved clinic access</p>
+        <h2>Sign in securely</h2>
+        <p>Shopify will email you a one-time verification code. No password is required.</p>
+
+        <ol class="tcl-steps">
+          <li><span>1</span><div><strong>Enter your clinic email</strong><small>Use the email connected to your approved account.</small></div></li>
+          <li><span>2</span><div><strong>Verify your account</strong><small>Enter the secure code sent to your inbox.</small></div></li>
+          <li><span>3</span><div><strong>Access partner pricing</strong><small>Return to PATHWAY and order with approved pricing.</small></div></li>
+        </ol>
+
+        <a class="tcl-button" href="/account/login?return_url=%2Fpages%2Fclinic-ordering">Continue to secure sign-in <span aria-hidden="true">→</span></a>
+        <p class="tcl-security"><span aria-hidden="true">●</span> Secure account access provided by Shopify</p>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="tcl-footer">
+    <div class="tcl-shell"><strong>PATHWAY™ powered by TruLab Dx</strong><span>Provider-guided genetic insights for more personalized wellness.</span></div>
+  </footer>
+</section>
+
+<script>
+  document.documentElement.classList.add('tcl-page-active');
+  document.body.classList.add('tcl-page');
+</script>
+
+{% style %}
+  .tcl-page .shopify-section-group-header-group,.tcl-page .shopify-section-group-footer-group{display:none!important}.tcl-page #MainContent{min-height:100vh}.tcl-page{background:#f5fafb}.tcl-{{ section.id }}{--navy:#061d3f;--navy2:#082a55;--blue:#0872ad;--teal:#0ea6ad;--aqua:#26c4c3;--lime:#9edc4b;--ink:#102741;--muted:#5d7084;--line:#dbe8eb;min-height:100svh;color:var(--ink);font-family:var(--font-body-family,Arial,sans-serif)}.tcl-{{ section.id }} *{box-sizing:border-box}.tcl-{{ section.id }} h1,.tcl-{{ section.id }} h2,.tcl-{{ section.id }} p{margin:0}.tcl-shell{width:min(1180px,calc(100% - 48px));margin:0 auto}.tcl-announcement{min-height:39px;padding:10px 20px;display:grid;place-items:center;background:var(--navy);color:#d9f4f2;font-size:10px;font-weight:900;letter-spacing:.18em;text-align:center}.tcl-header{position:relative;z-index:3;border-bottom:1px solid #dfebee;background:rgba(255,255,255,.96)}.tcl-nav{min-height:99px;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:42px}.tcl-logo{max-width:260px;display:inline-flex;align-items:center;gap:13px;color:var(--navy)!important;text-decoration:none}.tcl-logo img{width:auto;max-width:245px;height:auto;max-height:67px;display:block}.tcl-logo-mark{width:46px;height:46px;display:grid;place-items:center;border:2px solid var(--teal);border-radius:50%;color:var(--teal)}.tcl-logo-type{display:grid;gap:4px}.tcl-logo-type strong{font-size:25px;letter-spacing:.17em;line-height:1}.tcl-logo-type small{color:var(--teal);font-size:8px;font-weight:900;letter-spacing:.25em}.tcl-links{display:flex;align-items:center;gap:34px}.tcl-links a{color:#29445d!important;font-size:12px;font-weight:850;text-decoration:none}.tcl-nav-cta,.tcl-button{display:flex;align-items:center;justify-content:center;gap:15px;border-radius:100px;text-decoration:none!important}.tcl-nav-cta{min-height:48px;padding:0 22px;background:linear-gradient(135deg,var(--teal),var(--blue));box-shadow:0 12px 25px rgba(8,114,173,.17);color:#fff!important;font-size:11px;font-weight:900}.tcl-main{position:relative;overflow:hidden;background:radial-gradient(circle at 12% 18%,rgba(38,196,195,.13),transparent 30%),radial-gradient(circle at 82% 92%,rgba(158,220,75,.11),transparent 28%),linear-gradient(145deg,#f9fcfc,#eff8f7)}.tcl-main:before{content:"";position:absolute;inset:0;opacity:.55;background-image:linear-gradient(rgba(8,42,85,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(8,42,85,.03) 1px,transparent 1px);background-size:54px 54px;pointer-events:none}.tcl-grid{min-height:calc(100svh - 138px);padding:82px 0 88px;position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(420px,.92fr);gap:90px;align-items:center}.tcl-copy{max-width:650px}.tcl-eyebrow,.tcl-card-eyebrow{color:var(--teal);font-size:11px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}.tcl-copy h1{margin-top:18px;color:var(--navy);font-family:var(--font-heading-family,Arial,sans-serif);font-size:clamp(54px,5.4vw,78px);font-weight:800;letter-spacing:-.05em;line-height:.98}.tcl-copy h1 span{color:var(--teal)}.tcl-lede{max-width:620px;margin-top:28px!important;color:#50677b;font-size:17px;line-height:1.78}.tcl-benefits{margin-top:31px;display:flex;flex-wrap:wrap;gap:10px}.tcl-benefits>span{padding:10px 13px;display:flex;align-items:center;gap:8px;border:1px solid #d2e7e4;border-radius:100px;background:rgba(255,255,255,.78);color:#36536a;font-size:10px;font-weight:850}.tcl-benefits i{width:18px;height:18px;display:grid;place-items:center;border-radius:50%;background:rgba(14,166,173,.12);color:var(--teal);font-style:normal}.tcl-note{max-width:565px;margin-top:38px;padding:28px 29px;border-left:4px solid var(--lime);border-radius:0 15px 15px 0;background:rgba(255,255,255,.82);box-shadow:0 16px 34px rgba(6,45,70,.07)}.tcl-note strong{color:var(--navy2);font-size:18px;line-height:1.25}.tcl-note p{margin-top:10px!important;color:#536c7f;font-size:15px;line-height:1.65}.tcl-note .tcl-register-button{width:fit-content;min-height:48px;margin-top:19px;padding:0 22px;display:inline-flex;align-items:center;justify-content:center;gap:13px;border-radius:100px;background:linear-gradient(135deg,var(--teal),var(--blue));box-shadow:0 12px 24px rgba(8,114,173,.2);color:#fff!important;font-size:12px;font-weight:900;text-decoration:none!important}.tcl-note .tcl-register-button span{font-size:18px}.tcl-card{padding:46px 45px 35px;border:1px solid rgba(8,42,85,.08);border-radius:26px;background:#fff;box-shadow:0 30px 80px rgba(6,45,70,.16)}.tcl-card-icon{width:58px;height:58px;margin-bottom:27px;display:grid;place-items:center;border-radius:18px;background:linear-gradient(135deg,rgba(14,166,173,.15),rgba(38,196,195,.07));color:var(--teal)}.tcl-card-icon svg{width:29px;height:29px}.tcl-card h2{margin-top:11px;color:var(--navy);font-family:var(--font-heading-family,Arial,sans-serif);font-size:40px;font-weight:800;letter-spacing:-.04em}.tcl-card>p:not(.tcl-card-eyebrow):not(.tcl-security){margin-top:14px;color:var(--muted);font-size:13px;line-height:1.7}.tcl-steps{margin:28px 0 0;padding:0;display:grid;gap:18px;list-style:none}.tcl-steps li{display:grid;grid-template-columns:34px 1fr;gap:13px;align-items:start}.tcl-steps li>span{width:32px;height:32px;display:grid;place-items:center;border:1px solid #cfe4e3;border-radius:50%;background:#f2faf9;color:var(--teal);font-size:10px;font-weight:900}.tcl-steps div{display:grid;gap:4px}.tcl-steps strong{color:#29445d;font-size:12px}.tcl-steps small{color:#738594;font-size:10px;line-height:1.5}.tcl-button{min-height:57px;margin-top:31px;padding:0 24px;background:linear-gradient(135deg,var(--teal),var(--blue));box-shadow:0 14px 28px rgba(8,114,173,.21);color:#fff!important;font-size:12px;font-weight:900}.tcl-button span{font-size:19px}.tcl-security{margin-top:18px!important;color:#85949f;font-size:9px;text-align:center}.tcl-security span{margin-right:5px;color:var(--teal)}.tcl-footer{padding:25px 0;background:var(--navy);color:#fff}.tcl-footer .tcl-shell{display:flex;align-items:center;justify-content:space-between;gap:30px}.tcl-footer strong{font-size:11px}.tcl-footer span{color:#b7d0d8;font-size:9px}.tcl-nav-cta:hover,.tcl-button:hover,.tcl-register-button:hover{filter:brightness(1.04)}.tcl-links a:hover{text-decoration:underline;text-underline-offset:4px}
+  @media(max-width:980px){.tcl-nav{grid-template-columns:1fr auto}.tcl-links{display:none}.tcl-grid{grid-template-columns:1fr;gap:48px;padding:65px 0 70px}.tcl-copy{max-width:720px}.tcl-card{width:min(100%,620px)}.tcl-main{background:radial-gradient(circle at 12% 10%,rgba(38,196,195,.14),transparent 25%),linear-gradient(145deg,#f9fcfc,#eff8f7)}}
+  @media(max-width:640px){.tcl-shell{width:calc(100% - 32px)}.tcl-announcement{font-size:8px;letter-spacing:.13em}.tcl-nav{min-height:78px;gap:12px}.tcl-logo{max-width:164px}.tcl-logo img{max-width:158px;max-height:48px}.tcl-logo-type strong{font-size:17px}.tcl-logo-type small{font-size:6px}.tcl-nav-cta{min-height:42px;padding:0 14px;font-size:9px}.tcl-grid{min-height:auto;padding:54px 0 58px;gap:38px}.tcl-copy h1{font-size:47px}.tcl-lede{font-size:15px}.tcl-benefits{align-items:flex-start;flex-direction:column}.tcl-note{margin-top:28px;padding:24px 21px}.tcl-note strong{font-size:17px}.tcl-note p{font-size:14px}.tcl-note .tcl-register-button{width:100%;min-height:50px}.tcl-card{padding:36px 23px 29px;border-radius:21px}.tcl-card h2{font-size:35px}.tcl-footer .tcl-shell{align-items:flex-start;flex-direction:column;gap:6px}}
+{% endstyle %}
+
+{% schema %}
+{
+  "name": "Clinic login gateway",
+  "settings": [],
+  "presets": [{ "name": "Clinic login gateway" }]
+}
+{% endschema %}

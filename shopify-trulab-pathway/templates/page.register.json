@@ -1,0 +1,11 @@
+{
+  "sections": {
+    "main": {
+      "type": "trulab-clinic-register",
+      "settings": {
+        "form_url": "https://trinitymd.shop/apps/massy/pages/registration-form/parner-wholesale"
+      }
+    }
+  },
+  "order": ["main"]
+}
