@@ -8,8 +8,8 @@ const NOW_SECONDS = 1_800_000_000;
 const SHOP = 'trinity-test.myshopify.com';
 const APP_SECRET = 'test-app-secret';
 
-function signedRequestUrl() {
-  const url = new URL('https://pathway-portal.example/proxy/api/assignments');
+function signedRequestUrl(pathname = '/proxy/api/assignments') {
+  const url = new URL(`https://pathway-portal.example${pathname}`);
   url.searchParams.set('shop', SHOP);
   url.searchParams.set('logged_in_customer_id', '12345');
   url.searchParams.set('path_prefix', '/apps/pathway-portal');
@@ -30,7 +30,9 @@ function fixture(overrides = {}) {
       return {
         customer: {
           id: 'gid://shopify/Customer/12345',
-          email: 'clinic@example.com',
+          email: overrides.email || 'clinic@example.com',
+          firstName: overrides.firstName || 'Jamie',
+          lastName: overrides.lastName || 'Smith',
           tags: overrides.tags || ['clinics'],
         },
       };
@@ -119,6 +121,60 @@ test('rejects a signed-in customer without the clinic tag', async () => {
   const response = await handler(new Request(signedRequestUrl()));
   assert.equal(response.status, 403);
   assert.deepEqual(await response.json(), { error: 'Approved clinic access is required.' });
+});
+
+test('returns only the signed-in customer kit fields and a write token', async () => {
+  const existing = [{
+    id: 'gid://shopify/Metaobject/18',
+    kitId: 'KIT-0018',
+    clientEmail: 'retail@example.com',
+    clientName: 'R. Customer',
+    status: 'assigned',
+    providerReviewStatus: 'not_started',
+    createdAt: '2026-09-24T12:00:00.000Z',
+    updatedAt: '2026-09-24T12:00:00.000Z',
+  }];
+  const { handler } = fixture({ assignments: existing, tags: ['retail'] });
+  const response = await handler(new Request(signedRequestUrl('/proxy/api/customer-kits')));
+  const payload = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(payload.kits, [{
+    id: 'gid://shopify/Metaobject/18',
+    kitId: 'KIT-0018',
+    status: 'assigned',
+    providerReviewStatus: 'not_started',
+    registeredAt: '2026-09-24T12:00:00.000Z',
+    updatedAt: '2026-09-24T12:00:00.000Z',
+  }]);
+  assert.equal(Object.hasOwn(payload.kits[0], 'clientEmail'), false);
+  assert.match(payload.csrfToken, /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/);
+});
+
+test('registers a customer kit using identity loaded from Shopify', async () => {
+  const { calls, handler } = fixture({
+    email: 'RETAIL@EXAMPLE.COM',
+    firstName: 'riley',
+    lastName: 'jones',
+    tags: ['retail'],
+  });
+  const getResponse = await handler(new Request(signedRequestUrl('/proxy/api/customer-kits')));
+  const { csrfToken } = await getResponse.json();
+  const response = await handler(new Request(signedRequestUrl('/proxy/api/customer-kits'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ csrfToken, kitId: ' ptw-9001 ' }),
+  }));
+  const payload = await response.json();
+
+  assert.equal(response.status, 201);
+  assert.deepEqual(calls.created[0].assignments, [{
+    kitId: 'PTW-9001',
+    clientEmail: 'retail@example.com',
+    clientName: 'R. jones',
+  }]);
+  assert.equal(payload.kit.kitId, 'PTW-9001');
+  assert.equal(Object.hasOwn(payload.kit, 'clientEmail'), false);
 });
 
 test('rejects oversized JSON before processing an assignment', async () => {

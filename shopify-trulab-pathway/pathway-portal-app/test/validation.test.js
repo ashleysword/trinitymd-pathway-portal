@@ -1,6 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeAssignment, normalizeAssignmentBatch } from '../src/validation.js';
+import { normalizeAssignment, normalizeAssignmentBatch, normalizeKitId } from '../src/validation.js';
+
+test('normalizes a customer-entered kit ID without accepting identity fields', () => {
+  assert.equal(normalizeKitId(' ptw-9001 '), 'PTW-9001');
+  assert.throws(() => normalizeKitId('bad id'), /4 to 64/);
+});
 
 test('normalizes kit ID, client email, and first initial plus last name', () => {
   assert.deepEqual(normalizeAssignment({

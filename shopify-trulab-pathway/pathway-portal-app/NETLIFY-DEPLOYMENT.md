@@ -94,14 +94,21 @@ In the local `pathway-portal-app` directory:
 
 1. Copy `shopify.app.toml.example` to `shopify.app.toml` if that has not already been done.
 2. Set `client_id` to the Shopify app's Client ID. Do not use the Client secret.
-3. Set `application_url` to the Netlify base URL only:
+3. Set `application_url` to the Netlify base URL only.
+4. Set the required auth redirect URL to the same Netlify base URL with a trailing slash:
 
 ```toml
 client_id = "YOUR_ACTUAL_CLIENT_ID"
 application_url = "https://trinitymd-pathway-portal.netlify.app"
+
+[auth]
+redirect_urls = ["https://trinitymd-pathway-portal.netlify.app/"]
+
+[webhooks]
+api_version = "2026-07"
 ```
 
-Do not append `/proxy`, do not use Markdown brackets, and do not add a trailing slash.
+Do not append `/proxy` or use Markdown brackets. Keep `application_url` without a trailing slash and keep the `[auth]` redirect URL with the trailing slash shown above. Shopify CLI requires `[auth]` and `[webhooks]` in the current app-configuration schema. This service uses client-credentials authentication, so the redirect URL is a schema-required fallback and is not used by the normal portal request flow.
 
 Run from Command Prompt:
 
@@ -122,6 +129,18 @@ to:
 https://YOUR-NETLIFY-SITE.netlify.app/proxy/api/assignments
 ```
 
+It also maps the signed-in customer registration route:
+
+```text
+/apps/pathway-portal/api/customer-kits
+```
+
+to:
+
+```text
+https://YOUR-NETLIFY-SITE.netlify.app/proxy/api/customer-kits
+```
+
 Opening the backend assignment URL directly should return an invalid-signature message. That is expected because valid requests must come through Shopify's signed storefront app proxy.
 
 ## 6. Final test
@@ -132,5 +151,8 @@ Opening the backend assignment URL directly should return an invalid-signature m
 4. Confirm the assignment table loads.
 5. Assign one test Kit ID with a test email and a first-initial/last-name value.
 6. Refresh the page and confirm the saved assignment remains visible.
+7. Sign in with a regular customer account that does not have the `clinics` tag.
+8. Open `/pages/account-router` and confirm it redirects to `/pages/my-pathway`.
+9. Register one test Kit ID, refresh the page, and confirm the registered kit remains visible without displaying the customer's stored name or email in the API response.
 
 If `/healthz` fails, review **Logs → Functions → pathway-portal** in Netlify. Do not post or share log lines containing credentials or client identifiers.

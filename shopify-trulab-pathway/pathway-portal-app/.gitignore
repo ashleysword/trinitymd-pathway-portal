@@ -1,0 +1,7 @@
+.env
+.env.*
+!.env.example
+.netlify/
+node_modules/
+shopify.app.toml
+*.log

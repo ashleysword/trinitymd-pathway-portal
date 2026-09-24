@@ -13,5 +13,5 @@ export default async function pathwayPortal(request) {
 }
 
 export const config = {
-  path: ['/proxy/api/assignments', '/healthz'],
+  path: ['/proxy/api/assignments', '/proxy/api/customer-kits', '/healthz'],
 };

@@ -3,8 +3,75 @@ client_id = "replace-with-app-client-id"
 application_url = "https://your-pathway-portal.netlify.app"
 embedded = false
 
+[auth]
+redirect_urls = ["https://your-pathway-portal.netlify.app/"]
+
+[webhooks]
+api_version = "2026-07"
+
 [access_scopes]
-scopes = "read_customers,write_customers,read_metaobjects,write_metaobjects,write_app_proxy"
+scopes = "read_customers,write_customers,read_metaobjects,write_metaobjects,write_app_proxy,write_content"
+
+[page.metafields.app.affiliate_name]
+name = "Affiliate name"
+description = "Affiliate, clinic, or partner name displayed on this PATHWAY landing page."
+type = "single_line_text_field"
+access.admin = "merchant_read_write"
+
+[page.metafields.app.affiliate_credentials]
+name = "Affiliate credentials"
+description = "Optional professional title or credentials displayed below the affiliate name."
+type = "single_line_text_field"
+access.admin = "merchant_read_write"
+
+[page.metafields.app.affiliate_logo]
+name = "Affiliate logo"
+description = "Logo displayed beside Trinity Cell Sciences branding."
+type = "file_reference"
+access.admin = "merchant_read_write"
+
+[page.metafields.app.affiliate_photo]
+name = "Affiliate photo"
+description = "Optional affiliate headshot or branded hero image."
+type = "file_reference"
+access.admin = "merchant_read_write"
+
+[page.metafields.app.affiliate_headline]
+name = "Affiliate headline"
+description = "Primary headline for this affiliate landing page."
+type = "single_line_text_field"
+access.admin = "merchant_read_write"
+
+[page.metafields.app.affiliate_message]
+name = "Affiliate welcome message"
+description = "Personalized introductory message from the affiliate."
+type = "rich_text_field"
+access.admin = "merchant_read_write"
+
+[page.metafields.app.affiliate_discount_code]
+name = "Affiliate discount code"
+description = "Unique Shopify discount code that provides the additional 5% affiliate savings."
+type = "single_line_text_field"
+access.admin = "merchant_read_write"
+
+[page.metafields.app.affiliate_tracking_id]
+name = "Affiliate tracking ID"
+description = "Stable identifier stored on the cart and PATHWAY order line for attribution."
+type = "single_line_text_field"
+access.admin = "merchant_read_write"
+capabilities.unique_values = true
+
+[page.metafields.app.affiliate_testimonial]
+name = "Affiliate testimonial"
+description = "Optional affiliate quotation shown between the benefits and process sections."
+type = "multi_line_text_field"
+access.admin = "merchant_read_write"
+
+[page.metafields.app.affiliate_accent_color]
+name = "Affiliate accent color"
+description = "Optional brand accent color for this affiliate page."
+type = "color"
+access.admin = "merchant_read_write"
 
 [metaobjects.app.pathway_assignment]
 name = "PATHWAY Kit Assignment"

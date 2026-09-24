@@ -10,14 +10,19 @@ const KIT_ID_PATTERN = /^[A-Z0-9._-]{4,64}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const CLIENT_NAME_PATTERN = /^(\p{L})\.?\s+([\p{L}\p{M}'’.-]+(?:\s+[\p{L}\p{M}'’.-]+)*)$/u;
 
+export function normalizeKitId(input) {
+  const kitId = String(input || '').trim().toUpperCase();
+  if (!KIT_ID_PATTERN.test(kitId)) {
+    throw new AssignmentValidationError('Kit ID must be 4 to 64 letters, numbers, dots, underscores, or hyphens.', 'kitId');
+  }
+  return kitId;
+}
+
 export function normalizeAssignment(input) {
-  const kitId = String(input?.kitId || '').trim().toUpperCase();
+  const kitId = normalizeKitId(input?.kitId);
   const clientEmail = String(input?.clientEmail || '').trim().toLowerCase();
   const suppliedName = String(input?.clientName || '').trim().replace(/\s+/g, ' ');
 
-  if (!KIT_ID_PATTERN.test(kitId)) {
-    throw new AssignmentValidationError('Kit ID must be 4–64 letters, numbers, dots, underscores, or hyphens.', 'kitId');
-  }
   if (clientEmail.length > 254 || !EMAIL_PATTERN.test(clientEmail)) {
     throw new AssignmentValidationError('Enter a valid client email address.', 'clientEmail');
   }
