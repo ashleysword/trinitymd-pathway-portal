@@ -18,6 +18,34 @@ The tag stays `clinics`, so existing clinics keep their pricing and hub access w
 
 Anyone who completes the form gets wholesale pricing. That matches Massy today. The NPI check is the only automatic guard.
 
+## The GHL form
+The form already exists in the **Trinity Cell Sciences** sub-account: **"Wholesale Discount"** (`otZ1eSlI0QkvV2rwshs0`, created Oct 19). It has the same fields as the Massy form, including the attachment upload. To embed it on the registration page, paste this into a Custom Liquid / custom HTML block:
+
+```html
+<iframe
+  src="https://go.trinitymd.shop/widget/form/otZ1eSlI0QkvV2rwshs0"
+  style="width:100%;height:100%;border:none;border-radius:8px"
+  id="inline-otZ1eSlI0QkvV2rwshs0"
+  data-layout="{'id':'INLINE'}"
+  data-trigger-type="alwaysShow"
+  data-trigger-value=""
+  data-activation-type="alwaysActivated"
+  data-activation-value=""
+  data-deactivation-type="neverDeactivate"
+  data-deactivation-value=""
+  data-form-name="Wholesale Discount"
+  data-height="1409"
+  data-layout-iframe-id="inline-otZ1eSlI0QkvV2rwshs0"
+  data-form-id="otZ1eSlI0QkvV2rwshs0"
+  data-cookie-consent="true"
+  data-cookie-consent-provider="auto"
+  title="Wholesale Discount">
+</iframe>
+<script src="https://go.trinitymd.shop/js/form_embed.js"></script>
+```
+
+The form's NPI field is **optional**, but the webhook requires a valid NPI by default. Either make the field required in GHL, or set `GHL_REQUIRE_NPI=false`. Otherwise a sign-up without an NPI is rejected (422) and never gets the tag.
+
 ## Setting up the GHL workflow
 Automation → Workflows → new workflow:
 - **Trigger:** *Form Submitted*, filtered to the clinic sign-up form.
