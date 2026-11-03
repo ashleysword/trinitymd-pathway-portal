@@ -52,7 +52,7 @@ function setup({ existing = [], withService = false, config = {} } = {}) {
   const accessChanges = [];
   const logs = [];
   const handler = createGhlSignupHandler({
-    config: { clinicTag: 'clinics', ghlSignupEnabled: true, ghlWebhookSecret: SECRET, ghlRequireNpi: true, ...config },
+    config: { clinicTag: 'clinics', ghlSignupEnabled: true, ghlWebhookSecret: SECRET, ghlRequireNpi: false, ...config },
     shopify,
     service,
     logger: { info: (...args) => logs.push(args), error: (...args) => logs.push(args) },
@@ -103,15 +103,32 @@ test('rejects requests without the shared secret and does nothing when disabled'
   assert.equal(off.shopify.calls.length, 0);
 });
 
-test('validates the form fields before touching Shopify', async () => {
+test('validates email and name before touching Shopify', async () => {
   const { handler, shopify } = setup();
   assert.equal((await handler.handle(post({ ...SIGNUP, email: 'not-an-email' }))).status, 422);
-  assert.equal((await handler.handle(post({ ...SIGNUP, npi: '1234567890' }))).status, 422);
-  assert.equal((await handler.handle(post({ ...SIGNUP, npi: '' }))).status, 422);
+  assert.equal((await handler.handle(post({ ...SIGNUP, lastName: '' }))).status, 422);
   assert.equal((await handler.handle(post('{bad json'))).status, 400);
   assert.equal(shopify.calls.length, 0);
-  const optional = setup({ config: { ghlRequireNpi: false } });
-  assert.equal((await optional.handler.handle(post({ ...SIGNUP, npi: '' }))).status, 200);
+});
+
+test('NPI is optional by default: missing or mistyped NPIs still get tagged', async () => {
+  const { handler, service, repository } = setup({ withService: true });
+  assert.equal((await handler.handle(post({ ...SIGNUP, npi: '' }))).status, 200);
+  assert.equal((await handler.handle(post({ ...SIGNUP, contactId: 'ghlContact02', email: 'sam@example.com', npi: '1234567890' }))).status, 200);
+  const stored = await repository.list('applications');
+  assert.equal(stored.length, 2);
+  assert.ok(stored.every((application) => application.practice.npi === ''));
+  assert.equal(normalizeGhlSignup({ ...SIGNUP, npi: '1234567890' }).npi, '');
+  assert.equal(normalizeGhlSignup(SIGNUP).npi, '1234567893');
+  assert.ok(service);
+});
+
+test('GHL_REQUIRE_NPI=true rejects missing or invalid NPIs', async () => {
+  const { handler, shopify } = setup({ config: { ghlRequireNpi: true } });
+  assert.equal((await handler.handle(post({ ...SIGNUP, npi: '1234567890' }))).status, 422);
+  assert.equal((await handler.handle(post({ ...SIGNUP, npi: '' }))).status, 422);
+  assert.equal(shopify.calls.length, 0);
+  assert.equal((await handler.handle(post(SIGNUP))).status, 200);
 });
 
 test('accepts GHL default webhook keys', () => {
@@ -155,5 +172,6 @@ test('runtime config requires a long secret when GHL signup is on', () => {
   assert.throws(() => configFromEnvironment({ ...base, GHL_SIGNUP_ENABLED: 'true', GHL_WEBHOOK_SECRET: 'short' }), /GHL_WEBHOOK_SECRET/);
   const on = configFromEnvironment({ ...base, GHL_SIGNUP_ENABLED: 'true', GHL_WEBHOOK_SECRET: SECRET });
   assert.equal(on.ghlSignupEnabled, true);
-  assert.equal(on.ghlRequireNpi, true);
+  assert.equal(on.ghlRequireNpi, false);
+  assert.equal(configFromEnvironment({ ...base, GHL_REQUIRE_NPI: 'true' }).ghlRequireNpi, true);
 });

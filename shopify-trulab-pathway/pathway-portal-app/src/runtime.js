@@ -75,7 +75,7 @@ export function configFromEnvironment(environment = process.env) {
     // GoHighLevel clinic sign-up webhook. Off unless enabled; tags instantly.
     ghlSignupEnabled,
     ghlWebhookSecret,
-    ghlRequireNpi: environment.GHL_REQUIRE_NPI === undefined ? true : flag(environment.GHL_REQUIRE_NPI),
+    ghlRequireNpi: flag(environment.GHL_REQUIRE_NPI),
   };
 }
 

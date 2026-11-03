@@ -12,11 +12,11 @@ The tag stays `clinics`, so existing clinics keep their pricing and hub access w
 ## Sign-up flow
 1. The clinic fills in the GHL form. EIN, permit and attachment can stay in GHL; the app never receives them.
 2. The GHL workflow sends the form fields with a shared secret header.
-3. The app validates email, name and NPI (check digit; required unless `GHL_REQUIRE_NPI=false`). It then finds the Shopify customer by email, or creates one, and adds `clinics`. It's safe to repeat: a second submission changes nothing.
+3. The app checks email and name. NPI is optional (owner decision, Nov 3): a missing NPI is fine, and a mistyped one is dropped rather than blocking the sign-up. Set `GHL_REQUIRE_NPI=true` to require a valid NPI. It then finds the Shopify customer by email, or creates one, and adds `clinics`. It is safe to repeat: a second submission changes nothing.
 4. If the clinic portal is on, an approved application with source `ghl` also appears in the staff console.
 5. No emails are sent by the app. New customers sign in at `/account/login`. With new customer accounts (email code) this works immediately. With classic accounts, staff must send an account invite from the customer page.
 
-Anyone who completes the form gets wholesale pricing. That matches Massy today. The NPI check is the only automatic guard.
+Anyone who completes the form gets wholesale pricing, with no automatic check. That matches Massy today. Staff can review sign-ups in GHL (or the staff console) and remove the tag from anyone who should not have it.
 
 ## The GHL form
 The form already exists in the **Trinity Cell Sciences** sub-account: **"Wholesale Discount"** (`otZ1eSlI0QkvV2rwshs0`, created Oct 19). It has the same fields as the Massy form, including the attachment upload. To embed it on the registration page, paste this into a Custom Liquid / custom HTML block:
@@ -44,7 +44,7 @@ The form already exists in the **Trinity Cell Sciences** sub-account: **"Wholesa
 <script src="https://go.trinitymd.shop/js/form_embed.js"></script>
 ```
 
-The form's NPI field is **optional**, but the webhook requires a valid NPI by default. Either make the field required in GHL, or set `GHL_REQUIRE_NPI=false`. Otherwise a sign-up without an NPI is rejected (422) and never gets the tag.
+The form's NPI field is optional, and so is the webhook's NPI check (see the sign-up flow above).
 
 ## Setting up the GHL workflow
 Automation → Workflows → new workflow:

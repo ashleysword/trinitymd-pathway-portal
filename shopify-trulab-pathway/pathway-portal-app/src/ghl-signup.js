@@ -41,7 +41,7 @@ function clip(value, max) {
 
 // Accepts the JSON body we document for the Custom Webhook action, and falls
 // back to GHL's default workflow payload keys (first_name, customData, ...).
-export function normalizeGhlSignup(payload = {}, { requireValidNpi = true } = {}) {
+export function normalizeGhlSignup(payload = {}, { requireValidNpi = false } = {}) {
   const email = pick(payload, 'email', 'contact.email').toLowerCase();
   if (email.length > 254 || !EMAIL_PATTERN.test(email)) throw new GhlSignupError('A valid email is required.');
 
@@ -49,9 +49,14 @@ export function normalizeGhlSignup(payload = {}, { requireValidNpi = true } = {}
   const lastName = clip(pick(payload, 'lastName', 'last_name', 'contact.last_name'), 60);
   if (!firstName || !lastName) throw new GhlSignupError('First and last name are required.');
 
-  const npi = pick(payload, 'npi', 'npi_number', 'customData.npi').replace(/\D/g, '');
-  if (npi && !isValidNpi(npi)) throw new GhlSignupError('The NPI number is not valid.');
-  if (!npi && requireValidNpi) throw new GhlSignupError('An NPI number is required.');
+  let npi = pick(payload, 'npi', 'npi_number', 'customData.npi').replace(/\D/g, '');
+  if (requireValidNpi) {
+    if (!npi) throw new GhlSignupError('An NPI number is required.');
+    if (!isValidNpi(npi)) throw new GhlSignupError('The NPI number is not valid.');
+  } else if (npi && !isValidNpi(npi)) {
+    // NPI is optional: a mistyped one is dropped rather than blocking the sign-up.
+    npi = '';
+  }
 
   let phone = pick(payload, 'phone', 'contact.phone').replace(/[^\d+]/g, '');
   if (/^\d{10}$/.test(phone)) phone = `+1${phone}`;
