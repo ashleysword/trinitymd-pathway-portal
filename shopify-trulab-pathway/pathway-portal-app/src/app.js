@@ -185,6 +185,9 @@ export function createPortalHandler(options) {
       if (clinicRoutes?.handles(requestUrl.pathname)) {
         return await clinicRoutes.handle(request, requestUrl);
       }
+      if (options.ghlSignup?.handles(requestUrl.pathname)) {
+        return await options.ghlSignup.handle(request);
+      }
       const isClinicAssignments = requestUrl.pathname === '/proxy/api/assignments';
       const isCustomerKits = requestUrl.pathname === '/proxy/api/customer-kits';
       if (!isClinicAssignments && !isCustomerKits) {

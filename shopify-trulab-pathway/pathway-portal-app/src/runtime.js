@@ -2,6 +2,7 @@ import { createPortalHandler } from './app.js';
 import { ClinicPortalService } from './clinic-portal.js';
 import { createClinicRoutes } from './clinic-routes.js';
 import { NetlifyBlobFileStore } from './file-store.js';
+import { createGhlSignupHandler } from './ghl-signup.js';
 import { LogNotifier } from './notifier.js';
 import { ShopifyPortalRepository } from './portal-repository.js';
 import { parseEncryptionKey } from './security.js';
@@ -44,6 +45,12 @@ export function configFromEnvironment(environment = process.env) {
     }
   }
 
+  const ghlSignupEnabled = flag(environment.GHL_SIGNUP_ENABLED);
+  const ghlWebhookSecret = environment.GHL_WEBHOOK_SECRET || '';
+  if (ghlSignupEnabled && ghlWebhookSecret.length < 32) {
+    throw new Error('GHL_WEBHOOK_SECRET must be at least 32 characters when GHL_SIGNUP_ENABLED is on.');
+  }
+
   return {
     port: Number(environment.PORT || 3000),
     shop: environment.SHOP_DOMAIN.toLowerCase(),
@@ -65,6 +72,10 @@ export function configFromEnvironment(environment = process.env) {
     staffUserIds: String(environment.STAFF_USER_IDS || '').split(',').map((id) => id.trim()).filter(Boolean),
     assetBaseUrl: environment.PORTAL_ASSET_BASE_URL || environment.DEPLOY_PRIME_URL || environment.URL || '',
     storefrontUrl: (environment.STOREFRONT_URL || 'https://trinitymd.shop').replace(/\/$/, ''),
+    // GoHighLevel clinic sign-up webhook. Off unless enabled; tags instantly.
+    ghlSignupEnabled,
+    ghlWebhookSecret,
+    ghlRequireNpi: environment.GHL_REQUIRE_NPI === undefined ? true : flag(environment.GHL_REQUIRE_NPI),
   };
 }
 
@@ -102,7 +113,16 @@ export function createPortalRuntime(environment = process.env) {
     clinicRoutes = (deps) => createClinicRoutes({ ...deps, service, config, staffAuth });
   }
 
-  const handler = createPortalHandler({ config, shopify, assignmentStore, customerAccessCache, clinicRoutes });
+  const ghlSignup = config.ghlSignupEnabled
+    ? createGhlSignupHandler({
+      config,
+      shopify,
+      service,
+      onClinicAccessChanged: (customerId) => customerAccessCache.delete(String(customerId)),
+    })
+    : null;
+
+  const handler = createPortalHandler({ config, shopify, assignmentStore, customerAccessCache, clinicRoutes, ghlSignup });
   return { assignmentStore, config, handler, service, shopify };
 }
 

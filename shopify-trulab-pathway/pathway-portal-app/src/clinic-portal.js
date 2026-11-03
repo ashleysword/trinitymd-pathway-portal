@@ -129,7 +129,7 @@ export class ClinicPortalService {
       duplicates,
     };
     if (includeSensitive) {
-      output.practice.taxId = decryptField(practice.taxIdEncrypted, this.encryptionKey);
+      output.practice.taxId = practice.taxIdEncrypted ? decryptField(practice.taxIdEncrypted, this.encryptionKey) : '';
       output.practice.resellerPermit = practice.resellerPermitEncrypted
         ? decryptField(practice.resellerPermitEncrypted, this.encryptionKey)
         : '';
@@ -206,6 +206,60 @@ export class ClinicPortalService {
 
   // Flags other applications sharing an NPI or Tax ID (compared by keyed
   // fingerprint, so encrypted identifiers never need bulk decryption).
+  // A clinic approved outside the portal (GHL form). The tag is already on the
+  // customer; this only gives staff the same record and audit trail.
+  async recordExternalSignup(customerId, signup, { source }) {
+    const handle = recordHandle('application', customerId, `${source}-${signup.contactId || signup.email}`);
+    if (await this.repo.getByHandle('applications', handle)) return null;
+    const at = this.timestamp();
+    const actor = { type: 'system', id: `${source}-signup` };
+    const record = {
+      customerId: String(customerId),
+      status: 'approved',
+      source,
+      practice: {
+        firstName: signup.firstName,
+        lastName: signup.lastName,
+        contactEmail: signup.email,
+        phone: signup.phone,
+        company: signup.company,
+        businessType: signup.businessType,
+        website: signup.website,
+        npi: signup.npi,
+        npiMatchesContact: false,
+        taxIdEncrypted: '',
+        taxIdLast4: '',
+        resellerPermitEncrypted: '',
+        resellerPermitLast4: '',
+      },
+      npiFingerprint: signup.npi ? this.fingerprint('npi', signup.npi) : '',
+      taxIdFingerprint: '',
+      notes: [],
+      history: [
+        { at, actor, action: 'submitted', to: 'approved' },
+        { at, actor, action: 'tag_applied' },
+      ],
+      tagStatus: 'applied',
+      createdAt: at,
+      updatedAt: at,
+      decidedAt: at,
+      decidedBy: actor,
+    };
+    let application;
+    try {
+      application = await this.repo.create('applications', record, {
+        handle,
+        index: { owner: String(customerId), status: 'approved', key: record.npiFingerprint },
+      });
+    } catch (error) {
+      if (error instanceof DuplicateRecordError) return null;
+      throw error;
+    }
+    await this.audit(actor, 'application.approved', application.id, { clinicCustomerId: String(customerId), source });
+    await this.notifier.notify('application.approved', { audience: 'staff', recordId: application.id, customerId: String(customerId) });
+    return application;
+  }
+
   findDuplicates(application, pool) {
     return pool
       .filter((other) => other.id !== application.id

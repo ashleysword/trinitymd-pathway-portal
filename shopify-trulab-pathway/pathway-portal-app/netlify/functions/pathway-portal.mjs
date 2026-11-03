@@ -23,5 +23,7 @@ export const config = {
     '/proxy/api/clinic/*',
     '/staff',
     '/staff/api/*',
+    // GHL clinic sign-up webhook; 404 unless GHL_SIGNUP_ENABLED is on.
+    '/webhooks/ghl/clinic-signup',
   ],
 };

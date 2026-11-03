@@ -8,7 +8,7 @@ test('publishes the clinic, customer, and health-check routes as one Netlify Fun
 });
 
 test('publishes the clinic portal v3 proxy and staff routes', () => {
-  for (const path of ['/proxy/clinic', '/proxy/apply', '/proxy/api/clinic/*', '/staff/api/*']) {
+  for (const path of ['/proxy/clinic', '/proxy/apply', '/proxy/api/clinic/*', '/staff/api/*', '/webhooks/ghl/clinic-signup']) {
     assert.ok(config.path.includes(path), `${path} should be routed to the function`);
   }
 });
