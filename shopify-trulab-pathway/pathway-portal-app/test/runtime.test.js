@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { configFromEnvironment } from '../src/runtime.js';
+import { configFromEnvironment, createPortalRuntime } from '../src/runtime.js';
 
 function environment(overrides = {}) {
   return {
@@ -33,4 +33,30 @@ test('rejects an unsafe proxy timestamp window', () => {
     () => configFromEnvironment(environment({ APP_PROXY_MAX_AGE_SECONDS: '3600' })),
     /between 30 and 900/,
   );
+});
+
+test('keeps clinic portal v3 off and manual-review by default', () => {
+  const config = configFromEnvironment(environment());
+  assert.equal(config.clinicPortalEnabled, false);
+  assert.equal(config.approvalMode, 'manual');
+  assert.equal(config.customerTaggingEnabled, false);
+  assert.equal(config.kitIdPattern, null);
+});
+
+test('validates clinic portal v3 settings', () => {
+  assert.throws(() => configFromEnvironment(environment({ CLINIC_APPROVAL_MODE: 'sometimes' })), /manual or auto/);
+  assert.throws(() => configFromEnvironment(environment({ KIT_ID_PATTERN: '(' })), /valid regular expression/);
+  const config = configFromEnvironment(environment({ KIT_ID_PATTERN: 'TL[0-9]{8}', STAFF_USER_IDS: ' 1, 2 ,' }));
+  assert.equal(config.kitIdPattern.test('TL00001234'), true);
+  assert.equal(config.kitIdPattern.test('XTL00001234'), false);
+  assert.deepEqual(config.staffUserIds, ['1', '2']);
+});
+
+test('requires an asset base before enabling clinic portal v3', () => {
+  assert.throws(
+    () => createPortalRuntime(environment({ CLINIC_PORTAL_ENABLED: 'true' })),
+    /PORTAL_ASSET_BASE_URL is required/,
+  );
+  const runtime = createPortalRuntime(environment({ CLINIC_PORTAL_ENABLED: 'true', PORTAL_ASSET_BASE_URL: 'https://portal.example' }));
+  assert.ok(runtime.service);
 });
