@@ -21,6 +21,7 @@ export function renderPortalPage({ assetBase, apiBase, initialView, storefrontUr
 <body>
   <div id="portal-root"
     data-api-base="${escapeHtml(apiBase)}"
+    data-asset-base="${base}"
     data-initial-view="${escapeHtml(initialView)}"
     data-storefront="${escapeHtml(storefrontUrl)}">
     <noscript>The clinic portal needs JavaScript enabled.</noscript>
@@ -85,7 +86,7 @@ export function portalPageHeaders(assetBase) {
       "default-src 'none'",
       `script-src ${assetOrigin}`,
       `style-src ${assetOrigin}`,
-      "img-src 'self' data: blob:",
+      `img-src 'self' ${assetOrigin} data: blob:`,
       "media-src 'self' blob:",
       "connect-src 'self'",
       "frame-src 'self' blob:",

@@ -6,6 +6,7 @@
 
   const apiBase = root.dataset.apiBase;
   const storefront = root.dataset.storefront || '';
+  const assetBase = root.dataset.assetBase || '';
   const state = {
     session: null,
     tab: 'kits',
@@ -110,40 +111,70 @@
     element.hidden = !message;
   }
 
+  // Chrome mirrors the live clinic hub: announcement bar, white header with the
+  // Trinity wordmark, and the navy BioBlueprint footer.
   function mount(...nodes) {
-    root.replaceChildren(header(), h('main', { class: 'shell', id: 'main' }, ...nodes), footer());
+    root.replaceChildren(
+      h('div', { class: 'announcement', text: 'BioBlueprint clinic partner hub · approved accounts only' }),
+      header(),
+      h('main', { class: 'page', id: 'main' }, h('div', { class: 'shell' }, ...nodes)),
+      footer());
+  }
+
+  function goToTab(tab) {
+    state.tab = tab;
+    renderPortal();
   }
 
   function header() {
     const session = state.session;
-    return h('header', { class: 'topbar' },
-      h('div', { class: 'topbar__inner' },
-        h('a', { class: 'brand', href: storefront || '/' }, h('strong', { text: 'TRINITY' }), h('small', { text: 'BioBlueprint clinic partners' })),
-        session && session.signedIn ? h('a', { class: 'signout', href: session.options.logoutUrl, text: 'Sign out' }) : null));
+    const isClinic = Boolean(session && session.signedIn && session.isClinic);
+    return h('header', { class: 'site-header' },
+      h('div', { class: 'shell nav' },
+        h('a', { class: 'logo', href: storefront || '/', 'aria-label': 'Trinity home' },
+          h('img', { src: `${assetBase}/portal/trinity-brand-logo.jpeg`, alt: 'Trinity', width: '220', height: '68' })),
+        isClinic
+          ? h('nav', { class: 'nav-links', 'aria-label': 'Clinic portal navigation' },
+            h('button', { type: 'button', onclick: () => goToTab('kits'), text: 'Kits' }),
+            h('button', { type: 'button', onclick: () => goToTab('documents'), text: 'Education' }),
+            h('button', { type: 'button', onclick: () => goToTab('messages'), text: 'Messages' }),
+            h('a', { href: session.options.orderingUrl, text: 'Order kits' }))
+          : h('nav', { class: 'nav-links', 'aria-label': 'Clinic access navigation' },
+            h('a', { href: `${storefront}/pages/bioblueprint`, text: 'BioBlueprint test' })),
+        session && session.signedIn
+          ? h('a', { class: 'button button--small', href: session.options.logoutUrl }, 'Sign out ', h('span', { class: 'arrow', 'aria-hidden': 'true' }))
+          : h('a', { class: 'button button--small', href: (session && session.loginUrl) || '#' }, 'Sign in ', h('span', { class: 'arrow', 'aria-hidden': 'true' }))));
   }
 
   function footer() {
-    return h('footer', { class: 'footer' },
-      h('p', { text: 'This portal is for clinic business, kit registration, and kit-status questions. Do not enter patient names, dates of birth, test results, or other health information.' }));
+    return h('footer', { class: 'site-footer' },
+      h('div', { class: 'shell' },
+        h('strong', { text: 'BioBlueprint™ clinic partner portal' }),
+        h('span', { text: 'For clinic business, kit registration, and kit-status questions. Do not enter patient names, dates of birth, test results, or other health information.' })));
   }
 
   // ---------- signed out / application ----------
 
   function renderSignedOut() {
-    mount(h('section', { class: 'card hero' },
+    mount(h('section', { class: 'access' },
       h('div', {},
-        h('p', { class: 'eyebrow', text: 'Clinic partner portal' }),
-        h('h1', { text: 'Sign in to continue' }),
-        h('p', { class: 'muted', text: 'Approved clinics can register kits, follow kit status, download clinic resources, and message the TrinityMD team. New practices can apply for wholesale access after signing in or creating an account.' })),
-      h('div', { class: 'button-row' },
-        h('a', { class: 'button', href: state.session.loginUrl, text: 'Sign in or create account' }))));
+        h('p', { class: 'eyebrow', text: 'Protected clinic hub' }),
+        h('h1', { text: 'Approved clinic access required.' }),
+        h('p', { class: 'lede', text: 'Sign in with the email connected to your TrinityMD clinic account to register kits, follow kit status, download clinic education, and message our team. New practices can apply for wholesale access after signing in or creating an account.' })),
+      h('aside', {},
+        h('div', { class: 'lock', 'aria-hidden': 'true', text: '●' }),
+        h('h2', { text: 'Sign in to continue' }),
+        h('p', { text: 'Use your clinic account email. If your practice is new to TrinityMD, create an account first and then complete the short wholesale application.' }),
+        h('a', { class: 'button', href: state.session.loginUrl }, 'Sign in or create account ', h('span', { class: 'arrow', 'aria-hidden': 'true' })))));
   }
 
   function renderApplicationStatus(application) {
     const pending = application.status === 'pending';
-    mount(h('section', { class: 'card stack' },
-      h('p', { class: 'eyebrow', text: 'Wholesale application' }),
-      h('h1', { text: pending ? 'Your application is under review' : 'Application update' }),
+    mount(h('section', { class: 'intro' },
+      h('div', {},
+        h('p', { class: 'eyebrow', text: 'Wholesale application' }),
+        h('h1', { text: pending ? 'Your application is under review.' : 'Application update.' }))),
+    h('section', { class: 'card stack' },
       h('p', {}, 'Practice: ', h('strong', { text: application.company }), ' · Submitted ', formatDate(application.submittedAt)),
       h('p', {}, statusPill(application.status)),
       pending
@@ -193,9 +224,8 @@
     const formRequestId = requestId();
 
     const form = h('form', { novalidate: true, class: 'card' },
-      h('p', { class: 'eyebrow', text: 'Clinic wholesale application' }),
-      h('h1', { text: 'Apply for clinic partner access' }),
-      h('p', { class: 'muted', text: 'Tell us about your practice. Fields marked * are required. Identifiers are used only to verify your practice and are encrypted when stored.' }),
+      h('h2', { text: 'Practice details' }),
+      h('p', { class: 'muted', text: 'Fields marked * are required. Identifiers are used only to verify your practice and are encrypted when stored.' }),
       notice,
       h('fieldset', {},
         h('legend', { text: 'Contact' }),
@@ -222,6 +252,11 @@
         h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'attestation', id: 'attestation', 'aria-describedby': 'attestation-error' }), h('span', { text: 'I confirm this information is accurate and that I am authorized to apply on behalf of this practice.' })),
         h('p', { class: 'field-error', id: 'attestation-error', role: 'alert' })),
       h('div', { class: 'button-row' }, submit));
+    const intro = h('section', { class: 'intro' },
+      h('div', {},
+        h('p', { class: 'eyebrow', text: 'Clinic wholesale application' }),
+        h('h1', { text: 'Apply for clinic partner access.' }),
+        h('p', { class: 'lede', text: 'Tell us about your practice. Once approved, your account unlocks clinic pricing, kit registration, education materials, and direct messaging with the TrinityMD team.' })));
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
@@ -253,7 +288,7 @@
         submit.textContent = 'Submit application';
       }
     });
-    mount(form);
+    mount(intro, form);
   }
 
   function renderConfirmation(application) {
@@ -265,9 +300,11 @@
         h('button', { class: 'button', type: 'button', onclick: start, text: 'Open the portal' })));
       return;
     }
-    mount(h('section', { class: 'card stack', tabindex: '-1', id: 'confirmation' },
-      h('p', { class: 'eyebrow', text: 'Application received' }),
-      h('h1', { text: 'Thank you — we have your application' }),
+    mount(h('section', { class: 'intro', tabindex: '-1', id: 'confirmation' },
+      h('div', {},
+        h('p', { class: 'eyebrow', text: 'Application received' }),
+        h('h1', { text: 'Thank you. We have your application.' }))),
+    h('section', { class: 'card stack' },
       h('p', {}, 'Practice: ', h('strong', { text: application.company })),
       h('p', { class: 'muted', text: 'Our team will review your practice details and email you when a decision is made. Clinic pricing and portal tools turn on after approval.' })));
     global.document.getElementById('confirmation').focus();
@@ -280,22 +317,38 @@
     const unread = state.threads.filter((thread) => thread.unread).length;
     const tabs = [
       ['kits', 'Kits'],
-      ['documents', 'Documents'],
+      ['documents', 'Education'],
       ['messages', 'Messages'],
     ];
+    const inProgress = state.kits.filter((kit) => !['complete', 'cancelled'].includes(kit.status)).length;
+    const stat = (icon, iconClass, value, label, note) => h('article', { class: 'stat' },
+      h('span', { class: `stat-icon ${iconClass}`, 'aria-hidden': 'true', text: icon }),
+      h('div', {}, h('p', { text: label }), h('small', { text: note })),
+      h('strong', { text: String(value) }));
     const panel = h('div', { id: 'panel', role: 'tabpanel', tabindex: '-1' });
     mount(
-      h('section', { class: 'hero' },
+      h('section', { class: 'intro' },
         h('div', {},
           h('p', { class: 'eyebrow', text: 'Clinic partner workspace' }),
-          h('h1', { text: session.customer.firstName ? `Welcome, ${session.customer.firstName}` : 'Welcome to your clinic portal' })),
-        h('a', { class: 'button button--cyan', href: session.options.orderingUrl, text: 'Order kits at clinic pricing' })),
+          h('h1', { text: session.customer.firstName ? `Welcome, ${session.customer.firstName}.` : 'Welcome to your clinic hub.' }),
+          h('p', { class: 'lede', text: 'Register and track your BioBlueprint kits, download approved clinic education, and message the TrinityMD team.' })),
+        h('a', { class: 'button button--cyan', href: session.options.orderingUrl }, 'Order BioBlueprint kits ', h('span', { class: 'arrow', 'aria-hidden': 'true' }))),
+      h('div', { class: 'stats', 'aria-label': 'Clinic account summary' },
+        stat('●', '', state.kits.length, 'Registered kits', 'Saved to this clinic account'),
+        stat('●', 'stat-icon--blue', inProgress, 'Kits in progress', 'Not yet complete or cancelled'),
+        stat('✓', 'stat-icon--lime', unread, 'Unread messages', 'Replies from the TrinityMD team')),
       h('div', { class: 'tabs', role: 'tablist', 'aria-label': 'Portal sections' },
         tabs.map(([key, label]) => h('button', {
           type: 'button', role: 'tab', id: `tab-${key}`, 'aria-selected': String(state.tab === key), 'aria-controls': 'panel',
           onclick: () => { state.tab = key; renderPortal(); },
         }, label, key === 'messages' && unread ? h('span', { class: 'badge', text: String(unread) }) : null))),
-      panel);
+      panel,
+      h('section', { class: 'support' },
+        h('div', {},
+          h('p', { class: 'eyebrow', text: 'Clinic support' }),
+          h('h2', { text: 'Need help with an order or a kit?' }),
+          h('p', { class: 'muted', text: 'Send the TrinityMD clinic team a message. Include your Shopify order number or Kit ID, never patient details.' })),
+        h('button', { class: 'button button--ghost', type: 'button', onclick: () => { state.tab = 'messages'; renderPortal(); renderNewThread(global.document.getElementById('panel')); } }, 'Message the team ', h('span', { class: 'arrow', 'aria-hidden': 'true' }))));
     panel.setAttribute('aria-labelledby', `tab-${state.tab}`);
     if (state.tab === 'kits') renderKits(panel);
     if (state.tab === 'documents') renderDocuments(panel);
@@ -378,9 +431,10 @@
     const submit = h('button', { class: 'button', type: 'submit', text: 'Register kit' });
     let source = 'manual';
 
-    const form = h('form', { class: 'card', novalidate: true },
-      h('h2', { text: 'Register a kit' }),
-      h('p', { class: 'muted', text: 'Scan the barcode on the kit label, or type the Kit ID. Registration links the kit to your clinic only — no patient details are needed.' }),
+    const form = h('form', { class: 'feature-card', novalidate: true },
+      h('p', { class: 'eyebrow', text: 'Secure clinic record' }),
+      h('h3', { text: 'Register a kit' }),
+      h('p', { class: 'signed-in', text: `Signed in as ${state.session.customer.email}` }),
       notice,
       h('div', { class: 'scan-box' },
         h('div', { class: 'stack' },
@@ -415,6 +469,11 @@
         source = 'manual';
         state.kits = (await api('/kits')).kits;
         renderKitList(listWrap);
+        const counters = global.document.querySelectorAll('.stat strong');
+        if (counters.length >= 2) {
+          counters[0].textContent = String(state.kits.length);
+          counters[1].textContent = String(state.kits.filter((kit) => !['complete', 'cancelled'].includes(kit.status)).length);
+        }
         input.focus();
       } catch (error) {
         setNotice(notice, 'error', error.message);
@@ -432,8 +491,28 @@
     search.addEventListener('input', () => { state.kitFilter.q = search.value; renderKitList(listWrap); });
     filter.addEventListener('change', () => { state.kitFilter.status = filter.value; renderKitList(listWrap); });
 
-    panel.append(form, h('section', { class: 'card' },
-      h('h2', { text: 'Your kits' }),
+    const feature = h('section', { class: 'feature' },
+      h('div', { class: 'feature-copy' },
+        h('p', { class: 'eyebrow', text: 'Secure kit registration' }),
+        h('h2', { text: 'Scan or enter each kit as it arrives.' }),
+        h('p', { class: 'copy', text: 'Registration links a kit to your clinic account so you can follow its progress. No patient details are needed.' }),
+        h('div', { class: 'privacy-note' },
+          h('span', { 'aria-hidden': 'true', text: '!' }),
+          h('div', {},
+            h('strong', { text: 'Kit ID only.' }),
+            h('p', { text: 'Do not enter patient names, dates of birth, diagnoses, test results, or medication information anywhere in this portal.' }))),
+        h('ul', {},
+          h('li', {}, h('span', { text: '1' }), 'Find the barcode label on the BioBlueprint kit.'),
+          h('li', {}, h('span', { text: '2' }), 'Scan it with your camera, or type the Kit ID.'),
+          h('li', {}, h('span', { text: '3' }), 'Follow its status below as the lab updates it.'))),
+      form);
+
+    panel.append(feature, h('section', { class: 'card' },
+      h('div', { class: 'panel-heading' },
+        h('div', {},
+          h('p', { class: 'eyebrow', text: 'Clinic kit records' }),
+          h('h2', { text: 'Your kits' }),
+          h('p', { class: 'muted', text: 'Search kits registered to this clinic account. Select a kit to see its timeline.' }))),
       h('div', { class: 'toolbar' }, search, filter),
       listWrap));
     renderKitList(listWrap);
@@ -481,21 +560,29 @@
   // Documents
 
   function renderDocuments(panel) {
-    if (!state.documents.length) {
-      panel.append(h('div', { class: 'card empty', text: 'No documents are published yet.' }));
-      return;
-    }
-    panel.append(h('div', { class: 'docs' }, state.documents.map((document) => {
-      const href = `${apiBase}/documents/${document.id.split('/').pop()}/file`;
-      return h('article', { class: 'card doc' },
-        h('div', {}, h('span', { class: `pill${document.audience === 'public' ? ' pill--public' : ''}`, text: document.audience === 'clinic' ? 'Clinic only' : 'Shareable' })),
-        h('h3', { text: document.title }),
-        document.description ? h('p', { class: 'muted', text: document.description }) : null,
-        h('p', { class: 'doc-meta', text: `${document.category} · Version ${document.version} · ${formatDate(`${document.publishedDate}T12:00:00`)}` }),
-        h('div', { class: 'button-row' },
-          h('a', { class: 'button button--small', href, target: '_blank', rel: 'noopener', text: 'View' }),
-          h('a', { class: 'button button--ghost button--small', href: `${href}?download=1`, text: 'Download' })));
-    })));
+    const heading = h('div', { class: 'panel-heading' },
+      h('div', {},
+        h('p', { class: 'eyebrow', text: 'BioBlueprint resource center' }),
+        h('h2', { text: 'Education materials' }),
+        h('p', { class: 'muted', text: 'Download approved resources for staff education and provider-guided client conversations.' })));
+    const grid = state.documents.length
+      ? h('div', { class: 'docs' }, state.documents.map((document) => {
+        const href = `${apiBase}/documents/${document.id.split('/').pop()}/file`;
+        const clinicOnly = document.audience === 'clinic';
+        return h('article', { class: 'doc' },
+          h('span', { class: `doc-icon${clinicOnly ? ' doc-icon--clinic' : ''}`, 'aria-hidden': 'true', text: document.contentType === 'application/pdf' ? 'PDF' : 'IMG' }),
+          h('div', { class: 'doc-body' },
+            h('small', { text: `${document.category}${clinicOnly ? ' · Clinic only' : ''}` }),
+            h('h3', { text: document.title }),
+            document.description ? h('p', { text: document.description }) : null,
+            h('p', { class: 'doc-meta', text: `Version ${document.version} · ${formatDate(`${document.publishedDate}T12:00:00`)}` }),
+            h('div', { class: 'button-row' },
+              h('a', { class: 'button button--small', href, target: '_blank', rel: 'noopener', text: 'View' }),
+              h('a', { class: 'button button--ghost button--small', href: `${href}?download=1`, text: 'Download' }))));
+      }))
+      : h('p', { class: 'empty', text: 'No documents are published yet.' });
+    panel.append(h('section', { class: 'card' }, heading, grid,
+      h('p', { class: 'education-note', text: 'BioBlueprint resources support provider-guided wellness discussions and do not replace clinical judgment or prescribe treatment.' })));
   }
 
   // Messages
