@@ -44,7 +44,14 @@ Automation → Workflows → new workflow:
 Netlify env vars: `GHL_SIGNUP_ENABLED=true` and `GHL_WEBHOOK_SECRET` (32+ random characters, stored only in Netlify and GHL).
 
 ## Setting up the wholesale pricing
-Prices live in a JSON metafield on the discount, so changing prices never needs a code deploy. The format is `extensions/clinic-wholesale-pricing/pricing.example.json`. It is pre-filled with **the current Massy prices**; replace them with the new ranges:
+Prices live in a JSON metafield on the discount, so changing prices never needs a code deploy. **`extensions/clinic-wholesale-pricing/pricing.json` carries the current Massy prices** (owner decision, Nov 3), copied from the two active rules:
+
+| Product (handle) | 1–9 kits | 10+ kits |
+|---|---:|---:|
+| `trinity-pathway-pgx-genetic-test-kit` (Massy #49525) | $550 each | $500 each |
+| `trulab-dx-pathway-genetic-test` (Massy #47297) | $450 each | $400 each |
+
+The handles come from the Oct 29 theme export. The script stops if a handle no longer exists in the store. Massy's draft rule "Wholesale Pricing after 10" (#47279) was inactive and isn't carried over. To change prices later, edit `pricing.json` and re-run the script. The format:
 
 ```json
 { "name": "PGX kit", "productHandles": ["<product-handle>"],
@@ -58,8 +65,8 @@ Prices live in a JSON metafield on the discount, so changing prices never needs 
 
 Apply it (preview first, then `--apply`):
 ```
-npm run wholesale-discount -- --config pricing.json
-npm run wholesale-discount -- --config pricing.json --apply
+npm run wholesale-discount -- --config extensions/clinic-wholesale-pricing/pricing.json
+npm run wholesale-discount -- --config extensions/clinic-wholesale-pricing/pricing.json --apply
 ```
 The first `--apply` creates the automatic discount "Clinic wholesale pricing". Later runs only update its prices. It combines with shipping discounts, but not with other product or order discounts.
 

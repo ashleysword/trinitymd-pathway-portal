@@ -91,10 +91,21 @@ test('config validation explains every problem', () => {
   assert.match(errors.join('\n'), /more than one rule/);
 });
 
-test('the example config is valid once handles become IDs', () => {
-  const example = JSON.parse(readFileSync(new URL('../extensions/clinic-wholesale-pricing/pricing.example.json', import.meta.url)));
-  const withIds = { ...example, rules: example.rules.map(({ productHandles, ...rule }, index) => ({ ...rule, productIds: [`gid://shopify/Product/${index + 1}`] })) };
-  assert.deepEqual(validatePricingConfig(withIds), []);
+for (const file of ['pricing.example.json', 'pricing.json']) {
+  test(`${file} is valid once handles become IDs`, () => {
+    const config = JSON.parse(readFileSync(new URL(`../extensions/clinic-wholesale-pricing/${file}`, import.meta.url)));
+    const withIds = { ...config, rules: config.rules.map(({ productHandles, ...rule }, index) => ({ ...rule, productIds: [`gid://shopify/Product/${index + 1}`] })) };
+    assert.deepEqual(validatePricingConfig(withIds), []);
+  });
+}
+
+test('pricing.json carries the live Massy volume prices', () => {
+  const config = JSON.parse(readFileSync(new URL('../extensions/clinic-wholesale-pricing/pricing.json', import.meta.url)));
+  const prices = Object.fromEntries(config.rules.map((rule) => [rule.productHandles[0], rule.tiers.map((tier) => [tier.minQuantity, tier.unitPrice])]));
+  assert.deepEqual(prices, {
+    'trinity-pathway-pgx-genetic-test-kit': [[1, '550.00'], [10, '500.00']],
+    'trulab-dx-pathway-genetic-test': [[1, '450.00'], [10, '400.00']],
+  });
 });
 
 test('setup script resolves handles, creates the discount once, then only updates its prices', async () => {
