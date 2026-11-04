@@ -120,7 +120,9 @@ Before Nov 4 (kept for the record):
 | Nov 4 | Step 6: GHL "Wholesale Discount (TEST - dev store only)" form and a separate "TEST: clinic sign-up -> dev store" workflow (trigger: TEST form only). Owner pasted the preview secret and submitted with their own email | Pass: customer created on the dev store, tagged `clinics` |
 | Nov 4 | Staff console (embedded in the dev store admin) lists the 4 sign-ups as approved applications | Pass |
 | Nov 4 | Bugs found: application detail said "not found" (Shopify returns app metaobject types as `app--<id>--portal_*`; also affected documents and threads); every NPI/EIN-less sign-up flagged as a duplicate; GHL sends empty fields as the text "null". Fixed in `b6293ea`; detail view and duplicate flags rechecked on the preview | Fixed |
-| — | Step 7: clinic login, portal access, kit scan/manual entry, documents, messaging | Waiting for owner login |
+| Nov 4 | Clinic login on the dev store (new customer accounts, email code) and the clinic hub at `/pages/clinic-portal`: locked before login, unlocked after | Pass |
+| Nov 4 | Portal at `/apps/pathway-portal/clinic` was blank: its CSS/JS loaded from the production URL. Netlify functions don't get `DEPLOY_PRIME_URL` at runtime, so `assetBaseUrl` fell back to `URL`. Set `PORTAL_ASSET_BASE_URL` for deploy previews; production must also set it explicitly when the portal is turned on | Fixed (setting) |
+| — | Step 7: portal kit scan/manual entry, documents, messaging | In progress |
 
 ## Can native B2B on Basic replace Massy's two rules?
 **Probably, for these two products, but not as a drop-in.** Basic can now set wholesale prices with quantity breaks. But B2B prices go to **company locations**, not tagged customers, and breaks count **per variant**, not across the whole order as Massy does. Sources: [B2B features by plan](https://help.shopify.com/en/manual/b2b/getting-started/plan-features), [volume pricing](https://help.shopify.com/en/manual/b2b/catalogs/quantity-pricing), [considerations](https://help.shopify.com/en/manual/b2b/getting-started/considerations) (read Nov 4, 2026).
