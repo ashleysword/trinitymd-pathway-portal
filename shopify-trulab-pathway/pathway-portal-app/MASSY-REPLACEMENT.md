@@ -129,7 +129,8 @@ Before Nov 4 (kept for the record):
 | Nov 4 | Staff reply missing from the staff thread right after sending (search lag). Fixed in `297a8b5` (thread keeps its newest message) | Fixed |
 | Nov 4 | New: per-kit clinic reference (owner request; free text up to 60 characters with the PHI guard), `b0b0721`. Saved, persisted after reload, searchable; DOB text rejected and not stored; audit records the change without the text | Pass |
 | — | Camera scan: not testable in an automated browser (no camera); the Code 128 fallback decoder has unit tests. Needs a phone check | Not run |
-| — | Documents: staff upload → clinic download (the upload needs a person to pick the file) | Waiting for owner |
+| Nov 4 | Documents: owner uploaded a synthetic PDF in the staff console; it stayed a draft because the staff list could miss a just-saved document (search lag). Fixed in `efcd6f9` | Fixed |
+| Nov 4 | Documents: after publishing, the clinic Education tab lists it (clinic only, version 1); download through the app proxy returns `application/pdf`, all 627 bytes, intact. Direct unsigned request → 401; signed-out store visitor → redirected | Pass |
 
 ## Can native B2B on Basic replace Massy's two rules?
 **Probably, for these two products, but not as a drop-in.** Basic can now set wholesale prices with quantity breaks. But B2B prices go to **company locations**, not tagged customers, and breaks count **per variant**, not across the whole order as Massy does. Sources: [B2B features by plan](https://help.shopify.com/en/manual/b2b/getting-started/plan-features), [volume pricing](https://help.shopify.com/en/manual/b2b/catalogs/quantity-pricing), [considerations](https://help.shopify.com/en/manual/b2b/getting-started/considerations) (read Nov 4, 2026).
