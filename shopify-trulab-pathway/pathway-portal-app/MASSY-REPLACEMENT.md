@@ -73,6 +73,8 @@ The workflow is set up as follows (Automation → Workflows):
 
 Netlify env vars: `GHL_SIGNUP_ENABLED=true` and `GHL_WEBHOOK_SECRET` (32+ random characters, stored only in Netlify and GHL).
 
+**Set Nov 4 for the deploy-preview context only** (production has neither). The preview uses the same `SHOP_DOMAIN` as production, so a test submission creates or tags a real customer in the live store. Use a test email you control, and remove the `clinics` tag afterwards. To copy the secret into GHL: Netlify → Site configuration → Environment variables → `GHL_WEBHOOK_SECRET` → Deploy Previews value.
+
 ## Setting up the wholesale pricing
 Prices live in a JSON metafield on the discount, so changing prices never needs a code deploy. **`extensions/clinic-wholesale-pricing/pricing.json` carries the current Massy prices** (owner decision, Nov 3), copied from the two active rules:
 
