@@ -1,111 +1,129 @@
 # Launch review: clinic portal v3 + GHL sign-up (PR #1)
 
-**Status, Nov 4:** every clinic step passed on the development store (see the test log in `MASSY-REPLACEMENT.md`). Nothing has been changed in production. PR #1 stays a draft; Massy stays active; affiliate work stays on hold. Launch needs the blockers in §4 cleared and owner approval at each production step in §2.
+**Status, Nov 4:** every clinic step passed on the development store (test log in `MASSY-REPLACEMENT.md`). Production is unchanged. PR #1 stays a draft, Massy stays active, and affiliate work stays on hold. **Nothing in §3 runs until the owner approves this completed plan**, and each production step then needs its own go-ahead.
 
-## 1. Testing the two Massy rules on the dev store
+## 1. Massy wholesale pricing: what the live rules do
 
-**Cost: none.** Massy's App Store listing says its Free plan includes "all app features on dev stores" ([listing](https://apps.shopify.com/massy-b2b-wholesale-pricing-discount), read Nov 4). Dev-store checkout uses Shopify's test payment gateway (enabled by the store's test data), so no real money moves. For reference, the paid plans are Essential $29/mo, Growth $59/mo and Plus $129/mo, each with a 14-day trial. The Free plan allows only **one** volume discount rule, so the live store, with two active rules, must already be on a paid plan. Check Massy's billing page in the live admin. The listing doesn't restrict Massy to Shopify Plus; it says it can edit Shopify Functions, and public-app Functions run on Basic.
+**Live Massy plan:** $59 every 30 days (Growth), from the live admin's app list.
 
-**Live store Massy plan:** $59 every 30 days (Growth), seen in the live admin's app list, Nov 4.
-
-**Rules to copy from the live store** (read field by field in the live Massy admin on Nov 4; read-only, nothing saved):
+**The two active rules** (read field by field in the live Massy admin, Nov 4; view only, nothing saved):
 
 | Setting | #49525 | #47297 |
 |---|---|---|
-| Name / discount title shown at checkout | Testing Kit PGX Volume Discount | Testing Kit Volume Discount |
+| Name / title shown at checkout | Testing Kit PGX Volume Discount | Testing Kit Volume Discount |
 | Status / priority | Active / 1 | Active / 0 |
-| Order tags | none | none |
-| Apply to markets / exclude | All markets / none | All markets / none |
-| Apply to customers | Customer tags: `clinics` | Customer tags: `clinics` |
-| Apply to products | Specific products: Trinity Pathway PGX Genetic Test Kit | Specific products: TruLab Dx PATHWAY Genetic Test |
-| Discount settings | Quantity range | Quantity range |
-| Calculation method | **Entire order**: "This calculates the total quantity of all items in the customer's order." | Entire order (same) |
-| Range 1 | 1 to 9, New price, $550 per item | 1 to 9, New price, $450 per item |
-| Range 2 | 10 and up, New price, $500 per item | 10 and up, New price, $400 per item |
-| Start / end date | Start Aug 21, 2026 4:03 PM / no end | none / none |
+| Markets | All markets, none excluded | All markets, none excluded |
+| Customers | Customer tag `clinics` | Customer tag `clinics` |
+| Products | Trinity Pathway PGX Genetic Test Kit | TruLab Dx PATHWAY Genetic Test |
+| Discount basis | Quantity range | Quantity range |
+| Calculation method | Entire order | Entire order |
+| Range 1 | 1–9: new price $550 per item | 1–9: new price $450 per item |
+| Range 2 | 10+: new price $500 per item | 10+: new price $400 per item |
+| Start / end | Aug 21, 2026 4:03 PM / none | none / none |
 
-**Finding:** going by Massy's own description of "Entire order", the 10+ price is reached by the **total quantity of all items in the order**, not per product. If that's how it behaves, a clinic buying 5 PGX + 5 TruLab (or 9 PGX plus any one other item) gets the 10+ price. Cases C1 and C2 below confirm it. This matters for any B2B replacement, which counts each variant separately.
+The custom pricing rule "Wholesale Pricing after 10" (#47279) is a draft and plays no part.
 
-**Dev-store test status (Nov 4): blocked.** Shopify requires the owner of the organization that owns a development store to verify their identity before third-party apps can be installed on it ("Identity verification required" on the install screen for `trinity-pathway-dev`). The owner couldn't complete it. A new dev store in Go North Industries (`trinity-massy-test`, Basic, test data) hit the same check, so it applies to every development store this account owns.
+**How "Entire order" counts** (Massy's own "Show use case" text on the rule page): "If the total quantity of all items in the customer's order meets a discount range, the selected products or variants will receive the corresponding discount." Its example: a rule on products A and B, with a cart of 2 A1 + 6 A2 + 4 B1 + **3 C**, counts **15**, product C included. So the quantity tier is set by **every item in the cart, including products outside the rule**. Each kit then gets its own rule's price for that tier.
 
-**Decision (Nov 4): check prices at launch instead.** One staff-owned test clinic on the live store builds carts **without paying** (launch step 4b below). The setup steps and the full case table below remain the plan if a verified dev store becomes available later.
+That makes the mixed carts predictable:
 
-The custom pricing rule "Wholesale Pricing after 10" (#47279) is a draft, so don't copy it.
+| Cart | Total items | PGX price | TruLab price | Subtotal |
+|---|---:|---:|---:|---:|
+| 5 PGX + 5 TruLab | 10 | $500 | $400 | **$4,500.00** |
+| 9 PGX + 1 TruLab | 10 | $500 | $400 | **$4,900.00** |
 
-**Setup (dev store only, needs your OK to install the app there):**
-1. In the `trinity-pathway-dev` admin, install Massy from the App Store and pick **Free** (all features on dev stores).
-2. Turn on Massy's app embed in the dev store's theme, if it asks.
-3. Recreate both rules exactly as above. Open each live rule and copy every field rather than working from this table, especially the price type (fixed price per kit, not an amount or percent off), "Entire order", priority, and the customer tag.
-4. Confirm the two dev products (made-up retail $699 and $599, inventory not tracked) are the rules' products.
-5. Make a dev discount code `DEVTEST10` (10% off) for case E1.
-6. Shop as your signed-in test clinic (tagged `clinics`). Use a second test customer without the tag for case D1, and a signed-out browser for D2. Pay with Shopify's test card.
+A side effect worth knowing: 9 PGX plus any one other product also reaches the 10+ price. This is how the live store prices clinics today; this launch doesn't change it. A future B2B replacement would need to match it, and Shopify B2B counts each variant separately (see `MASSY-REPLACEMENT.md`).
 
-**Checkout cases and expected prices** (wholesale prices are the same on the live store; retail prices on the dev store are made up):
+**Why not a dev-store test:** Shopify requires the organization owner to verify their identity before any third-party app can be installed on a development store. This blocked Massy on `trinity-pathway-dev` and on a new `trinity-massy-test` store. The owner chose to check on the live store instead, **before** sign-up opens (§3, step 4), without paying.
 
-| # | Shopper | Cart | Expected price per kit | Expected subtotal |
-|---|---|---|---:|---:|
-| A1 | Clinic | 1 PGX | $550.00 | $550.00 |
-| A2 | Clinic | 9 PGX | $550.00 | $4,950.00 |
-| A3 | Clinic | 10 PGX | $500.00 | $5,000.00 |
-| A4 | Clinic | 15 PGX | $500.00 | $7,500.00 |
-| B1 | Clinic | 1 TruLab | $450.00 | $450.00 |
-| B2 | Clinic | 9 TruLab | $450.00 | $4,050.00 |
-| B3 | Clinic | 10 TruLab | $400.00 | $4,000.00 |
-| C1 | Clinic | 5 PGX + 5 TruLab | **Record which:** per product $550 / $450, or whole cart $500 / $400 | $5,000.00 or $4,500.00 |
-| C2 | Clinic | 9 PGX + 1 TruLab | **Record which:** $550 / $450, or $500 / $400 | $5,400.00 or $4,900.00 |
-| C3 | Clinic | 10 PGX + 10 TruLab | $500.00 / $400.00 | $9,000.00 |
-| D1 | Signed in, **not** tagged | 10 PGX | Retail ($699.00 on dev) | $6,990.00 |
-| D2 | Guest (signed out) | 10 PGX | Retail ($699.00 on dev) | $6,990.00 |
-| D3 | Clinic | 10 PGX, then change to 9 at checkout | Moves from $500.00 to $550.00 | $4,950.00 |
-| D4 | Clinic, after staff remove the `clinics` tag | 10 PGX | Retail | $6,990.00 |
-| E1 | Clinic | 10 PGX + code `DEVTEST10` | **Record:** whether the code is refused, replaces the wholesale price, or stacks | — |
-| E2 | Clinic | 10 PGX, complete with the test card | Order shows $500.00 per kit and Massy's discount | $5,000.00 + shipping/tax |
+## 2. Launch blockers: status
 
-C1, C2 and E1 have no single expected answer: they show what Massy's "Entire order" setting and discount combining do today. Write the answers into this file. They decide whether native B2B pricing (which counts each variant separately) can match current behaviour.
+| # | Blocker | Status |
+|---|---|---|
+| 1 | Live app deploy diff | **Done.** See §2.1 |
+| 2 | Staff notifications | **Done (code + plan).** See §2.2. Owner picks recipients |
+| 3 | Real kit-label scan on the dev store | **Waiting for owner:** scan one physical kit. See §2.3 |
+| — | Wholesale checkout prices | **Moved into launch** as a stop gate before sign-up opens (§3, step 4) |
 
-## 2. Production launch checklist (owner approval at every step)
+### 2.1 Live app deploy diff (done Nov 4, nothing deployed)
+
+The live app's config ("TrinityMD PATHWAY Portal", Trinity Cell Sciences org) was pulled read-only into a local, git-ignored `shopify.app.live.toml`. The proposed deploy is `shopify.app.live-proposed.toml`: the live file plus the portal changes. Shopify's validator accepts it.
+
+**Diff, proposed vs live:**
+- `application_url`: `https://trinityportal.netlify.app` → `https://trinityportal.netlify.app/staff`
+- `embedded`: `false` → `true` (the staff console runs inside Shopify admin; decision 10)
+- **Added:** 7 metaobject definitions: `portal_application`, `portal_kit`, `portal_kit_event`, `portal_document`, `portal_thread`, `portal_message`, `portal_audit`
+- **Unchanged:** scopes (`read_customers, read_metaobjects, write_app_proxy, write_content, write_customers, write_metaobjects`), so **no merchant re-approval**; app proxy `/apps/pathway-portal` → `https://trinityportal.netlify.app/proxy`; redirect URLs; the affiliate page metafields; and the existing `pathway_assignment` and `pathway_customer_kit` metaobjects and `pathway_assignments` / `pathway_customer_kits` customer metafields.
+- **Removed:** nothing.
+
+**Fixed while checking:** the repo's `shopify.app.toml.example` was missing the live `pathway_customer_kit` metaobject and `pathway_customer_kits` customer metafield. A deploy built from the old template would have **deleted** them, along with the existing customer kit registry behind `/proxy/api/customer-kits`. Commit `41a6b51` adds them, and the template now matches the live definitions.
+
+**Rule for launch day:** re-pull the live config right before deploying (`shopify app config link --client-id <live id> --file-name live`). Rebuild the proposed file from it, and confirm the CLI's printed diff shows **only** the items above. Any removal is a stop. Afterwards, run `shopify app config use dev` so the default config is the dev app again.
+
+### 2.2 Staff notification plan (done Nov 4: code in PR, off by default)
+
+**Problem:** the app sends no email, so staff wouldn't know about a new sign-up, kit or clinic message without opening the console.
+
+**Plan:**
+- **Who:** the owner picks the staff list (open decision 7).
+- **What:** the portal POSTs staff events to `STAFF_NOTIFY_WEBHOOK_URL`, and a GHL workflow with an **Inbound Webhook** trigger sends an internal email (or SMS) to that list. GHL is already in use, and staff get the message in the inbox they already watch.
+- **Events sent:**
+  - `application.approved` (a new GHL clinic sign-up was tagged)
+  - `kit.registered`
+  - `message.from_clinic`
+  - `application.submitted`, if the portal's own apply form is used
+- **Payload:** the event name, numeric record and customer IDs, a link to the staff console (`STAFF_CONSOLE_URL`), and a timestamp. **Never** message text, names, emails or kit IDs.
+- **Clinic-facing events** (staff reply, kit status change) stay log-only; clinics see unread badges in the portal.
+- **Failures:** a slow or failing webhook is logged and never fails the clinic's action (3-second timeout). Tests cover this (`test/notifier.test.js`).
+- **Cost:** GHL Inbound Webhook is a premium trigger, charged per run, like the sign-up webhook.
+- **Before launch:** create the GHL "Portal staff alerts" workflow (draft) and point the **preview's** `STAFF_NOTIFY_WEBHOOK_URL` at it. Register a test kit on the dev store and confirm the email arrives. This needs owner approval, because it sends real email to the staff list.
+
+### 2.3 Real kit-label scan (waiting for owner)
+
+The phone test used made-up Code 128 labels. Before launch, scan **one physical kit label** on the dev store's portal (`/apps/pathway-portal/clinic`, "Scan with camera"). Then:
+- check the stored Kit ID matches the printed ID, and that it was saved as `scan`;
+- record the label's format (decision 5, e.g. `TL` + 8 digits) and decide on `KIT_ID_PATTERN`.
+
+A real kit ID is not patient information, so it's fine on the dev store.
+
+## 3. Production launch checklist (owner approval at every step)
 
 **Before starting**
-- [ ] Clear every **launch blocker** in §4.
-- [ ] Back up: duplicate the live theme (theme `189869457653`) and keep it unpublished as the rollback copy. Screenshot both Massy rules and the GHL workflows. Note the current production deploy in Netlify (Deploys → the published one) so you can roll back to it.
-- [ ] Pick a quiet launch window, with someone watching Netlify, Shopify and GHL for an hour afterwards.
+- [ ] Owner approves this completed plan (all of §2 done).
+- [ ] Back up:
+  - [ ] Duplicate the live theme (`189869457653`) and keep it unpublished as the rollback copy.
+  - [ ] Screenshot both Massy rules and the GHL workflows.
+  - [ ] Note the current published production deploy in Netlify.
+- [ ] Pick a quiet window, with someone watching Netlify, Shopify and GHL for an hour afterwards.
 
-**Step 1: live app config (TrinityMD PATHWAY Portal, Trinity Cell Sciences org)**
-- [ ] Link the **live** app into a local, uncommitted `shopify.app.toml` (`shopify app config link`, choose the existing live app, never "create new"). Compare it with `shopify.app.toml.example`: scopes, app proxy (`/apps/pathway-portal` → `https://trinityportal.netlify.app/proxy`), and the 8 metaobject definitions.
-- [ ] Set `embedded = true` and `application_url = "https://trinityportal.netlify.app/staff"` (decision 10), keeping the proxy and scopes. Run `shopify app deploy` and **read the diff it prints** before confirming. Same scopes means no merchant re-approval; if scopes change, the store owner must approve.
-- [ ] Check: the legacy clinic hub's kit assignments still load; the app opens the staff console in the live admin (it shows "manual review · tagging off" until step 3).
+**Step 1: live app config.** Follow §2.1's launch-day rule, then `shopify app deploy --config live-proposed`.
+- [ ] The printed diff shows only the 2 changes and the 7 additions. Any removal is a stop.
+- [ ] Check: the legacy clinic hub's kit assignments and customer kits still load. The app opens the staff console in the live admin.
 
-**Step 2: merge PR #1**
-- [ ] Mark the PR ready, merge to `main`. Netlify publishes it, and every new feature stays off until its setting is on.
-- [ ] Check: `https://trinityportal.netlify.app/healthz` → 200; the legacy hub's assignments and customer-kits work; `/webhooks/ghl/clinic-signup` → 404 (still off).
+**Step 2: merge PR #1.**
+- [ ] Mark ready, merge to `main`. Netlify publishes, and every new feature stays off until its setting is on.
+- [ ] Check: `https://trinityportal.netlify.app/healthz` → 200; legacy hub assignments and customer kits work; `/webhooks/ghl/clinic-signup` → 404.
 
-**Step 3: portal settings (Netlify, Production context only)**
-
-Set each value for **Production only**. Lesson from the preview: changing one context of a variable set for "all" contexts can drop another context's value, so re-check `dev-server` and `branch-deploy` afterwards.
+**Step 3: portal settings** (Netlify, **Production context only**; re-check the `dev-server` and `branch-deploy` values afterwards).
 
 | Setting | Value |
 |---|---|
 | `CLINIC_PORTAL_ENABLED` | `true` |
 | `PORTAL_ASSET_BASE_URL` | `https://trinityportal.netlify.app` (required; functions don't get `DEPLOY_PRIME_URL`) |
-| `STOREFRONT_URL` | `https://trinitymd.shop` (the default; set it anyway, explicitly) |
-| `STAFF_USER_IDS` | Shopify staff user IDs allowed in the console (empty means any staff with app access) |
-| `CLINIC_APPROVAL_MODE` / `CLINIC_CUSTOMER_TAGGING_ENABLED` | Only for the portal's own `/apply` form. With GHL as the sign-up path, leave `manual` / off unless you decide otherwise |
-| `KIT_ID_PATTERN` | Set after checking real labels (decision 5), or leave unset to accept any ID |
+| `STOREFRONT_URL` | `https://trinitymd.shop` |
+| `STAFF_USER_IDS` | Staff user IDs allowed in the console (empty = any staff with app access) |
+| `STAFF_NOTIFY_WEBHOOK_URL` / `STAFF_CONSOLE_URL` | The production GHL alert workflow URL / the live admin app link (§2.2) |
+| `KIT_ID_PATTERN` | From §2.3, or unset |
+| `CLINIC_APPROVAL_MODE` / `CLINIC_CUSTOMER_TAGGING_ENABLED` | Leave `manual` / off (GHL is the sign-up path) |
+| `GHL_SIGNUP_ENABLED` | **Leave off** until step 4 passes |
 
-- [ ] Trigger a production deploy so the settings take effect.
-- [ ] Check with a staff-owned test clinic account on the live store (tagged `clinics`, made-up details): `/apps/pathway-portal/clinic` loads; register one obviously fake kit ID; send one message; staff reply; then archive or note the test records.
+- [ ] Trigger a production deploy. Check `/apps/pathway-portal/clinic` loads for an existing clinic account and the staff console opens.
 
-**Step 4: GHL sign-up**
-- [ ] Netlify Production: `GHL_SIGNUP_ENABLED=true`, a **new** random `GHL_WEBHOOK_SECRET` (32+ characters), `GHL_ALLOW_PRODUCTION_STORE=true`. Deploy.
-- [ ] GHL production workflow "Clinic sign-up -> tag clinics in Shopify (Massy replacement)": change the URL from the preview to `https://trinityportal.netlify.app/webhooks/ghl/clinic-signup`, paste the production secret, set the form redirect (decision pending: `/pages/clinic-application-received` or `/account/login`), then **publish**.
-- [ ] Unpublish the TEST workflow (it targets the preview / dev store and costs a premium action per run).
-- [ ] Check: one internal submission of the real form with a staff-controlled email and made-up clinic details → GHL log shows 200 → the customer is tagged `clinics` in Shopify. Keep the tag on for step 4b.
+**Step 4: Massy wholesale price gate** (live store; **before** the GHL workflow is published and **before** registration opens).
+- [ ] In the live admin, create (or reuse) a **staff-controlled customer**: a staff-owned email, made-up clinic name, no patient data. Add the tag `clinics` by hand. Don't use the GHL form; it isn't live yet.
+- [ ] Sign in as that customer on `trinitymd.shop`. For each cart, go to checkout, read the prices, and **stop before payment**. Clear the cart between cases.
 
-**Step 4b: wholesale price check on the live store (owner decision, Nov 4; no purchase)**
-
-The staff test clinic from step 4, signed in on the live storefront, builds each cart and reads the prices at checkout, **stopping before payment**. Each kit's wholesale price must match the live Massy rules exactly. Record the results in §1. Clear the cart between cases.
-
-| # | Cart | Expected price per kit | Expected subtotal |
+| # | Cart | Expected per kit | Expected subtotal |
 |---|---|---:|---:|
 | L1 | 1 PGX | $550.00 | $550.00 |
 | L2 | 9 PGX | $550.00 | $4,950.00 |
@@ -113,50 +131,57 @@ The staff test clinic from step 4, signed in on the live storefront, builds each
 | L4 | 1 TruLab | $450.00 | $450.00 |
 | L5 | 9 TruLab | $450.00 | $4,050.00 |
 | L6 | 10 TruLab | $400.00 | $4,000.00 |
-| L7 | 5 PGX + 5 TruLab | **Record:** $500 / $400 if "Entire order" counts the whole cart (as Massy describes it), else $550 / $450 | $4,500.00 or $5,000.00 |
-| L8 | 9 PGX + 1 TruLab | **Record:** $500 / $400 or $550 / $450 | $4,900.00 or $5,400.00 |
-| L9 | Same test customer **after staff remove the `clinics` tag**, 10 PGX | Retail price | Retail × 10 |
-| L10 | Signed out (guest), 10 PGX | Retail price | Retail × 10 |
+| L7 | 5 PGX + 5 TruLab | $500.00 PGX / $400.00 TruLab | $4,500.00 |
+| L8 | 9 PGX + 1 TruLab | $500.00 PGX / $400.00 TruLab | $4,900.00 |
+| L9 | Same customer **after staff remove `clinics`**, 10 PGX | Retail | Retail × 10 |
+| L10 | Signed out (guest), 10 PGX | Retail | Retail × 10 |
 
-- [ ] If L1–L6 don't match, or L9/L10 show wholesale prices: **unpublish the GHL workflow and set `GHL_SIGNUP_ENABLED=false`** before any real clinic signs up, and investigate. Massy itself is unchanged by this launch, so a mismatch would mean the tag or account setup is wrong, not the pricing rules.
-- [ ] Afterwards: remove the `clinics` tag from the test customer (L9 does this). Keep or delete the test customer, as you prefer. No order is placed.
+- [ ] **Launch stop:** any result that differs from this table, L7 and L8 included, stops the launch. Don't publish the GHL workflow, don't open registration, record what was seen, and investigate first. Massy isn't changed by this launch, so a difference means the rules, tag or account behave differently than recorded in §1.
+- [ ] Afterwards: the `clinics` tag is removed (L9 does this). Keep or delete the test customer. No order is placed.
 
-**Step 5: theme (unpublished copy first)**
-- [ ] In a duplicate of the live theme, on `/pages/register`, add the GHL embed (Custom Liquid; code in `MASSY-REPLACEMENT.md`) in place of, or above, the Massy registration app block.
-- [ ] In `trulab-clinic-hub`, add a link to `/apps/pathway-portal/clinic` ("Open clinic portal"). The hub doesn't link to the new portal today.
-- [ ] Preview the copy as a clinic and as a guest, then publish it.
-- [ ] Massy registration form #2694: leave it on until GHL sign-ups are confirmed working, then switch it off (a separate decision). **Massy's pricing rules stay on.**
+**Step 5: open GHL sign-up** (only after step 4 passes).
+- [ ] Netlify Production: `GHL_SIGNUP_ENABLED=true`, a **new** random `GHL_WEBHOOK_SECRET` (32+ characters), `GHL_ALLOW_PRODUCTION_STORE=true`. Deploy.
+- [ ] GHL production workflow "Clinic sign-up -> tag clinics in Shopify (Massy replacement)":
+  - [ ] Change the URL from the preview to `https://trinityportal.netlify.app/webhooks/ghl/clinic-signup` and paste the production secret.
+  - [ ] Set the form redirect (`/pages/clinic-application-received` or `/account/login`).
+  - [ ] **Publish** it.
+- [ ] Unpublish the TEST workflow, which targets the preview and costs a premium action per run.
+- [ ] Check: one submission of the real form with a staff-controlled email → GHL log 200 → customer tagged `clinics` → staff alert email received. Then remove the tag.
 
-**Step 6: watch (first week)**
+**Step 6: theme (registration opens).** Work in an unpublished copy first.
+- [ ] On `/pages/register`, add the GHL embed (Custom Liquid; code in `MASSY-REPLACEMENT.md`) above, or in place of, the Massy registration block.
+- [ ] In `trulab-clinic-hub`, add a link to `/apps/pathway-portal/clinic` ("Open clinic portal"); the hub doesn't link to the portal today.
+- [ ] Preview as a clinic and as a guest, then publish.
+- [ ] Massy registration form #2694: leave it on until GHL sign-ups are confirmed, then switch it off (a separate decision). **Massy pricing rules stay on.**
+
+**Step 7: watch (first week)**
 - [ ] First real GHL sign-ups are tagged and see Massy prices; first clinic orders carry wholesale prices.
-- [ ] Netlify usage (Free plan, 300 credits a month); function errors in Netlify logs; GHL execution logs.
+- [ ] Staff alerts arrive; Netlify usage (Free plan, 300 credits a month); function errors in Netlify logs; GHL execution logs.
 
-## 3. Rollback (each part is independent; Massy pricing is never touched)
+## 4. Rollback (each part is independent; Massy pricing is never touched)
 
 | Part | Roll back by | Effect |
 |---|---|---|
-| GHL sign-up | Unpublish the GHL workflow; set `GHL_SIGNUP_ENABLED=false` and deploy | Webhook returns 404. Tags already added stay (remove them by hand if needed) |
-| Theme | Republish the previous theme (the untouched backup) | Massy registration and the old hub come back |
-| Portal | `CLINIC_PORTAL_ENABLED=false` and deploy | Portal and staff API routes return 404; the legacy hub is unaffected; portal records stay in Shopify, unused |
-| Code | Netlify → Deploys → publish the pre-merge production deploy (instant), or revert the merge on `main` | Production runs the previous code |
-| App config | Dev Dashboard → the live app → Versions → release the previous version | Restores the old app URL, embedded setting and definitions |
+| GHL sign-up | Unpublish the workflow; `GHL_SIGNUP_ENABLED=false`, deploy | Webhook 404; tags already added stay |
+| Theme | Republish the backup theme | Massy registration and the old hub return |
+| Staff alerts | Clear `STAFF_NOTIFY_WEBHOOK_URL`, deploy; or unpublish the GHL alert workflow | Events go back to log-only |
+| Portal | `CLINIC_PORTAL_ENABLED=false`, deploy | Portal and staff routes 404; legacy hub unaffected; records stay, unused |
+| Code | Netlify → publish the pre-merge production deploy, or revert the merge | Previous code runs |
+| App config | Dev Dashboard → live app → Versions → release the previous version | Old app URL / embedded setting; added definitions can stay (unused) |
 
-## 4. Remaining issues
+## 5. Other issues (not blocking)
+- **Netlify Free plan cap:** over 300 credits a month pauses production, including the live hub. Check usage; consider a paid plan once clinics use the portal daily.
+- **Kit reference can hold a patient name:** the guard can't catch plain names (owner accepted). Mention it in clinic onboarding.
+- **Search lag in other lists:** kits, messages and documents are fixed. Other lists (applications after a sign-up, the staff inbox) may lag a few seconds; a refresh fixes it.
+- **Open owner decisions:**
+  - attachments (3)
+  - kit statuses (4)
+  - multi-user practices (6)
+  - message retention (8)
+  - legacy kit migration (9)
+  - importing the 7 Massy submissions
+- **3 old affiliate test failures** on `main` (affiliate work on hold); not portal-related.
+- **B2B pricing replacement** is out of scope for this launch. It now also has to match "Entire order" counting (§1).
+- **Unused dev store `trinity-massy-test`** (Go North Industries) can be deleted.
 
-**Launch blockers (fix or decide before step 1)**
-1. **Live app config hasn't been reviewed.** The real `shopify.app.toml` isn't in the repo, so the diff for step 1 (`embedded`, `application_url`, new metaobject definitions) hasn't been seen. A wrong deploy could break the legacy hub's proxy. Do the link-and-diff review before approving step 1.
-2. **Wholesale checkout prices: accepted, checked at launch** (owner decision, Nov 4). A dev-store test isn't possible without Shopify identity verification. The GHL path uses the same `clinics` tag Massy reads, so prices should be unaffected; launch step 4b confirms it before real clinics sign up, and has a stop rule if it fails.
-3. **No staff notifications** (decision 7). The app sends no emails: staff only see new sign-ups, kits and clinic messages by opening the console. Pick a channel, or accept manual checking for launch.
-4. **Real kit labels not tested** (decision 5). The phone scan used made-up Code 128 labels. Scan one real kit label on the dev store before launch, then decide on `KIT_ID_PATTERN`.
-
-**Should fix soon after launch (not blocking)**
-5. **Netlify Free plan cap.** Going over 300 credits a month pauses production, including the live hub. Check usage, and consider a paid plan once clinics use the portal daily.
-6. **Kit reference can hold a patient name.** The PHI guard can't catch plain names (owner accepted, Nov 4). Remind clinics in onboarding.
-7. **Search lag in other lists.** Kits, messages and documents are fixed. Other lists (applications after a sign-up, the staff inbox) may lag a few seconds after a change; a refresh fixes it.
-8. **Open owner decisions:** attachments (3), kit statuses (4), multi-user practices (6), message retention (8), legacy kit migration (9), and whether to import the 7 Massy submissions.
-9. **3 failing affiliate tests** existed on `main` before this work (theme files never committed). Affiliate work is on hold; they don't affect the portal.
-
-**Not blocking first launch (Massy keeps pricing)**
-10. **B2B pricing replacement.** Waits for the five dev-store checks in `MASSY-REPLACEMENT.md` and §1's answers for C1, C2 and E1.
-
-**Checked and fine:** the live store uses new customer accounts, so GHL-created clinics can sign in with an emailed code straight away.
+**Checked and fine:** the live store uses new customer accounts, so GHL-created clinics can sign in with an emailed code immediately.
