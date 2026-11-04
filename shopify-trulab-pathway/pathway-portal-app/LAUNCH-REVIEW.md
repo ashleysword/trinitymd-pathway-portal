@@ -26,10 +26,9 @@
 
 **Finding:** going by Massy's own description of "Entire order", the 10+ price is reached by the **total quantity of all items in the order**, not per product. If that's how it behaves, a clinic buying 5 PGX + 5 TruLab (or 9 PGX plus any one other item) gets the 10+ price. Cases C1 and C2 below confirm it. This matters for any B2B replacement, which counts each variant separately.
 
-**Dev-store test status (Nov 4): blocked.** Shopify requires the owner of the organization that owns a development store to verify their identity before third-party apps can be installed on it ("Identity verification required" on the install screen for `trinity-pathway-dev`). The owner couldn't complete it. A new dev store in Go North Industries (`trinity-massy-test`, Basic, test data) hit the same check, so it applies to every development store this account owns. Options:
-- the Trinity Cell Sciences organization owner verifies, then run the cases on `trinity-pathway-dev`; or
-- a verified person creates a dev store in their own organization (it only needs the two products, one customer tagged `clinics`, Massy Free and the two rules; the portal isn't involved); or
-- check prices at launch with one staff-owned clinic cart on the live store (needs owner approval then).
+**Dev-store test status (Nov 4): blocked.** Shopify requires the owner of the organization that owns a development store to verify their identity before third-party apps can be installed on it ("Identity verification required" on the install screen for `trinity-pathway-dev`). The owner couldn't complete it. A new dev store in Go North Industries (`trinity-massy-test`, Basic, test data) hit the same check, so it applies to every development store this account owns.
+
+**Decision (Nov 4): check prices at launch instead.** One staff-owned test clinic on the live store builds carts **without paying** (launch step 4b below). The setup steps and the full case table below remain the plan if a verified dev store becomes available later.
 
 The custom pricing rule "Wholesale Pricing after 10" (#47279) is a draft, so don't copy it.
 
@@ -100,7 +99,27 @@ Set each value for **Production only**. Lesson from the preview: changing one co
 - [ ] Netlify Production: `GHL_SIGNUP_ENABLED=true`, a **new** random `GHL_WEBHOOK_SECRET` (32+ characters), `GHL_ALLOW_PRODUCTION_STORE=true`. Deploy.
 - [ ] GHL production workflow "Clinic sign-up -> tag clinics in Shopify (Massy replacement)": change the URL from the preview to `https://trinityportal.netlify.app/webhooks/ghl/clinic-signup`, paste the production secret, set the form redirect (decision pending: `/pages/clinic-application-received` or `/account/login`), then **publish**.
 - [ ] Unpublish the TEST workflow (it targets the preview / dev store and costs a premium action per run).
-- [ ] Check: one internal submission of the real form with a staff email → GHL log shows 200 → the customer is tagged `clinics` → the Massy price shows on a 10-kit cart. Then remove the tag from that test customer.
+- [ ] Check: one internal submission of the real form with a staff-controlled email and made-up clinic details → GHL log shows 200 → the customer is tagged `clinics` in Shopify. Keep the tag on for step 4b.
+
+**Step 4b: wholesale price check on the live store (owner decision, Nov 4; no purchase)**
+
+The staff test clinic from step 4, signed in on the live storefront, builds each cart and reads the prices at checkout, **stopping before payment**. Each kit's wholesale price must match the live Massy rules exactly. Record the results in §1. Clear the cart between cases.
+
+| # | Cart | Expected price per kit | Expected subtotal |
+|---|---|---:|---:|
+| L1 | 1 PGX | $550.00 | $550.00 |
+| L2 | 9 PGX | $550.00 | $4,950.00 |
+| L3 | 10 PGX | $500.00 | $5,000.00 |
+| L4 | 1 TruLab | $450.00 | $450.00 |
+| L5 | 9 TruLab | $450.00 | $4,050.00 |
+| L6 | 10 TruLab | $400.00 | $4,000.00 |
+| L7 | 5 PGX + 5 TruLab | **Record:** $500 / $400 if "Entire order" counts the whole cart (as Massy describes it), else $550 / $450 | $4,500.00 or $5,000.00 |
+| L8 | 9 PGX + 1 TruLab | **Record:** $500 / $400 or $550 / $450 | $4,900.00 or $5,400.00 |
+| L9 | Same test customer **after staff remove the `clinics` tag**, 10 PGX | Retail price | Retail × 10 |
+| L10 | Signed out (guest), 10 PGX | Retail price | Retail × 10 |
+
+- [ ] If L1–L6 don't match, or L9/L10 show wholesale prices: **unpublish the GHL workflow and set `GHL_SIGNUP_ENABLED=false`** before any real clinic signs up, and investigate. Massy itself is unchanged by this launch, so a mismatch would mean the tag or account setup is wrong, not the pricing rules.
+- [ ] Afterwards: remove the `clinics` tag from the test customer (L9 does this). Keep or delete the test customer, as you prefer. No order is placed.
 
 **Step 5: theme (unpublished copy first)**
 - [ ] In a duplicate of the live theme, on `/pages/register`, add the GHL embed (Custom Liquid; code in `MASSY-REPLACEMENT.md`) in place of, or above, the Massy registration app block.
@@ -126,7 +145,7 @@ Set each value for **Production only**. Lesson from the preview: changing one co
 
 **Launch blockers (fix or decide before step 1)**
 1. **Live app config hasn't been reviewed.** The real `shopify.app.toml` isn't in the repo, so the diff for step 1 (`embedded`, `application_url`, new metaobject definitions) hasn't been seen. A wrong deploy could break the legacy hub's proxy. Do the link-and-diff review before approving step 1.
-2. **Wholesale checkout prices are untested with this setup.** The GHL path uses the same `clinics` tag Massy reads, so prices should be unaffected, but no order has been placed through it. Run §1 on the dev store (free), or at least the step 4 check on live.
+2. **Wholesale checkout prices: accepted, checked at launch** (owner decision, Nov 4). A dev-store test isn't possible without Shopify identity verification. The GHL path uses the same `clinics` tag Massy reads, so prices should be unaffected; launch step 4b confirms it before real clinics sign up, and has a stop rule if it fails.
 3. **No staff notifications** (decision 7). The app sends no emails: staff only see new sign-ups, kits and clinic messages by opening the console. Pick a channel, or accept manual checking for launch.
 4. **Real kit labels not tested** (decision 5). The phone scan used made-up Code 128 labels. Scan one real kit label on the dev store before launch, then decide on `KIT_ID_PATTERN`.
 
