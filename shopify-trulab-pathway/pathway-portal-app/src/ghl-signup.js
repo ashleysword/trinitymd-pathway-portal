@@ -86,12 +86,31 @@ const CREATE_CUSTOMER = `mutation GhlCreateCustomer($input: CustomerInput!) {
 const TAG_CUSTOMER = `mutation GhlTagCustomer($id: ID!, $tags: [String!]!) {
   tagsAdd(id: $id, tags: $tags) { node { id } userErrors { field message } }
 }`;
+const SHOP_PLAN = `query GhlShopPlan { shop { plan { partnerDevelopment } } }`;
 
 function numericId(gid) {
   return String(gid).split('/').pop();
 }
 
 export function createGhlSignupHandler({ config, shopify, service = null, logger = console, onClinicAccessChanged = () => {} }) {
+  let devStore = null;
+
+  // Test sign-ups must never create or tag customers in the live store. Unless
+  // GHL_ALLOW_PRODUCTION_STORE is on (production only), the store must be a
+  // partner development store. Any doubt counts as "not a dev store".
+  async function storeAllowed() {
+    if (config.ghlAllowProductionStore) return true;
+    if (devStore === null) {
+      try {
+        const data = await shopify.graphql(SHOP_PLAN);
+        devStore = data?.shop?.plan?.partnerDevelopment === true;
+      } catch {
+        return false;
+      }
+    }
+    return devStore;
+  }
+
   async function findCustomer(email) {
     const data = await shopify.graphql(FIND_CUSTOMER, { query: `email:"${email}"` });
     return (data?.customers?.nodes || []).find((node) => String(node.email || '').toLowerCase() === email) || null;
@@ -148,6 +167,13 @@ export function createGhlSignupHandler({ config, shopify, service = null, logger
       if (request.method !== 'POST') return jsonResponse(405, { error: 'Method not allowed.' });
       if (!secretMatches(request.headers.get(GHL_SECRET_HEADER), config.ghlWebhookSecret)) {
         return jsonResponse(401, { error: 'Unauthorized.' });
+      }
+      if (!(await storeAllowed())) {
+        logger.error?.('GHL clinic signup blocked: not a development store.', { code: 'PRODUCTION_STORE_BLOCKED' });
+        return jsonResponse(403, {
+          error: 'Sign-ups are blocked on this deploy: the store is not a development store.',
+          code: 'PRODUCTION_STORE_BLOCKED',
+        });
       }
       try {
         const signup = normalizeGhlSignup(await readJson(request, 32768), { requireValidNpi: config.ghlRequireNpi });

@@ -41,7 +41,7 @@ With the flag off, the function behaves exactly like production. Every new route
 ## 3. Decisions the owner needs to make
 
 1. **Approval policy.** *Decided (Nov 3):* sign-ups come from a GoHighLevel form and are tagged `clinics` instantly. See `MASSY-REPLACEMENT.md`.
-2. **Retiring Massy.** *Decided (Nov 3):* Massy is being replaced completely. The GHL form replaces registration, and the `clinic-wholesale-pricing` discount Function replaces the volume rules. Prices still to be supplied. Still open: should the existing 7 Massy submissions be imported for the record?
+2. **Massy.** *Revised (Nov 4):* the store stays on Shopify Basic, so the custom `clinic-wholesale-pricing` Function can't run (custom-app Functions need Plus). It is inactive. Massy keeps the wholesale prices for the first launch; the GHL form handles sign-up. Native B2B pricing is assessed in `MASSY-REPLACEMENT.md` and needs owner approval before any pricing cutover. Still open: should the existing 7 Massy submissions be imported for the record?
 3. **Attachments.** Massy collects an "Attachment". v3 doesn't, because no need for one was established. If a document is required (for example a reseller certificate), say which one, plus its retention policy.
 4. **Kit statuses and owners.** The proposed staff-only flow is `registered → kit_received → processing → report_ready → complete`, with `cancelled` from any pre-report stage. Confirm the real lab stages, and whether lab partners (not just staff) should update them.
 5. **Kit label format.** Confirm against physical labels whether every kit is `TL` + 8 digits, and whether the barcode payload is the bare ID. Then set `KIT_ID_PATTERN`.

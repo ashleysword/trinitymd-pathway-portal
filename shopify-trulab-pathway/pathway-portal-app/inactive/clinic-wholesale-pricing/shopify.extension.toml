@@ -4,7 +4,7 @@ api_version = "2026-07"
 name = "Clinic wholesale pricing"
 handle = "clinic-wholesale-pricing"
 type = "function"
-description = "Wholesale unit prices by quantity for customers tagged clinics. Replaces the Massy volume rules."
+description = "INACTIVE (store is on Basic; custom-app Functions need Plus). Wholesale unit prices by quantity for customers tagged clinics."
 
   [[extensions.targeting]]
   target = "cart.lines.discounts.generate.run"

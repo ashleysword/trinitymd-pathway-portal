@@ -1,25 +1,38 @@
-# Replacing Massy: GHL sign-up + built-in wholesale pricing
+# GHL clinic sign-up, with Massy keeping wholesale pricing
 
-Massy does two jobs today. This replaces both:
+**Decision (Nov 4):** the store stays on **Shopify Basic**; it is not moving to Plus. That changes the earlier plan:
 
-| Massy today | Replacement |
-|---|---|
-| Partner Registration Form #2694. It auto-approves and adds the `clinics` tag. | A **GoHighLevel form**. A GHL workflow posts each submission to `/webhooks/ghl/clinic-signup`, and the app adds the `clinics` tag right away (owner decision: instant, no staff review). |
-| Two active volume rules for customers tagged `clinics` | The **clinic-wholesale-pricing** Shopify discount Function (the store is on Plus). It sets a wholesale unit price by quantity at checkout for logged-in customers tagged `clinics`. |
+- **Massy stays.** It keeps the existing wholesale prices, and it is not deactivated or uninstalled.
+- **The custom discount Function is inactive.** Only Plus stores can run custom apps that contain Shopify Functions ([Shopify docs](https://shopify.dev/docs/apps/build/functions)). The code is kept in `inactive/clinic-wholesale-pricing`, outside `extensions/`, so `shopify app deploy` cannot deploy it, and `scripts/wholesale-discount.mjs --apply` refuses to run. Its scopes (`read_products`, `write_discounts`) are removed from `shopify.app.toml.example`.
+- **First launch** is the clinic portal plus GHL sign-up. Massy's volume rules key on the `clinics` tag, so a clinic tagged by GHL gets Massy's prices exactly as a Massy sign-up does today.
+- **Native B2B pricing** on Basic is assessed below. It is a possible later replacement for Massy's two rules, but **no pricing cutover is made until the plan below is approved.**
 
-The tag stays `clinics`, so existing clinics keep their pricing and hub access with no re-tagging.
+| Job | First launch | Later (only if approved) |
+|---|---|---|
+| Clinic sign-up | GHL form → webhook tags `clinics` | The same webhook also creates a B2B company and contact |
+| Wholesale prices | **Massy** volume rules #49525 and #47297 (unchanged) | Shopify B2B catalog with quantity price breaks |
+| Massy registration form #2694 | Stays on until the owner approves switching `/pages/register` to GHL | Off |
+
+Current Massy prices (unchanged):
+
+| Product (handle) | 1–9 kits | 10+ kits |
+|---|---:|---:|
+| `trinity-pathway-pgx-genetic-test-kit` (Massy #49525) | $550 each | $500 each |
+| `trulab-dx-pathway-genetic-test` (Massy #47297) | $450 each | $400 each |
 
 ## Sign-up flow
 1. The clinic fills in the GHL form. EIN, permit and attachment can stay in GHL; the app never receives them.
 2. The GHL workflow sends the form fields with a shared secret header.
-3. The app checks email and name. NPI is optional (owner decision, Nov 3): a missing NPI is fine, and a mistyped one is dropped rather than blocking the sign-up. Set `GHL_REQUIRE_NPI=true` to require a valid NPI. It then finds the Shopify customer by email, or creates one, and adds `clinics`. It is safe to repeat: a second submission changes nothing.
-4. If the clinic portal is on, an approved application with source `ghl` also appears in the staff console.
-5. No emails are sent by the app. New customers sign in at `/account/login`. With new customer accounts (email code) this works immediately. With classic accounts, staff must send an account invite from the customer page.
+3. **The app refuses to write to a store that isn't a development store** (403 `PRODUCTION_STORE_BLOCKED`). It asks Shopify for `shop.plan.partnerDevelopment` once, after the secret matches; any error counts as "not a dev store". Only production sets `GHL_ALLOW_PRODUCTION_STORE=true`, and only at cutover with owner approval.
+4. The app checks email and name. NPI is optional (owner decision, Nov 3): a missing NPI is fine, and a mistyped one is dropped rather than blocking the sign-up. Set `GHL_REQUIRE_NPI=true` to require a valid NPI.
+5. It finds the Shopify customer by email, or creates one, and adds `clinics`. It is safe to repeat: a second submission changes nothing.
+6. If the clinic portal is on, an approved application with source `ghl` also appears in the staff console.
+7. The app sends no emails. New customers sign in at `/account/login`. With new customer accounts (email code) this works immediately. With classic accounts, staff must send an account invite from the customer page.
 
 Anyone who completes the form gets wholesale pricing, with no automatic check. That matches Massy today. Staff can review sign-ups in GHL (or the staff console) and remove the tag from anyone who should not have it.
 
 ## The GHL form
-The form already exists in the **Trinity Cell Sciences** sub-account: **"Wholesale Discount"** (`otZ1eSlI0QkvV2rwshs0`, created Oct 19). It has the same fields as the Massy form, including the attachment upload. To embed it on the registration page, paste this into a Custom Liquid / custom HTML block:
+The form already exists in the **Trinity Cell Sciences** sub-account: **"Wholesale Discount"** (`otZ1eSlI0QkvV2rwshs0`, created Oct 19). It has the same fields as the Massy form, including the attachment upload. To embed it on the registration page, paste this into a Custom Liquid / custom HTML block. Do this only in an unpublished theme copy; publishing needs owner approval.
 
 ```html
 <iframe
@@ -44,17 +57,15 @@ The form already exists in the **Trinity Cell Sciences** sub-account: **"Wholesa
 <script src="https://go.trinitymd.shop/js/form_embed.js"></script>
 ```
 
-The form's NPI field is optional, and so is the webhook's NPI check (see the sign-up flow above).
-
-## Setting up the GHL workflow
-**Built Nov 4, still a draft (not published):** "Clinic sign-up -> tag clinics in Shopify (Massy replacement)" in the Trinity Cell Sciences sub-account. It points at the PR #1 deploy preview, and its secret header holds the placeholder `PASTE-SECRET-HERE`, so it cannot tag anyone until the real secret is pasted in and the workflow is published. Before going live: paste the secret, switch the URL to the production site, then publish.
+## The GHL workflow
+**Built Nov 4, still a draft (not published):** "Clinic sign-up -> tag clinics in Shopify (Massy replacement)" in the Trinity Cell Sciences sub-account. Its secret header holds the placeholder `PASTE-SECRET-HERE`, so it cannot tag anyone. It points at the PR #1 deploy preview. **Do not paste the real secret or publish it** until the dev-store test below has passed.
 
 The workflow is set up as follows (Automation → Workflows):
-- **Trigger:** *Form Submitted*, filtered to the clinic sign-up form.
-- **Action:** *Custom Webhook* (a premium GHL action).
-  - Method `POST`; URL `https://<netlify-site>/webhooks/ghl/clinic-signup`. Use the deploy-preview URL and a dev store first.
+- **Trigger:** *Form Submitted*, filtered to the Wholesale Discount form.
+- **Action:** *Custom Webhook* (a premium GHL action, charged per run).
+  - Method `POST`; URL `https://<netlify-site>/webhooks/ghl/clinic-signup`.
   - Headers: `x-trinity-webhook-secret: <GHL_WEBHOOK_SECRET>` and `Content-Type: application/json`.
-  - Raw JSON body. Change the custom-field keys to match the form:
+  - Raw JSON body:
     ```json
     {
       "contactId": "{{contact.id}}",
@@ -68,48 +79,90 @@ The workflow is set up as follows (Automation → Workflows):
       "npi": "{{contact.npi_number}}"
     }
     ```
-- **Responses:** `200` means tagged (`created`/`alreadyClinic` tell you which). `401` means wrong secret; `422` means bad form data (shown in the GHL execution log); `5xx` is safe to retry.
+- **Responses:** `200` means tagged (`created`/`alreadyClinic` tell you which). `401` means wrong secret; `403` means the store isn't a dev store; `422` means bad form data (shown in the GHL execution log); `5xx` is safe to retry.
 - **Form redirect:** send clinics to `/pages/clinic-application-received` (Massy's current redirect) or straight to `/account/login`.
 
-Netlify env vars: `GHL_SIGNUP_ENABLED=true` and `GHL_WEBHOOK_SECRET` (32+ random characters, stored only in Netlify and GHL).
+## Testing on a development store (required before the real secret goes into GHL)
+**The Netlify deploy preview uses the production store** (its `SHOP_DOMAIN` is the same as production's). Since Nov 4, `GHL_SIGNUP_ENABLED=false` in the deploy-preview context, and the dev-store check blocks writes even if it is turned back on. Never create or tag test customers in production.
 
-**Set Nov 4 for the deploy-preview context only** (production has neither). The preview uses the same `SHOP_DOMAIN` as production, so a test submission creates or tags a real customer in the live store. Use a test email you control, and remove the `clinics` tag afterwards. To copy the secret into GHL: Netlify → Site configuration → Environment variables → `GHL_WEBHOOK_SECRET` → Deploy Previews value.
+1. Create a Shopify development store (Partner or Dev Dashboard) and install a dev copy of the app there. The Netlify `dev` context already has a different `*.myshopify.com` domain; check whether that is a dev store before creating another.
+2. Point the deploy-preview context at it: `SHOP_DOMAIN`, `SHOPIFY_CLIENT_ID`, `SHOPIFY_API_SECRET` for the dev app. Generate a **new** `GHL_WEBHOOK_SECRET` for it, then set `GHL_SIGNUP_ENABLED=true`. Leave `GHL_ALLOW_PRODUCTION_STORE` unset.
+3. Add the two kit products to the dev store with the same handles, and install Massy there with the two volume rules, if Massy allows dev stores.
+4. Test with a **separate test GHL workflow** (a copy of the draft, never the production workflow), using the new secret and a test email you control. Check that the GHL log shows `200` and the dev-store customer has `clinics`.
+5. Check: the customer sees the clinic hub, and Massy's 1, 9 and 10 kit prices apply at checkout. Also check that a repeat submission changes nothing, and that a wrong secret returns `401`.
 
-## Setting up the wholesale pricing
-Prices live in a JSON metafield on the discount, so changing prices never needs a code deploy. **`extensions/clinic-wholesale-pricing/pricing.json` carries the current Massy prices** (owner decision, Nov 3), copied from the two active rules:
+## Can native B2B on Basic replace Massy's two rules?
+**Probably, for these two products, but not as a drop-in.** Basic can now set wholesale prices with quantity breaks. But B2B prices go to **company locations**, not tagged customers, and breaks count **per variant**, not across the whole order as Massy does. Sources: [B2B features by plan](https://help.shopify.com/en/manual/b2b/getting-started/plan-features), [volume pricing](https://help.shopify.com/en/manual/b2b/catalogs/quantity-pricing), [considerations](https://help.shopify.com/en/manual/b2b/getting-started/considerations) (read Nov 4, 2026).
 
-| Product (handle) | 1–9 kits | 10+ kits |
-|---|---:|---:|
-| `trinity-pathway-pgx-genetic-test-kit` (Massy #49525) | $550 each | $500 each |
-| `trulab-dx-pathway-genetic-test` (Massy #47297) | $450 each | $400 each |
+| Massy behaviour today | Shopify B2B on Basic | Verdict |
+|---|---|---|
+| $550 / $450 each from 1 kit | Catalog fixed price per product | Yes |
+| $500 / $400 each from 10 kits | Quantity price breaks (up to 10 per product) are on all plans | Yes |
+| Quantity counted across the whole order | Breaks count **per variant**: each variant must reach 10 | Same only if each kit has one variant. **Check both products' variants.** |
+| Applies to any customer tagged `clinics` | Applies only to customers who are **contacts of a company location** in a B2B market that has the catalog | Needs sign-up and migration changes |
+| One price list | Up to 3 active catalog assignments to B2B markets; **no direct company catalogs** (Plus only) | One catalog in one "Clinics" B2B market fits |
+| Works with classic or new accounts | **Legacy customer accounts can't place B2B orders** | Store must use new customer accounts. **Check the current setting.** |
+| Price shown on the clinic ordering page | Basic/Grow lack "contextual storefront" and "contextual checkout" (Advanced+) | Unclear what the theme shows a B2B buyer on Basic. **Must test.** |
+| Massy and other discounts | Shopify doesn't say whether Massy's discounts also apply to B2B orders | Must test, so prices aren't discounted twice |
 
-The handles come from the Oct 29 theme export. The script stops if a handle no longer exists in the store. Massy's draft rule "Wholesale Pricing after 10" (#47279) was inactive and isn't carried over. To change prices later, edit `pricing.json` and re-run the script. The format:
+### What would have to change
+**Sign-up (webhook).**
+- Besides tagging, create a company (practice name), a company location (address from the form, which the form would need to collect), and add the customer as its contact.
+- Get the location into the "Clinics" B2B market. How a location joins a market on Basic, and whether the API can do it, is still to be confirmed on a dev store.
+- The app needs the `read_companies` and `write_companies` scopes, which means a merchant re-approval.
+- Keep adding `clinics`: the theme and portal gate on it.
+- The repeat-safe behaviour must cover companies too (find by contact before creating).
 
-```json
-{ "name": "PGX kit", "productHandles": ["<product-handle>"],
-  "tiers": [ { "minQuantity": 1, "unitPrice": "550.00" }, { "minQuantity": 10, "unitPrice": "500.00" } ] }
-```
+**Customer migration.**
+- Every existing `clinics` customer needs a company, location and contact. Massy has 7 submissions; the tagged-customer count still needs checking.
+- Do it with a dry-run script that lists what it would create, then `--apply` with owner approval. Write no PHI; practice name and business address only.
+- New customer accounts must be on first.
 
-- Each tier is the price **per kit** from that quantity up. Quantity counts every variant of the product in the cart, like Massy's "Entire order" calculation.
-- A line already priced at or below wholesale is left alone. Other products are untouched.
-- Only carts in the config's `currencyCode` (USD) get the price. Any config error means full price, never a broken checkout.
-- Customers must be logged in at checkout; guests never get wholesale.
+**Theme.**
+- `trulab-clinic-hub`, `-login`, `-ordering`, `-register`, `trulab-pathway-landing` and `layout/theme.liquid` gate on `customer.tags contains 'clinics'`. They can keep doing so; the tag stays.
+- `trulab-clinic-ordering` shows `clinic_variant.price` and has Massy-specific styles (`[class*="massy-"]`). Check it shows the B2B catalog price, or label it "price shown at checkout".
+- Check that SP Hide Price & B2B Lock works with B2B buyers.
+- All theme work happens in an unpublished copy.
 
-Apply it (preview first, then `--apply`):
-```
-npm run wholesale-discount -- --config extensions/clinic-wholesale-pricing/pricing.json
-npm run wholesale-discount -- --config extensions/clinic-wholesale-pricing/pricing.json --apply
-```
-The first `--apply` creates the automatic discount "Clinic wholesale pricing". Later runs only update its prices. It combines with shipping discounts, but not with other product or order discounts.
+**Checkout tests (on a dev store set up like Basic):**
 
-## Cutover (needs owner approval at each production step)
-1. **Dev store:** add the scopes `read_products` and `write_discounts` (already in `shopify.app.toml.example`), then `shopify app deploy`, which also builds the Function. Run the script and test checkout as a tagged customer, an untagged customer, and a guest, at 1, 9 and 10 kits.
-2. **Netlify preview:** point the GHL workflow at the preview URL with a dev-store config, and submit a test form.
-3. **Production:**
-   - Deploy the app config (new scopes, then merchant re-approval, then the Function).
-   - Create the discount with `--apply --starts-at <cutover time>`.
-   - **At that same time, deactivate the two Massy volume rules (#49525, #47297).** Otherwise clinics see both discounts competing.
-4. Point `/pages/register` at the GHL form (theme change in an unpublished copy first) and switch off Massy form #2694.
-5. Watch a few real clinic orders, then uninstall Massy. Check that **SP Hide Price & B2B Lock** still shows clinics their prices; it is separate from Massy and is not changed here.
+| Buyer | Cart | Expected |
+|---|---|---|
+| B2B clinic contact | 1 PGX, 9 PGX, 10 PGX | $550, $550, $500 each |
+| B2B clinic contact | 1, 9, 10 TruLab DX Pathway | $450, $450, $400 each |
+| B2B clinic contact | 10 kits split across variants (if any) | Record the result: no break expected |
+| B2B clinic contact | Mixed PGX + Pathway | Each product priced by its own quantity |
+| Tagged `clinics`, no company | 10 PGX | Massy price while Massy is on; retail after cutover |
+| Retail customer, and guest | 10 PGX | Retail price |
+| B2B clinic contact with Massy still on | 10 PGX | One wholesale price, not B2B **and** Massy |
 
-**Rollback:** deactivate the "Clinic wholesale pricing" discount, reactivate the Massy rules, and set `GHL_SIGNUP_ENABLED=false`. Tags added by GHL stay on the customers, which is the same state Massy would have left.
+Development stores may have Plus-level features turned on, so assign the catalog through a B2B market only (never directly to a company). Otherwise the test proves something Basic can't do.
+
+## Migration plan for B2B pricing (proposal, needs approval before any step)
+1. **Answer the open checks** on the dev store: variants per kit, customer account type, how locations join a market (and the API for it), what the theme shows a B2B buyer on Basic, and whether Massy's discounts stack on B2B orders.
+2. **Build on the dev store:** a "Clinics" B2B market, one catalog with the fixed prices and 10+ breaks above, webhook changes behind a new flag (`GHL_CREATE_B2B_COMPANY`, off by default), and the migration script (dry run first).
+3. **Run the checkout tests** above. Stop here if any wholesale price differs from Massy's.
+4. **Production, with approval at each step:**
+   1. Turn on new customer accounts, if they aren't already.
+   2. Create the catalog and B2B market, but don't activate them yet.
+   3. Run the migration script dry-run, then `--apply`.
+   4. Deploy the webhook change with `GHL_CREATE_B2B_COMPANY=true`.
+5. **Cutover window (approval):** activate the B2B market and catalog. At the same time, deactivate (don't delete) Massy rules #49525 and #47297. Place one test order as a staff-controlled clinic account, then watch the first real clinic orders.
+6. **After two clean weeks (approval):** only then consider uninstalling Massy.
+
+**Rollback** at any point after step 5:
+1. Reactivate Massy rules #49525 and #47297.
+2. Deactivate the B2B market or catalog.
+3. Set `GHL_CREATE_B2B_COMPANY=false`.
+
+Companies and contacts can stay; they do nothing without an active catalog. Tags are never removed. Before step 5, rollback is just leaving the market inactive.
+
+## First-launch steps (Massy unchanged; owner approval at each production step)
+1. Pass the dev-store test above.
+2. Merge PR #1. Netlify publishes `main` to production, but the portal and sign-up stay off until their env vars are set.
+3. Production env vars: `GHL_SIGNUP_ENABLED=true`, a new `GHL_WEBHOOK_SECRET`, and `GHL_ALLOW_PRODUCTION_STORE=true`.
+4. In GHL, set the production URL and the secret on the workflow, then publish it.
+5. Embed the GHL form on `/pages/register` in an unpublished theme copy, review, then publish.
+6. Switching off Massy form #2694 is a separate decision; the Massy volume rules stay on either way.
+
+**Rollback:** set `GHL_SIGNUP_ENABLED=false` and unpublish the GHL workflow. Tags already added stay, the same as Massy would leave them. Massy pricing is never touched.

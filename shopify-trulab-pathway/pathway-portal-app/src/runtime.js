@@ -76,6 +76,8 @@ export function configFromEnvironment(environment = process.env) {
     ghlSignupEnabled,
     ghlWebhookSecret,
     ghlRequireNpi: flag(environment.GHL_REQUIRE_NPI),
+    // Without this, sign-ups only run against a partner development store.
+    ghlAllowProductionStore: flag(environment.GHL_ALLOW_PRODUCTION_STORE),
   };
 }
 

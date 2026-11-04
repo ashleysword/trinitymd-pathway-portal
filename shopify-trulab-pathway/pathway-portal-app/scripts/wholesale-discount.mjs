@@ -7,9 +7,12 @@
 //
 // Reads SHOP_DOMAIN, SHOPIFY_CLIENT_ID and SHOPIFY_API_SECRET from the environment.
 // Needs the read_products and write_discounts scopes, and the Function deployed.
+//
+// INACTIVE: the store is on Shopify Basic, and only Plus stores can run custom
+// apps that contain Functions. --apply refuses to run; Massy keeps the pricing.
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
-import { validatePricingConfig } from '../extensions/clinic-wholesale-pricing/src/pricing.js';
+import { validatePricingConfig } from '../inactive/clinic-wholesale-pricing/src/pricing.js';
 import { ShopifyAdminClient } from '../src/shopify.js';
 
 export const DISCOUNT_TITLE = 'Clinic wholesale pricing';
@@ -97,6 +100,9 @@ export async function applyWholesaleDiscount(shopify, config, { startsAt = new D
 }
 
 async function main(args) {
+  if (args.includes('--apply')) {
+    throw new Error('Inactive: the store is on Shopify Basic, which cannot run custom-app Functions. See MASSY-REPLACEMENT.md.');
+  }
   const path = argument(args, '--config');
   if (!path) throw new Error('Usage: node scripts/wholesale-discount.mjs --config pricing.json [--apply] [--starts-at ISO]');
   const environment = process.env;

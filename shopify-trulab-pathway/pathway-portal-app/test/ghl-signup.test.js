@@ -13,14 +13,22 @@ const SIGNUP = {
   phone: '(555) 010-0000', company: 'Synthetic Wellness', businessType: 'Wellness clinic', npi: '1234567893',
 };
 
-function fakeShopify(existing = []) {
+function fakeShopify(existing = [], { devStore = true } = {}) {
   const customers = existing.map((customer) => ({ ...customer }));
   const calls = [];
   return {
     calls,
     customers,
+    // Customer reads and writes only; the shop-plan check is left out.
+    get customerCalls() {
+      return calls.filter((call) => !call.query.includes('GhlShopPlan'));
+    },
     async graphql(query, variables) {
       calls.push({ query, variables });
+      if (query.includes('GhlShopPlan')) {
+        if (devStore === 'error') throw new Error('network');
+        return { shop: { plan: { partnerDevelopment: devStore } } };
+      }
       if (query.includes('GhlFindCustomer')) {
         const email = variables.query.match(/email:"(.*)"/)[1];
         return { customers: { nodes: customers.filter((customer) => customer.email === email) } };
@@ -40,8 +48,8 @@ function fakeShopify(existing = []) {
   };
 }
 
-function setup({ existing = [], withService = false, config = {} } = {}) {
-  const shopify = fakeShopify(existing);
+function setup({ existing = [], withService = false, config = {}, devStore = true } = {}) {
+  const shopify = fakeShopify(existing, { devStore });
   const repository = new MemoryPortalRepository();
   const service = withService
     ? new ClinicPortalService({
@@ -108,7 +116,7 @@ test('validates email and name before touching Shopify', async () => {
   assert.equal((await handler.handle(post({ ...SIGNUP, email: 'not-an-email' }))).status, 422);
   assert.equal((await handler.handle(post({ ...SIGNUP, lastName: '' }))).status, 422);
   assert.equal((await handler.handle(post('{bad json'))).status, 400);
-  assert.equal(shopify.calls.length, 0);
+  assert.equal(shopify.customerCalls.length, 0);
 });
 
 test('NPI is optional by default: missing or mistyped NPIs still get tagged', async () => {
@@ -127,7 +135,7 @@ test('GHL_REQUIRE_NPI=true rejects missing or invalid NPIs', async () => {
   const { handler, shopify } = setup({ config: { ghlRequireNpi: true } });
   assert.equal((await handler.handle(post({ ...SIGNUP, npi: '1234567890' }))).status, 422);
   assert.equal((await handler.handle(post({ ...SIGNUP, npi: '' }))).status, 422);
-  assert.equal(shopify.calls.length, 0);
+  assert.equal(shopify.customerCalls.length, 0);
   assert.equal((await handler.handle(post(SIGNUP))).status, 200);
 });
 
@@ -139,6 +147,29 @@ test('accepts GHL default webhook keys', () => {
   assert.equal(signup.contactId, 'abc123');
   assert.equal(signup.company, 'Synthetic Clinic');
   assert.equal(signup.npi, '1234567893');
+});
+
+test('blocks sign-ups unless the store is a development store', async () => {
+  for (const devStore of [false, 'error']) {
+    const { handler, shopify } = setup({ devStore });
+    const response = await handler.handle(post(SIGNUP));
+    assert.equal(response.status, 403);
+    assert.equal((await response.json()).code, 'PRODUCTION_STORE_BLOCKED');
+    assert.equal(shopify.customerCalls.length, 0);
+  }
+  // Production opts in explicitly and never asks for the plan.
+  const prod = setup({ devStore: false, config: { ghlAllowProductionStore: true } });
+  assert.equal((await prod.handler.handle(post(SIGNUP))).status, 200);
+  assert.equal(prod.shopify.calls.some((call) => call.query.includes('GhlShopPlan')), false);
+});
+
+test('checks the store plan once, and only after the secret matches', async () => {
+  const { handler, shopify } = setup();
+  await handler.handle(post(SIGNUP, null));
+  assert.equal(shopify.calls.length, 0);
+  await handler.handle(post(SIGNUP));
+  await handler.handle(post({ ...SIGNUP, contactId: 'ghlContact02', email: 'sam@example.com' }));
+  assert.equal(shopify.calls.filter((call) => call.query.includes('GhlShopPlan')).length, 1);
 });
 
 test('never logs names or emails', async () => {
@@ -173,5 +204,7 @@ test('runtime config requires a long secret when GHL signup is on', () => {
   const on = configFromEnvironment({ ...base, GHL_SIGNUP_ENABLED: 'true', GHL_WEBHOOK_SECRET: SECRET });
   assert.equal(on.ghlSignupEnabled, true);
   assert.equal(on.ghlRequireNpi, false);
+  assert.equal(on.ghlAllowProductionStore, false);
+  assert.equal(configFromEnvironment({ ...base, GHL_ALLOW_PRODUCTION_STORE: 'true' }).ghlAllowProductionStore, true);
   assert.equal(configFromEnvironment({ ...base, GHL_REQUIRE_NPI: 'true' }).ghlRequireNpi, true);
 });

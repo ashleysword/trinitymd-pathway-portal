@@ -10,7 +10,7 @@ redirect_urls = ["https://your-pathway-portal.netlify.app/"]
 api_version = "2026-07"
 
 [access_scopes]
-scopes = "read_customers,write_customers,read_metaobjects,write_metaobjects,write_app_proxy,write_content,read_products,write_discounts"
+scopes = "read_customers,write_customers,read_metaobjects,write_metaobjects,write_app_proxy,write_content"
 
 [page.metafields.app.affiliate_name]
 name = "Affiliate name"

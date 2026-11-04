@@ -1,8 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { cartLinesDiscountsGenerateRun } from '../extensions/clinic-wholesale-pricing/src/index.js';
-import { validatePricingConfig } from '../extensions/clinic-wholesale-pricing/src/pricing.js';
+import { spawnSync } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { cartLinesDiscountsGenerateRun } from '../inactive/clinic-wholesale-pricing/src/index.js';
+import { validatePricingConfig } from '../inactive/clinic-wholesale-pricing/src/pricing.js';
 import { applyWholesaleDiscount, resolveProductHandles } from '../scripts/wholesale-discount.mjs';
 
 const PGX = 'gid://shopify/Product/111';
@@ -93,14 +95,14 @@ test('config validation explains every problem', () => {
 
 for (const file of ['pricing.example.json', 'pricing.json']) {
   test(`${file} is valid once handles become IDs`, () => {
-    const config = JSON.parse(readFileSync(new URL(`../extensions/clinic-wholesale-pricing/${file}`, import.meta.url)));
+    const config = JSON.parse(readFileSync(new URL(`../inactive/clinic-wholesale-pricing/${file}`, import.meta.url)));
     const withIds = { ...config, rules: config.rules.map(({ productHandles, ...rule }, index) => ({ ...rule, productIds: [`gid://shopify/Product/${index + 1}`] })) };
     assert.deepEqual(validatePricingConfig(withIds), []);
   });
 }
 
 test('pricing.json carries the live Massy volume prices', () => {
-  const config = JSON.parse(readFileSync(new URL('../extensions/clinic-wholesale-pricing/pricing.json', import.meta.url)));
+  const config = JSON.parse(readFileSync(new URL('../inactive/clinic-wholesale-pricing/pricing.json', import.meta.url)));
   const prices = Object.fromEntries(config.rules.map((rule) => [rule.productHandles[0], rule.tiers.map((tier) => [tier.minQuantity, tier.unitPrice])]));
   assert.deepEqual(prices, {
     'trinity-pathway-pgx-genetic-test-kit': [[1, '550.00'], [10, '500.00']],
@@ -140,4 +142,18 @@ test('setup script resolves handles, creates the discount once, then only update
   assert.equal((await applyWholesaleDiscount(shopify, config)).action, 'created');
   assert.equal((await applyWholesaleDiscount(shopify, config)).action, 'updated');
   assert.deepEqual(calls, ['WholesaleProduct', 'WholesaleDiscount', 'WholesaleFunctions', 'WholesaleCreate', 'WholesaleDiscount', 'WholesaleSetConfig']);
+});
+
+test('setup script refuses --apply while the Function is inactive (store is on Basic)', () => {
+  const run = spawnSync(process.execPath, [fileURLToPath(new URL('../scripts/wholesale-discount.mjs', import.meta.url)), '--config', 'pricing.json', '--apply'], {
+    env: {}, encoding: 'utf8',
+  });
+  assert.equal(run.status, 1);
+  assert.match(run.stderr, /Inactive: the store is on Shopify Basic/);
+});
+
+test('the Function is outside extensions/, so shopify app deploy cannot pick it up', () => {
+  assert.equal(existsSync(new URL('../extensions/clinic-wholesale-pricing', import.meta.url)), false);
+  const toml = readFileSync(new URL('../shopify.app.toml.example', import.meta.url), 'utf8');
+  assert.doesNotMatch(toml, /write_discounts/);
 });
