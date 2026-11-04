@@ -116,8 +116,11 @@ Before Nov 4 (kept for the record):
 | Nov 4 | Step 4: `GHL_SIGNUP_ENABLED=true` for deploy previews only | Done |
 | Nov 4 | Webhook called directly (no GHL) with 3 synthetic clinics: wrong secret → 401; new clinic → 200, customer created with `clinics` on the dev store; bad email → 422 | Pass |
 | Nov 4 | Immediate repeat submission → 502 `CREATE_FAILED` (customer search lags behind writes). Fixed in `03846cf` (direct email lookup); retested → 200 `alreadyClinic: true` | Fixed |
-| — | Step 5: kit products (the dev app has no product scope; add them in the dev store admin) | Not started |
-| — | Steps 6–7: GHL test form and workflow, then the end-to-end clinic flow | In progress |
+| Nov 4 | Step 5: the two kit products added in the dev store admin (made-up retail prices, inventory not tracked). Massy not installed on the dev store | Done |
+| Nov 4 | Step 6: GHL "Wholesale Discount (TEST - dev store only)" form and a separate "TEST: clinic sign-up -> dev store" workflow (trigger: TEST form only). Owner pasted the preview secret and submitted with their own email | Pass: customer created on the dev store, tagged `clinics` |
+| Nov 4 | Staff console (embedded in the dev store admin) lists the 4 sign-ups as approved applications | Pass |
+| Nov 4 | Bugs found: application detail said "not found" (Shopify returns app metaobject types as `app--<id>--portal_*`; also affected documents and threads); every NPI/EIN-less sign-up flagged as a duplicate; GHL sends empty fields as the text "null". Fixed in `b6293ea`; detail view and duplicate flags rechecked on the preview | Fixed |
+| — | Step 7: clinic login, portal access, kit scan/manual entry, documents, messaging | Waiting for owner login |
 
 ## Can native B2B on Basic replace Massy's two rules?
 **Probably, for these two products, but not as a drop-in.** Basic can now set wholesale prices with quantity breaks. But B2B prices go to **company locations**, not tagged customers, and breaks count **per variant**, not across the whole order as Massy does. Sources: [B2B features by plan](https://help.shopify.com/en/manual/b2b/getting-started/plan-features), [volume pricing](https://help.shopify.com/en/manual/b2b/catalogs/quantity-pricing), [considerations](https://help.shopify.com/en/manual/b2b/getting-started/considerations) (read Nov 4, 2026).
