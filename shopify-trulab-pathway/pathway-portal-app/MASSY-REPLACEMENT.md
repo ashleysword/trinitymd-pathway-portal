@@ -114,6 +114,8 @@ Before Nov 4 (kept for the record):
 | Nov 4 | Step 3: `trulab-*` sections and clinic page templates pushed to the dev store's theme; clinic pages created there | Done |
 | Nov 4 | Step 4: preview settings point at the dev store; preview build `/healthz` returns 200 with the dev app's credentials | Done |
 | Nov 4 | Step 4: `GHL_SIGNUP_ENABLED=true` for deploy previews only | Done |
+| Nov 4 | Webhook called directly (no GHL) with 3 synthetic clinics: wrong secret → 401; new clinic → 200, customer created with `clinics` on the dev store; bad email → 422 | Pass |
+| Nov 4 | Immediate repeat submission → 502 `CREATE_FAILED` (customer search lags behind writes). Fixed in `03846cf` (direct email lookup); retested → 200 `alreadyClinic: true` | Fixed |
 | — | Step 5: kit products (the dev app has no product scope; add them in the dev store admin) | Not started |
 | — | Steps 6–7: GHL test form and workflow, then the end-to-end clinic flow | In progress |
 
