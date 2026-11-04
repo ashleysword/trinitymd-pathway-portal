@@ -240,3 +240,21 @@ test('a new message shows in the thread even while the message search lags', asy
   lagging = false;
   assert.equal((await service.readThread(thread.id, 'staff')).messages.length, 2, 'no duplicate once search catches up');
 });
+
+test('kit reference: owner only, PHI-guarded, length-limited, clearable, never audited as text', async () => {
+  const { service, repository } = fixture();
+  await service.registerKit(CLINIC, { kitId: 'TL00009999' });
+  const { kit, changed } = await service.setKitReference(CLINIC, 'tl00009999', { clinicReference: '  Room 4  batch  ' });
+  assert.equal(changed, true);
+  assert.equal(kit.clinicReference, 'Room 4 batch');
+  assert.equal((await service.setKitReference(CLINIC, 'TL00009999', { clinicReference: 'Room 4 batch' })).changed, false);
+  await assert.rejects(service.setKitReference(OTHER_CLINIC, 'TL00009999', { clinicReference: 'x' }), (error) => error.statusCode === 404);
+  await assert.rejects(service.setKitReference(CLINIC, 'TL00009999', { clinicReference: 'DOB 1/2/80' }), (error) => error.field === 'clinicReference');
+  await assert.rejects(service.setKitReference(CLINIC, 'TL00009999', { clinicReference: 'a'.repeat(61) }), (error) => error.field === 'clinicReference');
+  assert.equal((await service.listClinicKits(CLINIC))[0].clinicReference, 'Room 4 batch');
+  assert.match(await service.exportKitsCsv(), /clinic_reference[\s\S]*Room 4 batch/);
+  const audit = JSON.stringify(await repository.list('audit'));
+  assert.ok(audit.includes('kit.reference_updated'));
+  assert.equal(audit.includes('Room 4'), false, 'the audit log never stores the reference text');
+  assert.equal((await service.setKitReference(CLINIC, 'TL00009999', { clinicReference: '' })).kit.clinicReference, '');
+});

@@ -167,3 +167,19 @@ test('staff allow list restricts which admin users can review', async () => {
   const request = new Request('https://x', { headers: { Authorization: `Bearer ${sessionToken()}` } });
   await assert.rejects(auth(request), { statusCode: 403 });
 });
+
+test('clinics can save their own reference on a kit, with a write token', async () => {
+  const { handler } = fixture();
+  const { csrfToken } = (await json(await handler(new Request(signed('/proxy/api/clinic/session', '1001'))))).body;
+  const send = (pathname, body, customer = '1001') => handler(new Request(signed(pathname, customer), {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+  }));
+  await send('/proxy/api/clinic/kits', { kitId: 'KIT-0002', csrfToken });
+  assert.equal((await send('/proxy/api/clinic/kits/KIT-0002/reference', { clinicReference: 'Batch 7' })).status, 401, 'needs the write token');
+  const saved = await json(await send('/proxy/api/clinic/kits/KIT-0002/reference', { clinicReference: 'Batch 7', csrfToken }));
+  assert.equal(saved.status, 200);
+  assert.equal(saved.body.kit.clinicReference, 'Batch 7');
+  const list = await json(await handler(new Request(signed('/proxy/api/clinic/kits'))));
+  assert.equal(list.body.kits[0].clinicReference, 'Batch 7');
+  assert.equal((await handler(new Request(signed('/proxy/api/clinic/kits/KIT-0002/reference')))).status, 405);
+});

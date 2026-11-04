@@ -135,6 +135,12 @@ export function createClinicRoutes({ service, config, loadCustomer, staffAuth, n
       }
       return methodNotAllowed();
     }
+    params = match(path, /^\/proxy\/api\/clinic\/kits\/([^/]+)\/reference$/);
+    if (params) {
+      const customer = requireClinic(context);
+      if (request.method !== 'POST') return methodNotAllowed();
+      return jsonResponse(200, await service.setKitReference(customer, params[0], await writePayload(request, context)));
+    }
     params = match(path, /^\/proxy\/api\/clinic\/kits\/([^/]+)$/);
     if (params) {
       const customer = requireClinic(context);

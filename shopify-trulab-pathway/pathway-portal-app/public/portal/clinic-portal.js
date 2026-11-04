@@ -485,7 +485,7 @@
       }
     });
 
-    const search = h('input', { type: 'search', placeholder: 'Search Kit ID', 'aria-label': 'Search kits', value: state.kitFilter.q });
+    const search = h('input', { type: 'search', placeholder: 'Search Kit ID or reference', 'aria-label': 'Search kits', value: state.kitFilter.q });
     const filter = h('select', { 'aria-label': 'Filter by status' },
       h('option', { value: '', text: 'All statuses' }),
       ['registered', 'assigned', 'kit_received', 'processing', 'report_ready', 'complete', 'cancelled']
@@ -523,16 +523,49 @@
 
   function renderKitList(container) {
     const query = state.kitFilter.q.trim().toUpperCase();
-    const kits = state.kits.filter((kit) => (!query || kit.kitId.includes(query)) && (!state.kitFilter.status || kit.status === state.kitFilter.status));
+    const kits = state.kits.filter((kit) => (!query || kit.kitId.includes(query) || String(kit.clinicReference || '').toUpperCase().includes(query)) && (!state.kitFilter.status || kit.status === state.kitFilter.status));
     if (!kits.length) {
       container.replaceChildren(h('p', { class: 'empty', text: state.kits.length ? 'No kits match your search.' : 'No kits registered yet. Scan or enter your first Kit ID above.' }));
       return;
     }
-    container.replaceChildren(h('ul', { class: 'list' }, kits.map((kit) => h('li', {},
+    container.replaceChildren(h('ul', { class: 'list' }, kits.map((kit) => h('li', { class: kit.legacy ? '' : 'kit-row' },
       h('button', { class: 'row-button', type: 'button', onclick: () => openKit(kit), 'aria-label': `Kit ${kit.kitId}, ${STATUS_LABELS[kit.status] || kit.status}. View timeline.` },
         h('span', { class: 'row-title', text: kit.kitId }),
         statusPill(kit.status),
-        h('span', { class: 'row-meta', text: `Registered ${formatDate(kit.registeredAt)}${kit.legacy ? ' · earlier portal record' : ''}` }))))));
+        h('span', { class: 'row-meta', text: `Registered ${formatDate(kit.registeredAt)}${kit.legacy ? ' · earlier portal record' : ''}` })),
+      kit.legacy ? null : kitReferenceForm(kit)))));
+  }
+
+  // The clinic's own label for a kit. Free text, so ask plainly for no patient details;
+  // the server also rejects dates of birth, ID numbers and diagnosis words.
+  function kitReferenceForm(kit) {
+    const inputId = `ref-${kit.kitId}`;
+    const input = h('input', {
+      id: inputId, type: 'text', maxlength: '60', value: kit.clinicReference || '', autocomplete: 'off',
+      placeholder: 'Your reference (no patient names)', 'aria-describedby': `${inputId}-note`,
+    });
+    const save = h('button', { class: 'button button--ghost button--small', type: 'submit', text: 'Save' });
+    const note = h('span', { id: `${inputId}-note`, class: 'kit-ref-note', role: 'status', text: '' });
+    const form = h('form', { class: 'kit-ref', novalidate: true },
+      h('label', { class: 'visually-hidden', for: inputId, text: `Reference for kit ${kit.kitId}` }), input, save, note);
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      save.disabled = true;
+      note.className = 'kit-ref-note';
+      note.textContent = 'Saving…';
+      try {
+        const result = await api(`/kits/${encodeURIComponent(kit.kitId)}/reference`, { method: 'POST', body: { clinicReference: input.value } });
+        kit.clinicReference = result.kit.clinicReference;
+        input.value = kit.clinicReference;
+        note.textContent = 'Saved';
+      } catch (error) {
+        note.className = 'kit-ref-note kit-ref-note--error';
+        note.textContent = error.message;
+      } finally {
+        save.disabled = false;
+      }
+    });
+    return form;
   }
 
   async function openKit(kit) {

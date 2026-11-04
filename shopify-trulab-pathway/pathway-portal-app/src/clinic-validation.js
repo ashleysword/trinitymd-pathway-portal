@@ -135,6 +135,17 @@ export function assertNoPatientHealthInformation(value, field) {
   }
 }
 
+// A clinic's own label for a kit (owner decision, Nov 4: short free text with the
+// message PHI guard). The guard cannot catch a plain patient name; the UI asks
+// clinics not to enter one.
+export const MAX_KIT_REFERENCE_LENGTH = 60;
+
+export function normalizeKitReference(input) {
+  const value = text(input, 'clinicReference', 'Reference', { max: MAX_KIT_REFERENCE_LENGTH });
+  assertNoPatientHealthInformation(value, 'clinicReference');
+  return value;
+}
+
 export function normalizeNewThread(input = {}) {
   const subject = text(input.subject, 'subject', 'Subject', { required: true, min: 3, max: 120 });
   const category = String(input.category || 'general');

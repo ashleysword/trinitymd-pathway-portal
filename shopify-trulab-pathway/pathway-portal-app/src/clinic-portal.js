@@ -4,6 +4,7 @@ import {
   normalizeApplication,
   normalizeDocumentInput,
   normalizeKitIdWithPattern,
+  normalizeKitReference,
   normalizeMessage,
   normalizeNewThread,
   normalizeStaffNote,
@@ -373,8 +374,21 @@ export class ClinicPortalService {
       source: kit.source,
       registeredAt: kit.registeredAt,
       updatedAt: kit.updatedAt,
+      clinicReference: kit.clinicReference || '',
       legacy: false,
     };
+  }
+
+  async setKitReference(customer, kitIdInput, input = {}) {
+    const kit = await this.findKitByKitId(normalizeKitId(kitIdInput));
+    if (!kit || kit.clinicCustomerId !== customer.id) throw notFound('Kit');
+    const clinicReference = normalizeKitReference(input.clinicReference);
+    if ((kit.clinicReference || '') === clinicReference) return { kit: this.publicKit(kit), changed: false };
+    kit.clinicReference = clinicReference;
+    const saved = await this.repo.update('kits', kit.id, kit, { index: { owner: kit.clinicCustomerId, status: kit.status, key: kit.kitId } });
+    // The audit entry records that it changed, never the text itself.
+    await this.audit({ type: 'clinic', id: customer.id }, 'kit.reference_updated', kit.kitId, { clinicCustomerId: customer.id });
+    return { kit: this.publicKit(saved), changed: true };
   }
 
   async findKitByKitId(kitId) {
@@ -541,8 +555,9 @@ export class ClinicPortalService {
 
   async exportKitsCsv(filter = {}) {
     const kits = await this.listAllKits(filter);
-    const rows = [['kit_id', 'clinic_customer_id', 'status', 'source', 'registered_at', 'updated_at']];
-    for (const kit of kits) rows.push([kit.kitId, kit.clinicCustomerId, kit.status, kit.source, kit.registeredAt, kit.updatedAt]);
+    // New columns go last so readers that use column positions keep working.
+    const rows = [['kit_id', 'clinic_customer_id', 'status', 'source', 'registered_at', 'updated_at', 'clinic_reference']];
+    for (const kit of kits) rows.push([kit.kitId, kit.clinicCustomerId, kit.status, kit.source, kit.registeredAt, kit.updatedAt, kit.clinicReference]);
     return `${rows.map((row) => row.map(csvCell).join(',')).join('\r\n')}\r\n`;
   }
 

@@ -206,7 +206,7 @@
       kits.length ? h('ul', { class: 'list' }, kits.map((kit) => h('li', {},
         h('button', { class: 'row-button', type: 'button', 'aria-current': String(state.selected === kit.kitId), onclick: () => { state.selected = kit.kitId; renderKits(panel); } },
           h('span', { class: 'row-title', text: kit.kitId }), pill(kit.status),
-          h('span', { class: 'row-meta', text: `Clinic ${kit.clinicCustomerId} · ${kit.source} · ${when(kit.registeredAt)}` })))))
+          h('span', { class: 'row-meta', text: `Clinic ${kit.clinicCustomerId}${kit.clinicReference ? ` · Ref: ${kit.clinicReference}` : ''} · ${kit.source} · ${when(kit.registeredAt)}` })))))
         : h('p', { class: 'empty', text: 'No kits match.' }),
       h('p', { class: 'field-help mt', text: 'Kits assigned through the earlier portal stay in their original Shopify records and are not listed here until migrated.' }));
     splitView(panel, list, detail);
@@ -239,7 +239,7 @@
     }));
     container.replaceChildren(
       h('div', { class: 'toolbar' }, h('h2', { class: 'toolbar-title mono', text: kit.kitId }), pill(kit.status)),
-      h('dl', { class: 'facts' }, [['Clinic customer', kit.clinicCustomerId], ['Registered', when(kit.registeredAt)], ['Registered by', `${kit.registeredBy.type} ${kit.registeredBy.id}`], ['Source', kit.source]]
+      h('dl', { class: 'facts' }, [['Clinic customer', kit.clinicCustomerId], ['Clinic reference', kit.clinicReference || '—'], ['Registered', when(kit.registeredAt)], ['Registered by', `${kit.registeredBy.type} ${kit.registeredBy.id}`], ['Source', kit.source]]
         .map(([label, value]) => [h('dt', { text: label }), h('dd', { text: value })])),
       next.length ? statusForm : h('p', { class: 'muted', text: 'No further status changes are allowed from this stage.' }),
       h('h3', { class: 'mt', text: 'Timeline' }),
