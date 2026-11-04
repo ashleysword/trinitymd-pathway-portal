@@ -219,3 +219,24 @@ test('clinic messaging is rate limited', async () => {
   }
   await assert.rejects(service.postMessage('clinic', CLINIC.id, thread.id, { body: 'Too many', requestId: 'rate-message-21' }, CLINIC), { statusCode: 429 });
 });
+
+test('a new message shows in the thread even while the message search lags', async () => {
+  // Seen on the dev store: Shopify search returns a new message only after a few seconds.
+  const { service, repository } = fixture();
+  const list = repository.list.bind(repository);
+  let lagging = true;
+  repository.list = async (collection, filter) => {
+    const records = await list(collection, filter);
+    return collection === 'messages' && lagging ? records.slice(1) : records; // newest first
+  };
+  const thread = await service.createThread(CLINIC, { subject: 'Lag test', category: 'general', body: 'First question', requestId: 'lag-thread-1' });
+  assert.deepEqual((await service.readThread(thread.id, 'clinic', CLINIC)).messages.map((m) => m.body), ['First question']);
+  await service.postMessage('staff', STAFF.staffId, thread.id, { body: 'Staff answer', requestId: 'lag-reply-1' });
+  const staffView = await service.readThread(thread.id, 'staff');
+  assert.deepEqual(staffView.messages.map((m) => m.body), ['First question', 'Staff answer']);
+  assert.equal(staffView.messages[1].authorId, STAFF.staffId);
+  const clinicView = await service.readThread(thread.id, 'clinic', CLINIC);
+  assert.equal('authorId' in clinicView.messages[1], false, 'clinics never see staff IDs');
+  lagging = false;
+  assert.equal((await service.readThread(thread.id, 'staff')).messages.length, 2, 'no duplicate once search catches up');
+});

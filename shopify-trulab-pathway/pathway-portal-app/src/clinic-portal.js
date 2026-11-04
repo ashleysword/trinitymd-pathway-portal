@@ -688,6 +688,7 @@ export class ClinicPortalService {
         clinicReadAt: at,
         staffReadAt: null,
         messageCount: 1,
+        latestMessage: { from: 'clinic', authorId: customer.id, body: normalized.body, at },
       }, { handle, index: { owner: customer.id, status: 'open', key: normalized.category } });
     } catch (error) {
       if (error instanceof DuplicateRecordError) return this.threadView(await this.repo.getByHandle('threads', handle), 'clinic');
@@ -710,7 +711,14 @@ export class ClinicPortalService {
 
   async readThread(id, side, customer = null) {
     const thread = await this.loadThread(id, customer);
-    const messages = (await this.repo.list('messages', { key: thread.id }))
+    const stored = await this.repo.list('messages', { key: thread.id });
+    // The message list comes from Shopify search, which lags a few seconds behind
+    // writes. The thread (read by ID) keeps a copy of its newest message.
+    const latest = thread.latestMessage;
+    if (latest && !stored.some((message) => message.at === latest.at && message.author.type === latest.from && message.body === latest.body)) {
+      stored.push({ id: `${thread.id}#latest`, author: { type: latest.from, id: latest.authorId }, body: latest.body, at: latest.at });
+    }
+    const messages = stored
       .sort((left, right) => String(left.at).localeCompare(String(right.at)))
       .map((message) => ({
         id: message.id,
@@ -747,6 +755,7 @@ export class ClinicPortalService {
     thread.lastMessageAt = at;
     thread.lastMessageBy = side;
     thread.messageCount += 1;
+    thread.latestMessage = { from: side, authorId: actorId, body: normalized.body, at };
     thread[side === 'clinic' ? 'clinicReadAt' : 'staffReadAt'] = at;
     if (side === 'staff' && thread.status === 'closed') thread.status = 'open';
     const saved = await this.repo.update('threads', thread.id, thread, { index: { owner: thread.clinicCustomerId, status: thread.status, key: thread.category } });

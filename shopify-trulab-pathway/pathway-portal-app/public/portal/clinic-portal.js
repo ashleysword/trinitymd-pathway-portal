@@ -467,7 +467,10 @@
         setNotice(notice, 'ok', result.created ? `Kit ${result.kit.kitId} is registered to your clinic.` : `Kit ${result.kit.kitId} was already registered to your clinic.`);
         input.value = '';
         source = 'manual';
-        state.kits = (await api('/kits')).kits;
+        // Shopify's metaobject search lags a few seconds behind writes, so the
+        // fresh list can miss the kit just registered. Keep it from the response.
+        const kits = (await api('/kits')).kits;
+        state.kits = kits.some((kit) => kit.kitId === result.kit.kitId) ? kits : [result.kit, ...kits];
         renderKitList(listWrap);
         const counters = global.document.querySelectorAll('.stat strong');
         if (counters.length >= 2) {
