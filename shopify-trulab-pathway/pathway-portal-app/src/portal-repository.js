@@ -13,6 +13,14 @@ export const PORTAL_COLLECTIONS = {
   audit: '$app:portal_audit',
 };
 
+// Shopify accepts the `$app:` alias in queries but returns the resolved type,
+// e.g. `app--443624423425--portal_application`.
+export function isPortalType(actual, collection) {
+  const alias = PORTAL_COLLECTIONS[collection];
+  const name = alias.slice('$app:'.length);
+  return actual === alias || new RegExp(`^app--\\d+--${name}$`).test(String(actual));
+}
+
 export class DuplicateRecordError extends PortalStorageError {
   constructor() {
     super('That record already exists.', { statusCode: 409, code: 'DUPLICATE_RECORD' });
@@ -194,7 +202,7 @@ export class ShopifyPortalRepository {
     assertCollection(collection);
     if (!/^gid:\/\/shopify\/Metaobject\/\d+$/.test(String(id))) return null;
     const data = await this.client.graphql(GET_QUERY, { id });
-    if (!data?.metaobject || data.metaobject.type !== PORTAL_COLLECTIONS[collection]) return null;
+    if (!data?.metaobject || !isPortalType(data.metaobject.type, collection)) return null;
     return this.decode(data.metaobject);
   }
 

@@ -208,3 +208,20 @@ test('runtime config requires a long secret when GHL signup is on', () => {
   assert.equal(configFromEnvironment({ ...base, GHL_ALLOW_PRODUCTION_STORE: 'true' }).ghlAllowProductionStore, true);
   assert.equal(configFromEnvironment({ ...base, GHL_REQUIRE_NPI: 'true' }).ghlRequireNpi, true);
 });
+
+test('treats GHL\'s "null" text for empty fields as empty', () => {
+  const signup = normalizeGhlSignup({ ...SIGNUP, businessType: 'null', website: 'NULL', company: 'undefined', npi: 'null' });
+  assert.equal(signup.businessType, '');
+  assert.equal(signup.website, '');
+  assert.equal(signup.company, '');
+  assert.equal(signup.npi, '');
+});
+
+test('sign-ups without an NPI or EIN are not flagged as duplicates of each other', async () => {
+  const { handler, service } = setup({ withService: true });
+  await handler.handle(post({ ...SIGNUP, npi: '' }));
+  await handler.handle(post({ ...SIGNUP, contactId: 'ghlContact02', email: 'sam@example.com', npi: '' }));
+  const views = await service.listApplications();
+  assert.equal(views.length, 2);
+  assert.ok(views.every((view) => view.duplicates.length === 0));
+});

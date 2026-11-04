@@ -261,16 +261,18 @@ export class ClinicPortalService {
   }
 
   findDuplicates(application, pool) {
+    // A missing identifier (GHL sign-ups have no EIN, often no NPI) matches nothing.
+    const same = (left, right) => Boolean(left) && left === right;
     return pool
       .filter((other) => other.id !== application.id
-        && (other.npiFingerprint === application.npiFingerprint || other.taxIdFingerprint === application.taxIdFingerprint))
+        && (same(other.npiFingerprint, application.npiFingerprint) || same(other.taxIdFingerprint, application.taxIdFingerprint)))
       .map((other) => ({
         id: other.id,
         company: other.practice.company,
         status: other.status,
         matches: [
-          other.npiFingerprint === application.npiFingerprint ? 'NPI' : null,
-          other.taxIdFingerprint === application.taxIdFingerprint ? 'Tax ID' : null,
+          same(other.npiFingerprint, application.npiFingerprint) ? 'NPI' : null,
+          same(other.taxIdFingerprint, application.taxIdFingerprint) ? 'Tax ID' : null,
         ].filter(Boolean),
       }));
   }

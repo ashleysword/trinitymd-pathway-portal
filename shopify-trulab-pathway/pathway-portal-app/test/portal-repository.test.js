@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DuplicateRecordError, MemoryPortalRepository, ShopifyPortalRepository } from '../src/portal-repository.js';
+import { DuplicateRecordError, isPortalType, MemoryPortalRepository, ShopifyPortalRepository } from '../src/portal-repository.js';
 
 test('memory repository enforces handles and filters by index fields', async () => {
   const repo = new MemoryPortalRepository();
@@ -40,6 +40,23 @@ test('Shopify repository writes app-owned metaobjects with filterable index fiel
 
   assert.equal(await repo.get('kits', 'gid://shopify/Metaobject/9'), null, 'records of another type are not returned');
   assert.equal(await repo.get('kits', 'not-a-gid'), null);
+});
+
+test('Shopify repository reads records by ID when Shopify returns the resolved app type', async () => {
+  // Seen on the dev store: queries take `$app:portal_application`, but results carry `app--<app id>--portal_application`.
+  const client = {
+    async graphql(query, variables) {
+      if (query.includes('PortalRecord(')) {
+        return { metaobject: { type: 'app--443624423425--portal_application', id: variables.id, fields: [{ key: 'payload', value: '{"status":"approved"}' }] } };
+      }
+      throw new Error('unexpected');
+    },
+  };
+  const repo = new ShopifyPortalRepository({ client });
+  assert.equal((await repo.get('applications', 'gid://shopify/Metaobject/7')).status, 'approved');
+  assert.equal(await repo.get('kits', 'gid://shopify/Metaobject/7'), null, 'a resolved type of another collection is not returned');
+  assert.equal(isPortalType('app--1--portal_kit_event', 'kits'), false);
+  assert.equal(isPortalType('app--1--portal_kit', 'kits'), true);
 });
 
 test('Shopify repository maps a taken handle to a duplicate error', async () => {

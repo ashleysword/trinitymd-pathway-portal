@@ -30,7 +30,8 @@ function secretMatches(provided, expected) {
 function pick(payload, ...keys) {
   for (const key of keys) {
     const value = key.split('.').reduce((node, part) => (node == null ? undefined : node[part]), payload);
-    if (value != null && String(value).trim()) return String(value).trim();
+    // GHL renders an empty custom field as the text "null".
+    if (value != null && String(value).trim() && !/^(null|undefined)$/i.test(String(value).trim())) return String(value).trim();
   }
   return '';
 }
