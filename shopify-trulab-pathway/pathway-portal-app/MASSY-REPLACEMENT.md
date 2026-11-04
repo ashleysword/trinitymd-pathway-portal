@@ -107,6 +107,16 @@ Before Nov 4 (kept for the record):
 6. In GHL, make a **test copy of the form** ("Wholesale Discount (TEST)") and a **separate test workflow** triggered only by that test form, using the new secret. This keeps real clinic submissions on the live form from reaching the dev store. Never touch the production workflow. Submit with a synthetic name and a test email you control. Check that the GHL log shows `200` and the dev-store customer has `clinics`.
 7. Check: the customer can log in and sees the clinic hub and portal (kit scan and manual entry, documents, messaging), and Massy's 1, 9 and 10 kit prices apply at checkout. Also check that a repeat submission changes nothing, and that a wrong secret returns `401`.
 
+### Dev-store test log
+| Date | Step | Result |
+|---|---|---|
+| Nov 4 | Steps 1–2: dev store and dev app created, app deployed and installed on the dev store only | Done |
+| Nov 4 | Step 3: `trulab-*` sections and clinic page templates pushed to the dev store's theme; clinic pages created there | Done |
+| Nov 4 | Step 4: preview settings point at the dev store; preview build `/healthz` returns 200 with the dev app's credentials | Done |
+| Nov 4 | Step 4: `GHL_SIGNUP_ENABLED=true` for deploy previews only | Done |
+| — | Step 5: kit products (the dev app has no product scope; add them in the dev store admin) | Not started |
+| — | Steps 6–7: GHL test form and workflow, then the end-to-end clinic flow | In progress |
+
 ## Can native B2B on Basic replace Massy's two rules?
 **Probably, for these two products, but not as a drop-in.** Basic can now set wholesale prices with quantity breaks. But B2B prices go to **company locations**, not tagged customers, and breaks count **per variant**, not across the whole order as Massy does. Sources: [B2B features by plan](https://help.shopify.com/en/manual/b2b/getting-started/plan-features), [volume pricing](https://help.shopify.com/en/manual/b2b/catalogs/quantity-pricing), [considerations](https://help.shopify.com/en/manual/b2b/getting-started/considerations) (read Nov 4, 2026).
 
