@@ -6,12 +6,30 @@
 
 **Cost: none.** Massy's App Store listing says its Free plan includes "all app features on dev stores" ([listing](https://apps.shopify.com/massy-b2b-wholesale-pricing-discount), read Nov 4). Dev-store checkout uses Shopify's test payment gateway (enabled by the store's test data), so no real money moves. For reference, the paid plans are Essential $29/mo, Growth $59/mo and Plus $129/mo, each with a 14-day trial. The Free plan allows only **one** volume discount rule, so the live store, with two active rules, must already be on a paid plan. Check Massy's billing page in the live admin. The listing doesn't restrict Massy to Shopify Plus; it says it can edit Shopify Functions, and public-app Functions run on Basic.
 
-**Rules to copy from the live store** (observed Nov 3 in the live Massy admin, read-only):
+**Live store Massy plan:** $59 every 30 days (Growth), seen in the live admin's app list, Nov 4.
 
-| Massy rule | Product | Who | 1–9 kits | 10+ kits | Settings |
-|---|---|---|---:|---:|---|
-| Testing Kit PGX Volume Discount (#49525), priority 1 | Trinity Pathway PGX Genetic Test Kit (`trinity-pathway-pgx-genetic-test-kit`) | Customers tagged `clinics` | $550 each | $500 each | All markets; calculation "Entire order"; start date Aug 21, 2026, no end date |
-| Testing Kit Volume Discount (#47297), priority 0 | TruLab Dx PATHWAY Genetic Test (`trulab-dx-pathway-genetic-test`) | Customers tagged `clinics` | $450 each | $400 each | All markets; calculation "Entire order"; no dates; product label needed reconciling |
+**Rules to copy from the live store** (read field by field in the live Massy admin on Nov 4; read-only, nothing saved):
+
+| Setting | #49525 | #47297 |
+|---|---|---|
+| Name / discount title shown at checkout | Testing Kit PGX Volume Discount | Testing Kit Volume Discount |
+| Status / priority | Active / 1 | Active / 0 |
+| Order tags | none | none |
+| Apply to markets / exclude | All markets / none | All markets / none |
+| Apply to customers | Customer tags: `clinics` | Customer tags: `clinics` |
+| Apply to products | Specific products: Trinity Pathway PGX Genetic Test Kit | Specific products: TruLab Dx PATHWAY Genetic Test |
+| Discount settings | Quantity range | Quantity range |
+| Calculation method | **Entire order**: "This calculates the total quantity of all items in the customer's order." | Entire order (same) |
+| Range 1 | 1 to 9, New price, $550 per item | 1 to 9, New price, $450 per item |
+| Range 2 | 10 and up, New price, $500 per item | 10 and up, New price, $400 per item |
+| Start / end date | Start Aug 21, 2026 4:03 PM / no end | none / none |
+
+**Finding:** going by Massy's own description of "Entire order", the 10+ price is reached by the **total quantity of all items in the order**, not per product. If that's how it behaves, a clinic buying 5 PGX + 5 TruLab (or 9 PGX plus any one other item) gets the 10+ price. Cases C1 and C2 below confirm it. This matters for any B2B replacement, which counts each variant separately.
+
+**Dev-store test status (Nov 4): blocked.** Shopify requires the owner of the organization that owns a development store to verify their identity before third-party apps can be installed on it ("Identity verification required" on the install screen for `trinity-pathway-dev`). The owner couldn't complete it. The Go North Industries dev store had already been deleted. Options:
+- the Trinity Cell Sciences organization owner verifies, then run the cases on `trinity-pathway-dev`; or
+- a verified person creates a dev store in their own organization (it only needs the two products, one customer tagged `clinics`, Massy Free and the two rules; the portal isn't involved); or
+- check prices at launch with one staff-owned clinic cart on the live store (needs owner approval then).
 
 The custom pricing rule "Wholesale Pricing after 10" (#47279) is a draft, so don't copy it.
 
