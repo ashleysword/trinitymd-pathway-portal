@@ -128,7 +128,7 @@ Before Nov 4 (kept for the record):
 | Nov 4 | Messaging: PHI guard blocks a DOB message; clinic → staff message, staff reply → clinic with unread badge; staff inbox read marker | Pass |
 | Nov 4 | Staff reply missing from the staff thread right after sending (search lag). Fixed in `297a8b5` (thread keeps its newest message) | Fixed |
 | Nov 4 | New: per-kit clinic reference (owner request; free text up to 60 characters with the PHI guard), `b0b0721`. Saved, persisted after reload, searchable; DOB text rejected and not stored; audit records the change without the text | Pass |
-| — | Camera scan: not testable in an automated browser (no camera); the Code 128 fallback decoder has unit tests. Needs a phone check | Not run |
+| Nov 4 | Camera scan on the owner's phone: synthetic Code 128 labels DEVTEST-0004 and DEVTEST-0005 shown on screen, scanned with "Scan with camera", registered and stored with source `scan` (typed kits show `manual`) | Pass |
 | Nov 4 | Documents: owner uploaded a synthetic PDF in the staff console; it stayed a draft because the staff list could miss a just-saved document (search lag). Fixed in `efcd6f9` | Fixed |
 | Nov 4 | Documents: after publishing, the clinic Education tab lists it (clinic only, version 1); download through the app proxy returns `application/pdf`, all 627 bytes, intact. Direct unsigned request → 401; signed-out store visitor → redirected | Pass |
 
