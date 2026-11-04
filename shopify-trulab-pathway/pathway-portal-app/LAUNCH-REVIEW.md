@@ -26,7 +26,7 @@
 
 **Finding:** going by Massy's own description of "Entire order", the 10+ price is reached by the **total quantity of all items in the order**, not per product. If that's how it behaves, a clinic buying 5 PGX + 5 TruLab (or 9 PGX plus any one other item) gets the 10+ price. Cases C1 and C2 below confirm it. This matters for any B2B replacement, which counts each variant separately.
 
-**Dev-store test status (Nov 4): blocked.** Shopify requires the owner of the organization that owns a development store to verify their identity before third-party apps can be installed on it ("Identity verification required" on the install screen for `trinity-pathway-dev`). The owner couldn't complete it. The Go North Industries dev store had already been deleted. Options:
+**Dev-store test status (Nov 4): blocked.** Shopify requires the owner of the organization that owns a development store to verify their identity before third-party apps can be installed on it ("Identity verification required" on the install screen for `trinity-pathway-dev`). The owner couldn't complete it. A new dev store in Go North Industries (`trinity-massy-test`, Basic, test data) hit the same check, so it applies to every development store this account owns. Options:
 - the Trinity Cell Sciences organization owner verifies, then run the cases on `trinity-pathway-dev`; or
 - a verified person creates a dev store in their own organization (it only needs the two products, one customer tagged `clinics`, Massy Free and the two rules; the portal isn't involved); or
 - check prices at launch with one staff-owned clinic cart on the live store (needs owner approval then).
