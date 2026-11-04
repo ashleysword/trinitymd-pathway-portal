@@ -137,6 +137,58 @@ access.customer_account = "none"
 # Clinic portal v3 records. Every type shares the same shape: three filterable
 # index fields used by the service for lookups, and a JSON payload.
 
+# Live definitions for the customer kit registry (/proxy/api/customer-kits).
+# Keep them: a deploy without them would delete the definitions and their data.
+[metaobjects.app.pathway_customer_kit]
+name = "PATHWAY Customer Kit"
+description = "Customer-owned PATHWAY kit registration. Kit ID is application encrypted."
+display_name_field = "kit_label"
+
+  [metaobjects.app.pathway_customer_kit.access]
+  admin = "merchant_read"
+  storefront = "none"
+
+[metaobjects.app.pathway_customer_kit.fields.kit_label]
+name = "Masked kit label"
+description = "Display-safe label containing only the final four Kit ID digits."
+type = "single_line_text_field"
+required = true
+
+[metaobjects.app.pathway_customer_kit.fields.kit_id_encrypted]
+name = "Encrypted Kit ID"
+description = "AES-256-GCM encrypted PATHWAY Kit ID; readable only through the portal service."
+type = "single_line_text_field"
+required = true
+
+[metaobjects.app.pathway_customer_kit.fields.customer_id]
+name = "Customer ID"
+description = "Shopify customer ID that owns this kit registration."
+type = "single_line_text_field"
+required = true
+
+[metaobjects.app.pathway_customer_kit.fields.registration_source]
+name = "Registration source"
+type = "single_line_text_field"
+required = true
+
+  [metaobjects.app.pathway_customer_kit.fields.registration_source.validations]
+  choices = [ "manual", "barcode" ]
+
+[metaobjects.app.pathway_customer_kit.fields.registered_at]
+name = "Registered at"
+type = "date_time"
+required = true
+
+[customer.metafields.app.pathway_customer_kits]
+name = "PATHWAY customer kits"
+description = "Private reference index for this customer's encrypted PATHWAY kit registrations."
+type = "list.metaobject_reference<$app:pathway_customer_kit>"
+
+  [customer.metafields.app.pathway_customer_kits.access]
+  admin = "merchant_read"
+  storefront = "none"
+  customer_account = "none"
+
 [metaobjects.app.portal_application]
 name = "Clinic Portal Application"
 description = "Clinic wholesale application. Tax ID and reseller permit are application-encrypted inside payload."

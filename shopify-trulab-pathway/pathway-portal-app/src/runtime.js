@@ -3,7 +3,7 @@ import { ClinicPortalService } from './clinic-portal.js';
 import { createClinicRoutes } from './clinic-routes.js';
 import { NetlifyBlobFileStore } from './file-store.js';
 import { createGhlSignupHandler } from './ghl-signup.js';
-import { LogNotifier } from './notifier.js';
+import { LogNotifier, WebhookNotifier } from './notifier.js';
 import { ShopifyPortalRepository } from './portal-repository.js';
 import { parseEncryptionKey } from './security.js';
 import { ShopifyAdminClient } from './shopify.js';
@@ -45,6 +45,11 @@ export function configFromEnvironment(environment = process.env) {
     }
   }
 
+  const staffNotifyWebhookUrl = String(environment.STAFF_NOTIFY_WEBHOOK_URL || '').trim();
+  if (staffNotifyWebhookUrl && !/^https:\/\/\S+$/.test(staffNotifyWebhookUrl)) {
+    throw new Error('STAFF_NOTIFY_WEBHOOK_URL must be an https URL.');
+  }
+
   const ghlSignupEnabled = flag(environment.GHL_SIGNUP_ENABLED);
   const ghlWebhookSecret = environment.GHL_WEBHOOK_SECRET || '';
   if (ghlSignupEnabled && ghlWebhookSecret.length < 32) {
@@ -78,6 +83,9 @@ export function configFromEnvironment(environment = process.env) {
     ghlRequireNpi: flag(environment.GHL_REQUIRE_NPI),
     // Without this, sign-ups only run against a partner development store.
     ghlAllowProductionStore: flag(environment.GHL_ALLOW_PRODUCTION_STORE),
+    // Staff alerts. Off unless a webhook URL is set.
+    staffNotifyWebhookUrl,
+    staffConsoleUrl: String(environment.STAFF_CONSOLE_URL || '').trim(),
   };
 }
 
@@ -106,7 +114,9 @@ export function createPortalRuntime(environment = process.env) {
       shopify,
       legacyStore: assignmentStore,
       encryptionKey: config.encryptionKey,
-      notifier: new LogNotifier(),
+      notifier: config.staffNotifyWebhookUrl
+        ? new WebhookNotifier({ url: config.staffNotifyWebhookUrl, consoleUrl: config.staffConsoleUrl })
+        : new LogNotifier(),
       fileStore: new NetlifyBlobFileStore(),
       config,
       onClinicAccessChanged: (customerId) => customerAccessCache.delete(String(customerId)),
