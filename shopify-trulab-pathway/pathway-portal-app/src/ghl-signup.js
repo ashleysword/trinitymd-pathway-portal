@@ -77,8 +77,10 @@ export function normalizeGhlSignup(payload = {}, { requireValidNpi = false } = {
   };
 }
 
-const FIND_CUSTOMER = `query GhlFindCustomer($query: String!) {
-  customers(first: 2, query: $query) { nodes { id email tags } }
+// Direct lookup by email. Customer search lags a few seconds behind writes, so a
+// quick repeat submission could miss the customer it just created.
+const CUSTOMER_BY_EMAIL = `query GhlCustomerByEmail($identifier: CustomerIdentifierInput!) {
+  customerByIdentifier(identifier: $identifier) { id email tags }
 }`;
 const CREATE_CUSTOMER = `mutation GhlCreateCustomer($input: CustomerInput!) {
   customerCreate(input: $input) { customer { id tags } userErrors { field message } }
@@ -112,8 +114,9 @@ export function createGhlSignupHandler({ config, shopify, service = null, logger
   }
 
   async function findCustomer(email) {
-    const data = await shopify.graphql(FIND_CUSTOMER, { query: `email:"${email}"` });
-    return (data?.customers?.nodes || []).find((node) => String(node.email || '').toLowerCase() === email) || null;
+    const data = await shopify.graphql(CUSTOMER_BY_EMAIL, { identifier: { emailAddress: email } });
+    const customer = data?.customerByIdentifier;
+    return customer && String(customer.email || '').toLowerCase() === email ? customer : null;
   }
 
   async function tagCustomer(id) {

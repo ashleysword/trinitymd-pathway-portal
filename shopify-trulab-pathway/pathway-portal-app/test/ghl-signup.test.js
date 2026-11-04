@@ -29,9 +29,9 @@ function fakeShopify(existing = [], { devStore = true } = {}) {
         if (devStore === 'error') throw new Error('network');
         return { shop: { plan: { partnerDevelopment: devStore } } };
       }
-      if (query.includes('GhlFindCustomer')) {
-        const email = variables.query.match(/email:"(.*)"/)[1];
-        return { customers: { nodes: customers.filter((customer) => customer.email === email) } };
+      if (query.includes('GhlCustomerByEmail')) {
+        const email = variables.identifier.emailAddress;
+        return { customerByIdentifier: customers.find((customer) => customer.email === email) || null };
       }
       if (query.includes('GhlCreateCustomer')) {
         const customer = { id: `gid://shopify/Customer/${2000 + customers.length}`, email: variables.input.email, tags: variables.input.tags };
