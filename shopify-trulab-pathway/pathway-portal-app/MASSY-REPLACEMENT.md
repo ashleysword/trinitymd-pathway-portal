@@ -47,7 +47,9 @@ The form already exists in the **Trinity Cell Sciences** sub-account: **"Wholesa
 The form's NPI field is optional, and so is the webhook's NPI check (see the sign-up flow above).
 
 ## Setting up the GHL workflow
-Automation → Workflows → new workflow:
+**Built Nov 4, still a draft (not published):** "Clinic sign-up -> tag clinics in Shopify (Massy replacement)" in the Trinity Cell Sciences sub-account. It points at the PR #1 deploy preview, and its secret header holds the placeholder `PASTE-SECRET-HERE`, so it cannot tag anyone until the real secret is pasted in and the workflow is published. Before going live: paste the secret, switch the URL to the production site, then publish.
+
+The workflow is set up as follows (Automation → Workflows):
 - **Trigger:** *Form Submitted*, filtered to the clinic sign-up form.
 - **Action:** *Custom Webhook* (a premium GHL action).
   - Method `POST`; URL `https://<netlify-site>/webhooks/ghl/clinic-signup`. Use the deploy-preview URL and a dev store first.
