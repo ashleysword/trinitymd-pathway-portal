@@ -85,11 +85,27 @@ The workflow is set up as follows (Automation → Workflows):
 ## Testing on a development store (required before the real secret goes into GHL)
 **The Netlify deploy preview uses the production store** (its `SHOP_DOMAIN` is the same as production's). Since Nov 4, `GHL_SIGNUP_ENABLED=false` in the deploy-preview context, and the dev-store check blocks writes even if it is turned back on. Never create or tag test customers in production.
 
-1. Create a Shopify development store (Partner or Dev Dashboard) and install a dev copy of the app there. The Netlify `dev` context already has a different `*.myshopify.com` domain; check whether that is a dev store before creating another.
-2. Point the deploy-preview context at it: `SHOP_DOMAIN`, `SHOPIFY_CLIENT_ID`, `SHOPIFY_API_SECRET` for the dev app. Generate a **new** `GHL_WEBHOOK_SECRET` for it, then set `GHL_SIGNUP_ENABLED=true`. Leave `GHL_ALLOW_PRODUCTION_STORE` unset.
-3. Add the two kit products to the dev store with the same handles, and install Massy there with the two volume rules, if Massy allows dev stores.
-4. Test with a **separate test GHL workflow** (a copy of the draft, never the production workflow), using the new secret and a test email you control. Check that the GHL log shows `200` and the dev-store customer has `clinics`.
-5. Check: the customer sees the clinic hub, and Massy's 1, 9 and 10 kit prices apply at checkout. Also check that a repeat submission changes nothing, and that a wrong secret returns `401`.
+**Checked Nov 4: no development store exists yet.**
+- The Netlify `dev` context's `*.myshopify.com` domain is the **live store's own myshopify address**: its storefront redirects to the live domain. So `netlify dev` also talks to the live store.
+- `SHOPIFY_CLIENT_ID` is one value for every context, so there is no separate dev copy of the app.
+- The `dev` context has no `SHOPIFY_API_SECRET`.
+- The deploy preview shares production's `DATA_ENCRYPTION_KEY` and `PORTAL_TOKEN_SECRET`.
+
+1. Create a Shopify development store (Partner Dashboard → Stores → Add store → development store, or the Dev Dashboard). Turn on new customer accounts.
+2. Create a separate dev copy of the app in the same Partner org:
+   1. Run `shopify app config link`, choose "create new app", and name it e.g. "PATHWAY Portal (dev)". This writes a `shopify.app.dev.toml` based on `shopify.app.toml.example`.
+   2. Set `application_url` and the app proxy URL to the PR preview: `https://deploy-preview-1--trinityportal.netlify.app`, proxy subpath `pathway-portal`.
+   3. Keep the scopes from the example: `read_customers,write_customers,read_metaobjects,write_metaobjects,write_app_proxy,write_content`.
+   4. Run `shopify app deploy --config dev`, which also deploys the metaobject definitions. Install the app on the dev store only.
+3. Put the dev store's theme in place: `shopify theme push --store <dev-store>`, so the clinic hub, login and ordering sections exist there.
+4. Point the deploy-preview context at the dev store and dev app:
+   - `SHOP_DOMAIN`, `SHOPIFY_CLIENT_ID`, `SHOPIFY_API_SECRET` for the dev app. Enter the secret in the Netlify UI so it never passes through chat.
+   - New `DATA_ENCRYPTION_KEY` and `PORTAL_TOKEN_SECRET` for previews.
+   - `CLINIC_PORTAL_ENABLED=true`, `STAFF_USER_IDS` for a dev-store staff account, and a **new** `GHL_WEBHOOK_SECRET`.
+   - Then set `GHL_SIGNUP_ENABLED=true`. Leave `GHL_ALLOW_PRODUCTION_STORE` unset.
+5. Add the two kit products to the dev store with the same handles. Install Massy there with the two volume rules only if you want to test checkout prices.
+6. In GHL, make a **test copy of the form** ("Wholesale Discount (TEST)") and a **separate test workflow** triggered only by that test form, using the new secret. This keeps real clinic submissions on the live form from reaching the dev store. Never touch the production workflow. Submit with a synthetic name and a test email you control. Check that the GHL log shows `200` and the dev-store customer has `clinics`.
+7. Check: the customer can log in and sees the clinic hub and portal (kit scan and manual entry, documents, messaging), and Massy's 1, 9 and 10 kit prices apply at checkout. Also check that a repeat submission changes nothing, and that a wrong secret returns `401`.
 
 ## Can native B2B on Basic replace Massy's two rules?
 **Probably, for these two products, but not as a drop-in.** Basic can now set wholesale prices with quantity breaks. But B2B prices go to **company locations**, not tagged customers, and breaks count **per variant**, not across the whole order as Massy does. Sources: [B2B features by plan](https://help.shopify.com/en/manual/b2b/getting-started/plan-features), [volume pricing](https://help.shopify.com/en/manual/b2b/catalogs/quantity-pricing), [considerations](https://help.shopify.com/en/manual/b2b/getting-started/considerations) (read Nov 4, 2026).
