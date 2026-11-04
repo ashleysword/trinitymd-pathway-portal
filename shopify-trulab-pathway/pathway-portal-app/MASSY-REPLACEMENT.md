@@ -122,7 +122,14 @@ Before Nov 4 (kept for the record):
 | Nov 4 | Bugs found: application detail said "not found" (Shopify returns app metaobject types as `app--<id>--portal_*`; also affected documents and threads); every NPI/EIN-less sign-up flagged as a duplicate; GHL sends empty fields as the text "null". Fixed in `b6293ea`; detail view and duplicate flags rechecked on the preview | Fixed |
 | Nov 4 | Clinic login on the dev store (new customer accounts, email code) and the clinic hub at `/pages/clinic-portal`: locked before login, unlocked after | Pass |
 | Nov 4 | Portal at `/apps/pathway-portal/clinic` was blank: its CSS/JS loaded from the production URL. Netlify functions don't get `DEPLOY_PRIME_URL` at runtime, so `assetBaseUrl` fell back to `URL`. Set `PORTAL_ASSET_BASE_URL` for deploy previews; production must also set it explicitly when the portal is turned on | Fixed (setting) |
-| — | Step 7: portal kit scan/manual entry, documents, messaging | In progress |
+| Nov 4 | Portal loads ("Welcome, Test."). Manual kit entry: DEVTEST-0001/0002/0003 registered; repeat (lowercase) → "already registered" | Pass |
+| Nov 4 | New kit missing from the list right after registering (Shopify search lag). Fixed in `297a8b5`; retested: shows at once | Fixed |
+| Nov 4 | "Order kits" linked to the live store. Set `STOREFRONT_URL` for deploy previews | Fixed (setting) |
+| Nov 4 | Messaging: PHI guard blocks a DOB message; clinic → staff message, staff reply → clinic with unread badge; staff inbox read marker | Pass |
+| Nov 4 | Staff reply missing from the staff thread right after sending (search lag). Fixed in `297a8b5` (thread keeps its newest message) | Fixed |
+| Nov 4 | New: per-kit clinic reference (owner request; free text up to 60 characters with the PHI guard), `b0b0721`. Saved, persisted after reload, searchable; DOB text rejected and not stored; audit records the change without the text | Pass |
+| — | Camera scan: not testable in an automated browser (no camera); the Code 128 fallback decoder has unit tests. Needs a phone check | Not run |
+| — | Documents: staff upload → clinic download (the upload needs a person to pick the file) | Waiting for owner |
 
 ## Can native B2B on Basic replace Massy's two rules?
 **Probably, for these two products, but not as a drop-in.** Basic can now set wholesale prices with quantity breaks. But B2B prices go to **company locations**, not tagged customers, and breaks count **per variant**, not across the whole order as Massy does. Sources: [B2B features by plan](https://help.shopify.com/en/manual/b2b/getting-started/plan-features), [volume pricing](https://help.shopify.com/en/manual/b2b/catalogs/quantity-pricing), [considerations](https://help.shopify.com/en/manual/b2b/getting-started/considerations) (read Nov 4, 2026).
