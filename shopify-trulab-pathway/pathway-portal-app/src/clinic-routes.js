@@ -241,7 +241,7 @@ export function createClinicRoutes({ service, config, loadCustomer, staffAuth, n
       if (method === 'GET') return jsonResponse(200, { documents: await service.listAllDocuments() });
       if (method === 'POST') {
         const document = await service.createDocument(staff, await readJson(request, DOCUMENT_UPLOAD_MAX_BYTES));
-        return jsonResponse(201, { document: service.publicDocument(document) });
+        return jsonResponse(201, { document: service.staffDocument(document) });
       }
       return methodNotAllowed();
     }
@@ -251,7 +251,7 @@ export function createClinicRoutes({ service, config, loadCustomer, staffAuth, n
       if (params[1] && method === 'GET') return fileResponse(await service.openDocument({ staff: true }, id));
       if (!params[1] && method === 'PATCH') {
         const document = await service.updateDocument(staff, id, await readJson(request, DOCUMENT_UPLOAD_MAX_BYTES));
-        return jsonResponse(200, { document: { ...service.publicDocument(document), status: document.status } });
+        return jsonResponse(200, { document: service.staffDocument(document) });
       }
       return methodNotAllowed();
     }

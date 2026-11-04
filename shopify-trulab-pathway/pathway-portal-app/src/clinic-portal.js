@@ -597,14 +597,18 @@ export class ClinicPortalService {
     return { bytes: file.bytes, contentType: document.file.contentType, filename: document.file.filename };
   }
 
-  async listAllDocuments() {
-    return (await this.repo.list('documents')).map((document) => ({
+  staffDocument(document) {
+    return {
       ...this.publicDocument(document),
       status: document.status,
       filename: document.file?.filename,
       updatedAt: document.updatedAt,
       updatedBy: document.updatedBy,
-    }));
+    };
+  }
+
+  async listAllDocuments() {
+    return (await this.repo.list('documents')).map((document) => this.staffDocument(document));
   }
 
   async createDocument(staff, input = {}) {

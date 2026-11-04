@@ -262,8 +262,11 @@
     });
   }
 
-  async function renderDocuments(panel) {
-    const { documents } = await api('/documents');
+  // `latest` is a document just saved: Shopify search can lag a few seconds,
+  // so keep the saved copy over whatever the list returns.
+  async function renderDocuments(panel, latest = null) {
+    let { documents } = await api('/documents');
+    if (latest) documents = [latest, ...documents.filter((document) => document.id !== latest.id)];
     const table = h('div', { class: 'table-wrap' }, h('table', {},
       h('thead', {}, h('tr', {}, ['Title', 'Audience', 'Version', 'Date', 'Status', ''].map((label) => h('th', { text: label })))),
       h('tbody', {}, documents.map((document) => {
@@ -276,7 +279,7 @@
           h('td', {}, pill(document.status)),
           h('td', {}, h('div', { class: 'button-row' },
             h('button', { class: 'button button--ghost button--small', type: 'button', onclick: guard(panel, () => download(`/documents/${numericId(document.id)}/file`, document.filename)), text: 'Open' }),
-            h('button', { class: 'button button--small', type: 'button', onclick: guard(panel, async () => { await api(`/documents/${numericId(document.id)}`, { method: 'PATCH', body: { status: toggle } }); renderDocuments(panel); }), text: toggle === 'published' ? 'Publish' : 'Archive' }))));
+            h('button', { class: 'button button--small', type: 'button', onclick: guard(panel, async () => { const saved = await api(`/documents/${numericId(document.id)}`, { method: 'PATCH', body: { status: toggle } }); renderDocuments(panel, saved.document); }), text: toggle === 'published' ? 'Publish' : 'Archive' }))));
       }))));
     const form = h('form', { class: 'card', novalidate: true },
       h('h2', { text: 'Add a document' }),
@@ -294,8 +297,8 @@
       const file = form.file.files[0];
       if (!file) throw new Error('Choose a file to upload.');
       if (file.size > 4 * 1024 * 1024) throw new Error('Files must be 4 MB or smaller.');
-      await api('/documents', { method: 'POST', body: { ...data, file: { filename: file.name, contentType: file.type, base64: await readFile(file) } } });
-      renderDocuments(panel);
+      const saved = await api('/documents', { method: 'POST', body: { ...data, file: { filename: file.name, contentType: file.type, base64: await readFile(file) } } });
+      renderDocuments(panel, saved.document);
     }));
     panel.replaceChildren(h('section', { class: 'card' }, h('h2', { text: 'Documents' }), documents.length ? table : h('p', { class: 'empty', text: 'No documents yet.' })), form);
   }
