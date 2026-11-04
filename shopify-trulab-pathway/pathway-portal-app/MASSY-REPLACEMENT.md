@@ -83,9 +83,9 @@ The workflow is set up as follows (Automation → Workflows):
 - **Form redirect:** send clinics to `/pages/clinic-application-received` (Massy's current redirect) or straight to `/account/login`.
 
 ## Testing on a development store (required before the real secret goes into GHL)
-**The Netlify deploy preview uses the production store** (its `SHOP_DOMAIN` is the same as production's). Since Nov 4, `GHL_SIGNUP_ENABLED=false` in the deploy-preview context, and the dev-store check blocks writes even if it is turned back on. Never create or tag test customers in production.
+**Set up Nov 4:** dev store `trinity-pathway-dev.myshopify.com` (Basic plan, new customer accounts, Shopify test data) and the dev app **"Trinity Bio Portal (dev)"**, both in the **Trinity Cell Sciences** organization alongside the live "TrinityMD PATHWAY Portal" app. The dev app is installed on the dev store only. Its config is `shopify.app.dev.toml` (not committed), built from `shopify.app.toml.example` with the preview URLs. The deploy-preview context now uses the dev store, the dev app's ID and secret, and its own encryption key, token secret and webhook secret; production is unchanged. Never create or tag test customers in production.
 
-**Checked Nov 4: no development store exists yet.**
+Before Nov 4 (kept for the record):
 - The Netlify `dev` context's `*.myshopify.com` domain is the **live store's own myshopify address**: its storefront redirects to the live domain. So `netlify dev` also talks to the live store.
 - `SHOPIFY_CLIENT_ID` is one value for every context, so there is no separate dev copy of the app.
 - The `dev` context has no `SHOPIFY_API_SECRET`.

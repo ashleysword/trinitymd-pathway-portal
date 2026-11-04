@@ -5,3 +5,4 @@
 node_modules/
 shopify.app.toml
 *.log
+shopify.app.dev.toml
