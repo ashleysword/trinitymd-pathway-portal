@@ -1,6 +1,6 @@
 # Launch review: clinic portal v3 + GHL sign-up (PR #1)
 
-**Status, Nov 4:** every clinic step passed on the development store (test log in `MASSY-REPLACEMENT.md`). Production is unchanged. PR #1 stays a draft, Massy stays active, and affiliate work stays on hold. **Nothing in §3 runs until the owner approves this completed plan**, and each production step then needs its own go-ahead.
+**Status, Nov 5: all blockers done.** every clinic step passed on the development store (test log in `MASSY-REPLACEMENT.md`). Production is unchanged. PR #1 stays a draft, Massy stays active, and affiliate work stays on hold. **Nothing in §3 runs until the owner approves this completed plan**, and each production step then needs its own go-ahead.
 
 ## 1. Massy wholesale pricing: what the live rules do
 
@@ -41,7 +41,7 @@ A side effect worth knowing: 9 PGX plus any one other product also reaches the 1
 | # | Blocker | Status |
 |---|---|---|
 | 1 | Live app deploy diff | **Done.** See §2.1 |
-| 2 | Staff notifications | **Done (code + plan); recipient chosen** (moonranger.xyz@gmail.com). Preview test in §2.2 |
+| 2 | Staff notifications | **Done (Nov 5):** code, plan, recipient (the owner's email), and a passing preview test (§2.2) |
 | 3 | Real kit-label scan on the dev store | **Done (Nov 5):** `TL26600950` scanned and stored as `scan`. See §2.3 |
 | — | Wholesale checkout prices | **Moved into launch** as a stop gate before sign-up opens (§3, step 4) |
 
@@ -76,7 +76,8 @@ The live app's config ("TrinityMD PATHWAY Portal", Trinity Cell Sciences org) wa
 - **Clinic-facing events** (staff reply, kit status change) stay log-only; clinics see unread badges in the portal.
 - **Failures:** a slow or failing webhook is logged and never fails the clinic's action (3-second timeout). Tests cover this (`test/notifier.test.js`).
 - **Cost:** GHL Inbound Webhook is a premium trigger, charged per run, like the sign-up webhook.
-- **Before launch:** create the GHL "Portal staff alerts" workflow (draft) and point the **preview's** `STAFF_NOTIFY_WEBHOOK_URL` at it. Register a test kit on the dev store and confirm the email arrives. This needs owner approval, because it sends real email to the staff list.
+- **Preview test (Nov 5, owner-approved): pass.** GHL workflow "TEST: Portal staff alerts (dev preview)" (Inbound Webhook → internal notification email to the owner) is published. The preview's `STAFF_NOTIFY_WEBHOOK_URL` points at it (secret setting, deploy previews only). A synthetic GHL sign-up on the preview raised `application.approved`, and GHL's log shows the notification executed. The email holds only the event, IDs and the console link.
+- **For production:** create a separate "Portal staff alerts" workflow with its own webhook URL and the final recipients, and set it as production `STAFF_NOTIFY_WEBHOOK_URL` in step 3.
 
 ### 2.3 Real kit-label scan (done Nov 5)
 
@@ -149,7 +150,7 @@ A real kit ID is not patient information, so it's fine on the dev store.
   - [ ] Change the URL from the preview to `https://trinityportal.netlify.app/webhooks/ghl/clinic-signup` and paste the production secret.
   - [ ] Set the form redirect (`/pages/clinic-application-received` or `/account/login`).
   - [ ] **Publish** it.
-- [ ] Unpublish the TEST workflow, which targets the preview and costs a premium action per run.
+- [ ] Unpublish the two TEST workflows ("TEST: clinic sign-up -> dev store" and "TEST: Portal staff alerts (dev preview)"). They target the preview and cost a premium action per run.
 - [ ] Check: one submission of the real form with a staff-controlled email → GHL log 200 → customer tagged `clinics` → staff alert email received. Then remove the tag.
 
 **Step 6: theme (registration opens).** Work in an unpublished copy first.
