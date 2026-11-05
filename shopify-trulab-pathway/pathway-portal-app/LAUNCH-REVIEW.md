@@ -42,7 +42,7 @@ A side effect worth knowing: 9 PGX plus any one other product also reaches the 1
 |---|---|---|
 | 1 | Live app deploy diff | **Done.** See §2.1 |
 | 2 | Staff notifications | **Done (code + plan).** See §2.2. Owner picks recipients |
-| 3 | Real kit-label scan on the dev store | **Waiting for owner:** scan one physical kit. See §2.3 |
+| 3 | Real kit-label scan on the dev store | **Done (Nov 5):** `TL26600950` scanned and stored as `scan`. See §2.3 |
 | — | Wholesale checkout prices | **Moved into launch** as a stop gate before sign-up opens (§3, step 4) |
 
 ### 2.1 Live app deploy diff (done Nov 4, nothing deployed)
@@ -78,7 +78,11 @@ The live app's config ("TrinityMD PATHWAY Portal", Trinity Cell Sciences org) wa
 - **Cost:** GHL Inbound Webhook is a premium trigger, charged per run, like the sign-up webhook.
 - **Before launch:** create the GHL "Portal staff alerts" workflow (draft) and point the **preview's** `STAFF_NOTIFY_WEBHOOK_URL` at it. Register a test kit on the dev store and confirm the email arrives. This needs owner approval, because it sends real email to the staff list.
 
-### 2.3 Real kit-label scan (waiting for owner)
+### 2.3 Real kit-label scan (done Nov 5)
+
+Result: the owner scanned a physical kit with "Scan with camera" on their phone. It was stored as `TL26600950` (10 characters), source `scan`. The format is `TL` + 8 digits, so set `KIT_ID_PATTERN=TL[0-9]{8}` in production; the owner confirms the printed label matches. Earlier synthetic `DEVTEST-` kits wouldn't match that pattern; production has none.
+
+Original plan:
 
 The phone test used made-up Code 128 labels. Before launch, scan **one physical kit label** on the dev store's portal (`/apps/pathway-portal/clinic`, "Scan with camera"). Then:
 - check the stored Kit ID matches the printed ID, and that it was saved as `scan`;
@@ -113,7 +117,7 @@ A real kit ID is not patient information, so it's fine on the dev store.
 | `STOREFRONT_URL` | `https://trinitymd.shop` |
 | `STAFF_USER_IDS` | Staff user IDs allowed in the console (empty = any staff with app access) |
 | `STAFF_NOTIFY_WEBHOOK_URL` / `STAFF_CONSOLE_URL` | The production GHL alert workflow URL / the live admin app link (§2.2) |
-| `KIT_ID_PATTERN` | From §2.3, or unset |
+| `KIT_ID_PATTERN` | `TL[0-9]{8}` (§2.3) |
 | `CLINIC_APPROVAL_MODE` / `CLINIC_CUSTOMER_TAGGING_ENABLED` | Leave `manual` / off (GHL is the sign-up path) |
 | `GHL_SIGNUP_ENABLED` | **Leave off** until step 4 passes |
 
