@@ -120,8 +120,9 @@ A real kit ID is not patient information, so it's fine on the dev store.
 - [ ] Rollback: Dev Dashboard → Versions → release the previous version. The new definitions are empty and unused, and removing them loses nothing.
 
 **Step 2: merge PR #1** (portal and GHL flags still off).
-- [ ] Mark ready, merge to `main`. Netlify publishes, and every new feature stays off until its setting is on.
-- [ ] Check: `https://trinityportal.netlify.app/healthz` → 200; legacy hub assignments and customer kits work; `/webhooks/ghl/clinic-signup` → 404; `/staff` → 404 (portal still off).
+- [x] **Done Nov 5:** PR #1 merged as `579d1db` (merge commit). Netlify published production deploy `6aece2a1479b698e865a8875`. Before merging, production had no `CLINIC_PORTAL_ENABLED`, `GHL_SIGNUP_ENABLED`, `GHL_ALLOW_PRODUCTION_STORE` or `STAFF_NOTIFY_WEBHOOK_URL` values.
+- [x] Mark ready, merge to `main`. Netlify publishes, and every new feature stays off until its setting is on.
+- [x] Check (Nov 5): `/healthz` 200; legacy `/proxy/api/assignments` and `/proxy/api/customer-kits` 401 unsigned (as before); `/webhooks/ghl/clinic-signup` 404 (GET and POST); `/staff`, `/proxy/clinic`, `/proxy/api/clinic/session` 404; the live clinic hub page loads (200). **Still to check by hand:** an existing clinic sees its assignments and kits in the hub.
 - [ ] Rollback: Netlify → publish the pre-merge deploy `6ab56842…`, or revert the merge.
 
 **Step 3: portal settings** (Netlify, **Production context only**; re-check the `dev-server` and `branch-deploy` values afterwards).
