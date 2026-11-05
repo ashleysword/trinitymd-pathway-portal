@@ -41,7 +41,7 @@ A side effect worth knowing: 9 PGX plus any one other product also reaches the 1
 | # | Blocker | Status |
 |---|---|---|
 | 1 | Live app deploy diff | **Done.** See §2.1 |
-| 2 | Staff notifications | **Done (code + plan).** See §2.2. Owner picks recipients |
+| 2 | Staff notifications | **Done (code + plan); recipient chosen** (moonranger.xyz@gmail.com). Preview test in §2.2 |
 | 3 | Real kit-label scan on the dev store | **Done (Nov 5):** `TL26600950` scanned and stored as `scan`. See §2.3 |
 | — | Wholesale checkout prices | **Moved into launch** as a stop gate before sign-up opens (§3, step 4) |
 
