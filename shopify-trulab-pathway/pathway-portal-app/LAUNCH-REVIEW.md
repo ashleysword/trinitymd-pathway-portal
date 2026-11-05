@@ -127,9 +127,9 @@ A real kit ID is not patient information, so it's fine on the dev store.
 
 **Step 3a: merge PR #2 first** (draft: "Staff console: show the staff ID when not on the allowlist").
 - Why: the allowlist checks the per-store staff ID that Shopify puts in the console's sign-in token. It isn't the ID on Settings → Users. On the dev store, the owner is organization account `249350616` on the Users page but staff ID `135607189688` in the console. The live store has one user (the owner), whose live staff ID can only be seen inside the live admin. PR #2 makes the "not authorized" message show that ID; access stays denied.
-- [ ] Merge PR #2 (Netlify publishes production; all flags still off). Check: `/healthz` 200, `/staff` 404.
+- [x] **Done Nov 5 (owner-approved):** PR #2 merged as `24abfc8`, production deploy `6aecf882…`. Check: `/healthz` 200, `/staff` 404.
 
-**Step 3: portal settings** (Netlify, **Production context only**; re-check the `dev-server` and `branch-deploy` values afterwards). Prepared Nov 5, **not set yet**:
+**Step 3: portal settings** (Netlify, **Production context only**; re-check the `dev-server` and `branch-deploy` values afterwards). **Set Nov 5 (owner-approved)** in the Production context only, then production rebuilt (deploy `6aecfb216db6d254fdc5b8b7`, `24abfc8`). `dev-server`, `branch-deploy` and deploy-preview values checked unchanged:
 
 | Setting | Value | Note |
 |---|---|---|
@@ -146,10 +146,10 @@ A real kit ID is not patient information, so it's fine on the dev store.
 **Production staff-alert payload (verified Nov 5):** the app's own `WebhookNotifier` sent one synthetic event to the production workflow's webhook. GHL recorded exactly `event`, `recordId`, `customerId`, `consoleUrl`, `at`. There were no names, emails, patient data or message text. The email template uses only those fields and goes to the owner. GHL also stores standard request headers (the sender's IP, which in production is Netlify's server).
 
 **Step 3 test plan** (after a production deploy):
-- [ ] T1: `/healthz` 200; legacy `/proxy/api/assignments` and `/proxy/api/customer-kits` still 401 unsigned; `/webhooks/ghl/clinic-signup` still 404.
-- [ ] T2: `https://trinityportal.netlify.app/staff` returns the staff page (200).
-- [ ] T3: `https://trinitymd.shop/apps/pathway-portal/clinic` loads with its styles and scripts from `trinityportal.netlify.app` (no 404/503). A signed-out visitor sees the sign-in prompt.
-- [ ] T4: the existing clinic hub still shows assignments and kits for an existing clinic (owner check).
+- [x] T1 (Nov 5): pass. `/healthz` 200; legacy `/proxy/api/assignments` and `/proxy/api/customer-kits` still 401 unsigned; `/webhooks/ghl/clinic-signup` still 404.
+- [x] T2 (Nov 5): pass. `/staff` 200, served with `frame-ancestors https://admin.shopify.com https://dbdmy2-ue.myshopify.com`. **Staff data stays behind the authenticated API:** `/staff/api/overview`, `applications`, `kits`, `documents`, `threads` and `audit` all return 401 ("Staff sign-in is required.") to unsigned requests and to a forged token. The signed-in 403-with-ID check needs the console inside the admin, so it runs at step 3c after app deploy 2.
+- [x] T3 (Nov 5): pass. The store page returns 200; `clinic-portal.css`, `clinic-portal.js` and `code128.js` load from `trinityportal.netlify.app` (200); signed out, the session API returns `signedIn: false` with the store login link. Direct unsigned `/proxy/clinic` and `/proxy/api/clinic/*` return 401.
+- [ ] T4: the existing clinic hub still shows assignments and kits for an existing clinic (owner check). **Pending; required before app deploy 2.**
 - [ ] T5 (with step 4's staff-controlled test clinic): registering a kit ID that isn't `TL` + 8 digits is rejected. Acceptance is already proven on the dev store with real label `TL26600950`, so no fake `TL` ID is registered in production.
 - [ ] Rollback: `CLINIC_PORTAL_ENABLED=false`, deploy.
 
