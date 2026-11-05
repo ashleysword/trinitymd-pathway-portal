@@ -114,8 +114,9 @@ A real kit ID is not patient information, so it's fine on the dev store.
 - [ ] Pick a quiet window, with someone watching Netlify, Shopify and GHL for an hour afterwards.
 
 **Step 1: app deploy 1, storage definitions only** (`shopify app deploy --config live-step1`).
-- [ ] Before confirming: the printed diff shows only the 7 `portal_*` additions. Any removal, or any change to `application_url`, `embedded`, scopes, proxy or redirects, is a stop.
-- [ ] Check after: the legacy clinic hub's kit assignments and customer kits still load; the app's admin page is unchanged (URL not moved yet); Dev Dashboard → live app → Versions shows the new version.
+- [x] **Done Nov 5: released as `trinitymd-pathway-portal-4`** (previous active: `-3`, Sep 8). Shopify's printed summary marked only `metaobjects (updated)`; scopes, auth, webhooks, app proxy, application_url, embedded, name, page and customer were unchanged; no extensions, nothing removed. A first attempt failed on a network reset before creating a version, and was retried.
+- [x] Before confirming: the printed diff shows only the 7 `portal_*` additions. Any removal, or any change to `application_url`, `embedded`, scopes, proxy or redirects, is a stop.
+- [x] Check after (Nov 5): the re-pulled live config has the 7 portal definitions and all 17 `pathway_*` tables; `application_url` is still `https://trinityportal.netlify.app`, `embedded = false`; scopes, proxy and webhooks unchanged (only re-formatted). Production `/healthz` 200; legacy `/proxy/api/assignments` and `/proxy/api/customer-kits` answer 401 unsigned, as before; `/staff` 404 (expected). CLI default is back on the dev config. **Still to check by hand:** an existing clinic loads its assignments and kits in the live hub.
 - [ ] Rollback: Dev Dashboard → Versions → release the previous version. The new definitions are empty and unused, and removing them loses nothing.
 
 **Step 2: merge PR #1** (portal and GHL flags still off).
