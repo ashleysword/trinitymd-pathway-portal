@@ -96,9 +96,9 @@ A real kit ID is not patient information, so it's fine on the dev store.
 **Before starting**
 - [ ] Owner approves this completed plan (all of §2 done).
 - [ ] Back up:
-  - [ ] Duplicate the live theme (`189869457653`) and keep it unpublished as the rollback copy.
-  - [ ] Screenshot both Massy rules and the GHL workflows.
-  - [ ] Note the current published production deploy in Netlify.
+  - [x] Duplicate the live theme (`189869457653`) and keep it unpublished as the rollback copy. **Done Nov 5:** "BACKUP pre portal launch Nov 5 - do not edit" `#189987127541`, unpublished; the live theme is unchanged.
+  - [x] Screenshot both Massy rules and the GHL workflows. **Done Nov 5:** 9 screenshots in the local, uncommitted `launch-backups/` folder (view only; nothing saved in Massy or GHL).
+  - [x] Note the current published production deploy in Netlify. **Done Nov 5:** `6ab56842f362fb00081f509a` (`main` @ `3d55f7c`, published Sep 24). Roll back with Netlify → Deploys → that deploy → Publish deploy.
 - [ ] Pick a quiet window, with someone watching Netlify, Shopify and GHL for an hour afterwards.
 
 **Step 1: live app config.** Follow §2.1's launch-day rule, then `shopify app deploy --config live-proposed`.
