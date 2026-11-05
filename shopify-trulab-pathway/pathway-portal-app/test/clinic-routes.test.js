@@ -165,7 +165,9 @@ test('session token verification checks issuer, destination, store, and subject'
 test('staff allow list restricts which admin users can review', async () => {
   const auth = createStaffAuthenticator({ ...config, staffUserIds: ['42'] }, { nowSeconds: () => NOW });
   const request = new Request('https://x', { headers: { Authorization: `Bearer ${sessionToken()}` } });
-  await assert.rejects(auth(request), { statusCode: 403 });
+  await assert.rejects(auth(request), (error) => error.statusCode === 403 && /staff ID 7001 to STAFF_USER_IDS/.test(error.message));
+  const allowed = createStaffAuthenticator({ ...config, staffUserIds: ["0", JSON.parse(Buffer.from(sessionToken().split(".")[1], "base64url")).sub] }, { nowSeconds: () => NOW });
+  assert.ok((await allowed(request)).staffId);
 });
 
 test('clinics can save their own reference on a kit, with a write token', async () => {

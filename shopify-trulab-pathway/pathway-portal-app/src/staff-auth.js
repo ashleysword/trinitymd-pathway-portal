@@ -67,7 +67,9 @@ export function createStaffAuthenticator(config, { nowSeconds = () => Math.floor
       nowSeconds: nowSeconds(),
     });
     if (allowList.size && !allowList.has(staff.staffId)) {
-      throw new StaffAuthError('This staff account is not authorized for clinic review.', 403);
+      // Shopify issues this per-store staff ID only inside the embedded app, so
+      // show it here: the owner copies it into STAFF_USER_IDS. Access stays denied.
+      throw new StaffAuthError(`This staff account is not authorized for clinic review. Ask the store owner to add staff ID ${staff.staffId} to STAFF_USER_IDS.`, 403);
     }
     return staff;
   };
