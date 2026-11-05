@@ -149,7 +149,7 @@ A real kit ID is not patient information, so it's fine on the dev store.
 - [x] T1 (Nov 5): pass. `/healthz` 200; legacy `/proxy/api/assignments` and `/proxy/api/customer-kits` still 401 unsigned; `/webhooks/ghl/clinic-signup` still 404.
 - [x] T2 (Nov 5): pass. `/staff` 200, served with `frame-ancestors https://admin.shopify.com https://dbdmy2-ue.myshopify.com`. **Staff data stays behind the authenticated API:** `/staff/api/overview`, `applications`, `kits`, `documents`, `threads` and `audit` all return 401 ("Staff sign-in is required.") to unsigned requests and to a forged token. The signed-in 403-with-ID check needs the console inside the admin, so it runs at step 3c after app deploy 2.
 - [x] T3 (Nov 5): pass. The store page returns 200; `clinic-portal.css`, `clinic-portal.js` and `code128.js` load from `trinityportal.netlify.app` (200); signed out, the session API returns `signedIn: false` with the store login link. Direct unsigned `/proxy/clinic` and `/proxy/api/clinic/*` return 401.
-- [ ] T4: the existing clinic hub still shows assignments and kits for an existing clinic (owner check). **Pending; required before app deploy 2.**
+- [x] T4 (Nov 5): pass. Owner confirmed an existing clinic still sees its assignments and kits in the live hub.
 - [ ] T5 (with step 4's staff-controlled test clinic): registering a kit ID that isn't `TL` + 8 digits is rejected. Acceptance is already proven on the dev store with real label `TL26600950`, so no fake `TL` ID is registered in production.
 - [ ] Rollback: `CLINIC_PORTAL_ENABLED=false`, deploy.
 
