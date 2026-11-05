@@ -45,20 +45,32 @@ A side effect worth knowing: 9 PGX plus any one other product also reaches the 1
 | 3 | Real kit-label scan on the dev store | **Done (Nov 5):** `TL26600950` scanned and stored as `scan`. See §2.3 |
 | — | Wholesale checkout prices | **Moved into launch** as a stop gate before sign-up opens (§3, step 4) |
 
-### 2.1 Live app deploy diff (done Nov 4, nothing deployed)
+### 2.1 Live app deploy diff: two deploys (revised Nov 5, nothing deployed)
 
-The live app's config ("TrinityMD PATHWAY Portal", Trinity Cell Sciences org) was pulled read-only into a local, git-ignored `shopify.app.live.toml`. The proposed deploy is `shopify.app.live-proposed.toml`: the live file plus the portal changes. Shopify's validator accepts it.
+**Why two deploys:** `/staff` doesn't exist on production until PR #1 is merged, and it returns 404 while `CLINIC_PORTAL_ENABLED` is off. Moving the app URL first would leave the app's admin page broken. So the storage definitions go first; the URL and embedded switch go last, once `/staff` is reachable.
 
-**Diff, proposed vs live:**
-- `application_url`: `https://trinityportal.netlify.app` → `https://trinityportal.netlify.app/staff`
-- `embedded`: `false` → `true` (the staff console runs inside Shopify admin; decision 10)
-- **Added:** 7 metaobject definitions: `portal_application`, `portal_kit`, `portal_kit_event`, `portal_document`, `portal_thread`, `portal_message`, `portal_audit`
-- **Unchanged:** scopes (`read_customers, read_metaobjects, write_app_proxy, write_content, write_customers, write_metaobjects`), so **no merchant re-approval**; app proxy `/apps/pathway-portal` → `https://trinityportal.netlify.app/proxy`; redirect URLs; the affiliate page metafields; and the existing `pathway_assignment` and `pathway_customer_kit` metaobjects and `pathway_assignments` / `pathway_customer_kits` customer metafields.
-- **Removed:** nothing.
+The live config ("TrinityMD PATHWAY Portal", Trinity Cell Sciences org) was re-pulled read-only on Nov 5 into the local, git-ignored `shopify.app.live.toml`; it was unchanged since Nov 4. Both proposed files are git-ignored, built from it, and accepted by Shopify's validator:
 
-**Fixed while checking:** the repo's `shopify.app.toml.example` was missing the live `pathway_customer_kit` metaobject and `pathway_customer_kits` customer metafield. A deploy built from the old template would have **deleted** them, along with the existing customer kit registry behind `/proxy/api/customer-kits`. Commit `41a6b51` adds them, and the template now matches the live definitions.
+| File | Built as | Diff vs live |
+|---|---|---|
+| `shopify.app.live-step1.toml` (**app deploy 1**) | live + the 7 portal definitions | **0 lines removed, 147 added**, all inside `[metaobjects.app.portal_application]`, `portal_kit`, `portal_kit_event`, `portal_document`, `portal_thread`, `portal_message`, `portal_audit` |
+| `shopify.app.live-step2.toml` (**app deploy 2**) | step 1 + 2 lines | vs step 1: `application_url` `https://trinityportal.netlify.app` → `…/staff`; `embedded` `false` → `true`. Nothing else |
 
-**Rule for launch day:** re-pull the live config right before deploying (`shopify app config link --client-id <live id> --file-name live`). Rebuild the proposed file from it, and confirm the CLI's printed diff shows **only** the items above. Any removal is a stop. Afterwards, run `shopify app config use dev` so the default config is the dev app again.
+**Unchanged in both:** scopes (`read_customers, read_metaobjects, write_app_proxy, write_content, write_customers, write_metaobjects`), so no merchant re-approval; app proxy `/apps/pathway-portal` → `https://trinityportal.netlify.app/proxy`; redirect URLs; the affiliate page metafields. Deploy 1 also leaves `application_url` and `embedded` unchanged.
+
+**Legacy definitions preserved in both** (checked Nov 5; counts live / step 1 / step 2):
+
+| Definition | Present |
+|---|---|
+| `metaobjects.app.pathway_assignment` (assignments) | 1 / 1 / 1 |
+| `metaobjects.app.pathway_customer_kit` (customer kit registry) | 1 / 1 / 1 |
+| `customer.metafields.app.pathway_assignments` | 1 / 1 / 1 |
+| `customer.metafields.app.pathway_customer_kits` | 1 / 1 / 1 |
+| All `pathway_*` tables, fields included | 17 / 17 / 17 |
+
+**Fixed earlier:** the repo template lacked the live `pathway_customer_kit` and `pathway_customer_kits` definitions; a deploy built from it would have deleted them and the customer kit registry. Commit `41a6b51` added them.
+
+**Rule for each app deploy day:** re-pull the live config right before deploying (`shopify app config link --client-id <live id> --file-name live --force`). Rebuild that deploy's file from it, and check the CLI's printed diff matches the table above **before confirming**. Any removal, or any change outside that deploy's row, is a stop. Afterwards, run `shopify app config use dev`.
 
 ### 2.2 Staff notification plan (done Nov 4: code in PR, off by default)
 
@@ -101,13 +113,15 @@ A real kit ID is not patient information, so it's fine on the dev store.
   - [x] Note the current published production deploy in Netlify. **Done Nov 5:** `6ab56842f362fb00081f509a` (`main` @ `3d55f7c`, published Sep 24). Roll back with Netlify → Deploys → that deploy → Publish deploy.
 - [ ] Pick a quiet window, with someone watching Netlify, Shopify and GHL for an hour afterwards.
 
-**Step 1: live app config.** Follow §2.1's launch-day rule, then `shopify app deploy --config live-proposed`.
-- [ ] The printed diff shows only the 2 changes and the 7 additions. Any removal is a stop.
-- [ ] Check: the legacy clinic hub's kit assignments and customer kits still load. The app opens the staff console in the live admin.
+**Step 1: app deploy 1, storage definitions only** (`shopify app deploy --config live-step1`).
+- [ ] Before confirming: the printed diff shows only the 7 `portal_*` additions. Any removal, or any change to `application_url`, `embedded`, scopes, proxy or redirects, is a stop.
+- [ ] Check after: the legacy clinic hub's kit assignments and customer kits still load; the app's admin page is unchanged (URL not moved yet); Dev Dashboard → live app → Versions shows the new version.
+- [ ] Rollback: Dev Dashboard → Versions → release the previous version. The new definitions are empty and unused, and removing them loses nothing.
 
-**Step 2: merge PR #1.**
+**Step 2: merge PR #1** (portal and GHL flags still off).
 - [ ] Mark ready, merge to `main`. Netlify publishes, and every new feature stays off until its setting is on.
-- [ ] Check: `https://trinityportal.netlify.app/healthz` → 200; legacy hub assignments and customer kits work; `/webhooks/ghl/clinic-signup` → 404.
+- [ ] Check: `https://trinityportal.netlify.app/healthz` → 200; legacy hub assignments and customer kits work; `/webhooks/ghl/clinic-signup` → 404; `/staff` → 404 (portal still off).
+- [ ] Rollback: Netlify → publish the pre-merge deploy `6ab56842…`, or revert the merge.
 
 **Step 3: portal settings** (Netlify, **Production context only**; re-check the `dev-server` and `branch-deploy` values afterwards).
 
@@ -122,7 +136,13 @@ A real kit ID is not patient information, so it's fine on the dev store.
 | `CLINIC_APPROVAL_MODE` / `CLINIC_CUSTOMER_TAGGING_ENABLED` | Leave `manual` / off (GHL is the sign-up path) |
 | `GHL_SIGNUP_ENABLED` | **Leave off** until step 4 passes |
 
-- [ ] Trigger a production deploy. Check `/apps/pathway-portal/clinic` loads for an existing clinic account and the staff console opens.
+- [ ] Trigger a production deploy. Check `/apps/pathway-portal/clinic` loads for an existing clinic account, and `https://trinityportal.netlify.app/staff` returns the staff page (200, not 404).
+- [ ] Rollback: `CLINIC_PORTAL_ENABLED=false`, deploy.
+
+**Step 3b: app deploy 2, staff console URL** (only after step 3's `/staff` check passes; `shopify app deploy --config live-step2`).
+- [ ] Before confirming: the printed diff shows only `application_url` → `…/staff` and `embedded` → `true`. Anything else is a stop.
+- [ ] Check after: opening the app in the live Shopify admin shows the staff console (overview loads; Applications, Kits, Documents, Messages tabs work); legacy hub assignments and customer kits still load.
+- [ ] Rollback: Dev Dashboard → Versions → release the step 1 version. The admin app returns to the old URL, and the portal definitions stay.
 
 **Step 4: Massy wholesale price gate** (live store; **before** the GHL workflow is published and **before** registration opens).
 - [ ] In the live admin, create (or reuse) a **staff-controlled customer**: a staff-owned email, made-up clinic name, no patient data. Add the tag `clinics` by hand. Don't use the GHL form; it isn't live yet.
@@ -172,7 +192,7 @@ A real kit ID is not patient information, so it's fine on the dev store.
 | Staff alerts | Clear `STAFF_NOTIFY_WEBHOOK_URL`, deploy; or unpublish the GHL alert workflow | Events go back to log-only |
 | Portal | `CLINIC_PORTAL_ENABLED=false`, deploy | Portal and staff routes 404; legacy hub unaffected; records stay, unused |
 | Code | Netlify → publish the pre-merge production deploy, or revert the merge | Previous code runs |
-| App config | Dev Dashboard → live app → Versions → release the previous version | Old app URL / embedded setting; added definitions can stay (unused) |
+| App config | Dev Dashboard → live app → Versions: release the step 1 version (undoes deploy 2) or the pre-launch version (undoes both) | Old app URL / embedded setting; portal definitions stay with the step 1 version |
 
 ## 5. Other issues (not blocking)
 - **Netlify Free plan cap:** over 300 credits a month pauses production, including the live hub. Check usage; consider a paid plan once clinics use the portal daily.
