@@ -1,6 +1,6 @@
 # Launch review: clinic portal v3 + GHL sign-up (PR #1)
 
-**Status, Nov 5: all blockers done.** every clinic step passed on the development store (test log in `MASSY-REPLACEMENT.md`). Production is unchanged. PR #1 stays a draft, Massy stays active, and affiliate work stays on hold. **Nothing in §3 runs until the owner approves this completed plan**, and each production step then needs its own go-ahead.
+**Status, Nov 5: all blockers done; plan approved by the owner (Nov 5).** Production steps still run one at a time, each with its own go-ahead. every clinic step passed on the development store (test log in `MASSY-REPLACEMENT.md`). Production is unchanged. PR #1 stays a draft, Massy stays active, and affiliate work stays on hold. **Nothing in §3 runs until the owner approves this completed plan**, and each production step then needs its own go-ahead.
 
 ## 1. Massy wholesale pricing: what the live rules do
 
