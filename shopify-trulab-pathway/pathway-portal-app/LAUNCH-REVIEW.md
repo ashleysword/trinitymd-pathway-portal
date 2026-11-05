@@ -125,26 +125,43 @@ A real kit ID is not patient information, so it's fine on the dev store.
 - [x] Check (Nov 5): `/healthz` 200; legacy `/proxy/api/assignments` and `/proxy/api/customer-kits` 401 unsigned (as before); `/webhooks/ghl/clinic-signup` 404 (GET and POST); `/staff`, `/proxy/clinic`, `/proxy/api/clinic/session` 404; the live clinic hub page loads (200). **Still to check by hand:** an existing clinic sees its assignments and kits in the hub.
 - [ ] Rollback: Netlify → publish the pre-merge deploy `6ab56842…`, or revert the merge.
 
-**Step 3: portal settings** (Netlify, **Production context only**; re-check the `dev-server` and `branch-deploy` values afterwards).
+**Step 3a: merge PR #2 first** (draft: "Staff console: show the staff ID when not on the allowlist").
+- Why: the allowlist checks the per-store staff ID that Shopify puts in the console's sign-in token. It isn't the ID on Settings → Users. On the dev store, the owner is organization account `249350616` on the Users page but staff ID `135607189688` in the console. The live store has one user (the owner), whose live staff ID can only be seen inside the live admin. PR #2 makes the "not authorized" message show that ID; access stays denied.
+- [ ] Merge PR #2 (Netlify publishes production; all flags still off). Check: `/healthz` 200, `/staff` 404.
 
-| Setting | Value |
-|---|---|
-| `CLINIC_PORTAL_ENABLED` | `true` |
-| `PORTAL_ASSET_BASE_URL` | `https://trinityportal.netlify.app` (required; functions don't get `DEPLOY_PRIME_URL`) |
-| `STOREFRONT_URL` | `https://trinitymd.shop` |
-| `STAFF_USER_IDS` | Staff user IDs allowed in the console (empty = any staff with app access) |
-| `STAFF_NOTIFY_WEBHOOK_URL` / `STAFF_CONSOLE_URL` | The production GHL alert workflow URL / the live admin app link (§2.2) |
-| `KIT_ID_PATTERN` | `TL[0-9]{8}` (§2.3) |
-| `CLINIC_APPROVAL_MODE` / `CLINIC_CUSTOMER_TAGGING_ENABLED` | Leave `manual` / off (GHL is the sign-up path) |
-| `GHL_SIGNUP_ENABLED` | **Leave off** until step 4 passes |
+**Step 3: portal settings** (Netlify, **Production context only**; re-check the `dev-server` and `branch-deploy` values afterwards). Prepared Nov 5, **not set yet**:
 
-- [ ] Trigger a production deploy. Check `/apps/pathway-portal/clinic` loads for an existing clinic account, and `https://trinityportal.netlify.app/staff` returns the staff page (200, not 404).
+| Setting | Value | Note |
+|---|---|---|
+| `CLINIC_PORTAL_ENABLED` | `true` | Turns on the portal and staff routes |
+| `PORTAL_ASSET_BASE_URL` | `https://trinityportal.netlify.app` | Required; functions don't get `DEPLOY_PRIME_URL` |
+| `STOREFRONT_URL` | `https://trinitymd.shop` | "Order kits" links |
+| `KIT_ID_PATTERN` | `TL[0-9]{8}` | New portal registrations only; legacy assignments unaffected |
+| `STAFF_USER_IDS` | `0` | **Non-empty placeholder that matches nobody**: the console is closed until step 3c sets the owner's real live staff ID |
+| `STAFF_NOTIFY_WEBHOOK_URL` | Production alert workflow's webhook URL (secret setting) | Workflow "Portal staff alerts (production) - DRAFT until launch" is a **draft**; a draft doesn't run, so no email is sent until it's published (with approval) |
+| `STAFF_CONSOLE_URL` | `https://admin.shopify.com/store/trinity-cell-sciences/apps/trinitymd-pathway-portal-1` | The live app's admin handle, from the store's app list |
+| `GHL_SIGNUP_ENABLED` / `GHL_ALLOW_PRODUCTION_STORE` | **Not set** (off) | Sign-up stays off until step 5 |
+| `CLINIC_APPROVAL_MODE` / `CLINIC_CUSTOMER_TAGGING_ENABLED` | **Not set** (manual / off) | GHL is the sign-up path |
+
+**Production staff-alert payload (verified Nov 5):** the app's own `WebhookNotifier` sent one synthetic event to the production workflow's webhook. GHL recorded exactly `event`, `recordId`, `customerId`, `consoleUrl`, `at`. There were no names, emails, patient data or message text. The email template uses only those fields and goes to the owner. GHL also stores standard request headers (the sender's IP, which in production is Netlify's server).
+
+**Step 3 test plan** (after a production deploy):
+- [ ] T1: `/healthz` 200; legacy `/proxy/api/assignments` and `/proxy/api/customer-kits` still 401 unsigned; `/webhooks/ghl/clinic-signup` still 404.
+- [ ] T2: `https://trinityportal.netlify.app/staff` returns the staff page (200).
+- [ ] T3: `https://trinitymd.shop/apps/pathway-portal/clinic` loads with its styles and scripts from `trinityportal.netlify.app` (no 404/503). A signed-out visitor sees the sign-in prompt.
+- [ ] T4: the existing clinic hub still shows assignments and kits for an existing clinic (owner check).
+- [ ] T5 (with step 4's staff-controlled test clinic): registering a kit ID that isn't `TL` + 8 digits is rejected. Acceptance is already proven on the dev store with real label `TL26600950`, so no fake `TL` ID is registered in production.
 - [ ] Rollback: `CLINIC_PORTAL_ENABLED=false`, deploy.
 
 **Step 3b: app deploy 2, staff console URL** (only after step 3's `/staff` check passes; `shopify app deploy --config live-step2`).
 - [ ] Before confirming: the printed diff shows only `application_url` → `…/staff` and `embedded` → `true`. Anything else is a stop.
 - [ ] Check after: opening the app in the live Shopify admin shows the staff console (overview loads; Applications, Kits, Documents, Messages tabs work); legacy hub assignments and customer kits still load.
 - [ ] Rollback: Dev Dashboard → Versions → release the step 1 version. The admin app returns to the old URL, and the portal definitions stay.
+
+**Step 3c: staff allowlist** (after step 3b).
+- [ ] The owner opens the app in the live admin. The console shows "not authorized … add staff ID N". Copy N.
+- [ ] Set production `STAFF_USER_IDS=N` (replacing `0`), deploy, and reopen: the console loads. Add other staff the same way.
+- [ ] Publish "Portal staff alerts (production)" (with approval). Check: step 4's test clinic sends one message, and the alert email arrives with IDs only.
 
 **Step 4: Massy wholesale price gate** (live store; **before** the GHL workflow is published and **before** registration opens).
 - [ ] In the live admin, create (or reuse) a **staff-controlled customer**: a staff-owned email, made-up clinic name, no patient data. Add the tag `clinics` by hand. Don't use the GHL form; it isn't live yet.
