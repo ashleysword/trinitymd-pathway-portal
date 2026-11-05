@@ -1,0 +1,23 @@
+{
+  "currencyCode": "USD",
+  "rules": [
+    {
+      "name": "Trinity Pathway PGX Genetic Test Kit",
+      "productHandles": ["REPLACE-with-pgx-kit-product-handle"],
+      "message": "Clinic wholesale price",
+      "tiers": [
+        { "minQuantity": 1, "unitPrice": "550.00" },
+        { "minQuantity": 10, "unitPrice": "500.00" }
+      ]
+    },
+    {
+      "name": "TruLab Dx PATHWAY Genetic Test",
+      "productHandles": ["REPLACE-with-pathway-test-product-handle"],
+      "message": "Clinic wholesale price",
+      "tiers": [
+        { "minQuantity": 1, "unitPrice": "450.00" },
+        { "minQuantity": 10, "unitPrice": "400.00" }
+      ]
+    }
+  ]
+}

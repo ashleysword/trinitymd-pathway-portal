@@ -134,6 +134,243 @@ access.admin = "merchant_read"
 access.storefront = "none"
 access.customer_account = "none"
 
+# Clinic portal v3 records. Every type shares the same shape: three filterable
+# index fields used by the service for lookups, and a JSON payload.
+
+# Live definitions for the customer kit registry (/proxy/api/customer-kits).
+# Keep them: a deploy without them would delete the definitions and their data.
+[metaobjects.app.pathway_customer_kit]
+name = "PATHWAY Customer Kit"
+description = "Customer-owned PATHWAY kit registration. Kit ID is application encrypted."
+display_name_field = "kit_label"
+
+  [metaobjects.app.pathway_customer_kit.access]
+  admin = "merchant_read"
+  storefront = "none"
+
+[metaobjects.app.pathway_customer_kit.fields.kit_label]
+name = "Masked kit label"
+description = "Display-safe label containing only the final four Kit ID digits."
+type = "single_line_text_field"
+required = true
+
+[metaobjects.app.pathway_customer_kit.fields.kit_id_encrypted]
+name = "Encrypted Kit ID"
+description = "AES-256-GCM encrypted PATHWAY Kit ID; readable only through the portal service."
+type = "single_line_text_field"
+required = true
+
+[metaobjects.app.pathway_customer_kit.fields.customer_id]
+name = "Customer ID"
+description = "Shopify customer ID that owns this kit registration."
+type = "single_line_text_field"
+required = true
+
+[metaobjects.app.pathway_customer_kit.fields.registration_source]
+name = "Registration source"
+type = "single_line_text_field"
+required = true
+
+  [metaobjects.app.pathway_customer_kit.fields.registration_source.validations]
+  choices = [ "manual", "barcode" ]
+
+[metaobjects.app.pathway_customer_kit.fields.registered_at]
+name = "Registered at"
+type = "date_time"
+required = true
+
+[customer.metafields.app.pathway_customer_kits]
+name = "PATHWAY customer kits"
+description = "Private reference index for this customer's encrypted PATHWAY kit registrations."
+type = "list.metaobject_reference<$app:pathway_customer_kit>"
+
+  [customer.metafields.app.pathway_customer_kits.access]
+  admin = "merchant_read"
+  storefront = "none"
+  customer_account = "none"
+
+[metaobjects.app.portal_application]
+name = "Clinic Portal Application"
+description = "Clinic wholesale application. Tax ID and reseller permit are application-encrypted inside payload."
+access.admin = "merchant_read"
+access.storefront = "none"
+
+[metaobjects.app.portal_application.fields.owner]
+name = "Clinic customer ID"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_application.fields.status]
+name = "Status"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_application.fields.lookup_key]
+name = "Lookup key"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_application.fields.payload]
+name = "Payload"
+type = "json"
+required = true
+
+[metaobjects.app.portal_kit]
+name = "Clinic Portal Kit"
+description = "Kit registered by an approved clinic. Kit ID and clinic only; no patient data."
+access.admin = "merchant_read"
+access.storefront = "none"
+
+[metaobjects.app.portal_kit.fields.owner]
+name = "Clinic customer ID"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_kit.fields.status]
+name = "Status"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_kit.fields.lookup_key]
+name = "Lookup key"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_kit.fields.payload]
+name = "Payload"
+type = "json"
+required = true
+
+[metaobjects.app.portal_kit_event]
+name = "Clinic Portal Kit Event"
+description = "Timeline entry for a clinic portal kit (registration, status change, reassignment)."
+access.admin = "merchant_read"
+access.storefront = "none"
+
+[metaobjects.app.portal_kit_event.fields.owner]
+name = "Clinic customer ID"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_kit_event.fields.status]
+name = "Status"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_kit_event.fields.lookup_key]
+name = "Lookup key"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_kit_event.fields.payload]
+name = "Payload"
+type = "json"
+required = true
+
+[metaobjects.app.portal_document]
+name = "Clinic Portal Document"
+description = "Clinic resource metadata. File bytes are stored privately outside Shopify Files."
+access.admin = "merchant_read"
+access.storefront = "none"
+
+[metaobjects.app.portal_document.fields.owner]
+name = "Clinic customer ID"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_document.fields.status]
+name = "Status"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_document.fields.lookup_key]
+name = "Lookup key"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_document.fields.payload]
+name = "Payload"
+type = "json"
+required = true
+
+[metaobjects.app.portal_thread]
+name = "Clinic Portal Conversation"
+description = "Clinic-to-staff conversation header with read markers."
+access.admin = "merchant_read"
+access.storefront = "none"
+
+[metaobjects.app.portal_thread.fields.owner]
+name = "Clinic customer ID"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_thread.fields.status]
+name = "Status"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_thread.fields.lookup_key]
+name = "Lookup key"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_thread.fields.payload]
+name = "Payload"
+type = "json"
+required = true
+
+[metaobjects.app.portal_message]
+name = "Clinic Portal Message"
+description = "Single message in a clinic-to-staff conversation. Not for patient health information."
+access.admin = "merchant_read"
+access.storefront = "none"
+
+[metaobjects.app.portal_message.fields.owner]
+name = "Clinic customer ID"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_message.fields.status]
+name = "Status"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_message.fields.lookup_key]
+name = "Lookup key"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_message.fields.payload]
+name = "Payload"
+type = "json"
+required = true
+
+[metaobjects.app.portal_audit]
+name = "Clinic Portal Audit Entry"
+description = "Append-only audit trail for staff and clinic actions."
+access.admin = "merchant_read"
+access.storefront = "none"
+
+[metaobjects.app.portal_audit.fields.owner]
+name = "Clinic customer ID"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_audit.fields.status]
+name = "Status"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_audit.fields.lookup_key]
+name = "Lookup key"
+type = "single_line_text_field"
+capabilities.admin_filterable = true
+
+[metaobjects.app.portal_audit.fields.payload]
+name = "Payload"
+type = "json"
+required = true
+
 [app_proxy]
 url = "/proxy"
 prefix = "apps"

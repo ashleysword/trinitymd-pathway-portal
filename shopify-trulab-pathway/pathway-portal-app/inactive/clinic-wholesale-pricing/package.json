@@ -1,0 +1,14 @@
+{
+  "name": "clinic-wholesale-pricing",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "scripts": {
+    "build": "shopify app function build",
+    "typegen": "shopify app function typegen"
+  },
+  "dependencies": {
+    "@shopify/shopify_function": "^2.0.0"
+  }
+}

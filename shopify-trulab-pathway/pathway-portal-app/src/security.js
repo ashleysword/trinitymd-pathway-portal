@@ -40,7 +40,9 @@ export function verifyShopifyAppProxy(requestUrl, secret, options = {}) {
   const maxAgeSeconds = options.maxAgeSeconds ?? 300;
 
   if (!/^[a-z0-9][a-z0-9-]*\.myshopify\.com$/.test(shop)) throw new Error('Invalid shop domain.');
-  if (!/^\d+$/.test(customerId)) throw new Error('A signed-in Shopify customer is required.');
+  if (!(options.allowAnonymous && customerId === '') && !/^\d+$/.test(customerId)) {
+    throw new Error('A signed-in Shopify customer is required.');
+  }
   if (!Number.isFinite(timestamp) || Math.abs(nowSeconds - timestamp) > maxAgeSeconds) {
     throw new Error('Expired Shopify app proxy request.');
   }

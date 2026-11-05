@@ -13,5 +13,17 @@ export default async function pathwayPortal(request) {
 }
 
 export const config = {
-  path: ['/proxy/api/assignments', '/proxy/api/customer-kits', '/healthz'],
+  path: [
+    '/proxy/api/assignments',
+    '/proxy/api/customer-kits',
+    '/healthz',
+    // Clinic portal v3 routes; they return 404 unless CLINIC_PORTAL_ENABLED is on.
+    '/proxy/clinic',
+    '/proxy/apply',
+    '/proxy/api/clinic/*',
+    '/staff',
+    '/staff/api/*',
+    // GHL clinic sign-up webhook; 404 unless GHL_SIGNUP_ENABLED is on.
+    '/webhooks/ghl/clinic-signup',
+  ],
 };

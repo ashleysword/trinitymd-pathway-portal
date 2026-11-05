@@ -5,3 +5,8 @@
 node_modules/
 shopify.app.toml
 *.log
+shopify.app.dev.toml
+shopify.app.live.toml
+shopify.app.live-proposed.toml
+shopify.app.live-step1.toml
+shopify.app.live-step2.toml

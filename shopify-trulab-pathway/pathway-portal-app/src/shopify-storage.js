@@ -53,6 +53,12 @@ const SET_ASSIGNMENT_REFS_MUTATION = `#graphql
   }
 `;
 
+const ASSIGNMENT_BY_HANDLE_QUERY = `#graphql
+  query PortalAssignmentByHandle($handle: MetaobjectHandleInput!) {
+    metaobjectByHandle(handle: $handle) { id fields { key value } }
+  }
+`;
+
 const DELETE_ASSIGNMENT_MUTATION = `#graphql
   mutation DeletePortalAssignment($id: ID!) {
     metaobjectDelete(id: $id) {
@@ -132,6 +138,7 @@ export class ShopifyAssignmentStore {
     this.encryptionKey = options.encryptionKey;
     this.now = options.now || (() => new Date());
     this.pageSize = options.pageSize || 250;
+    this.externalKitLookup = options.externalKitLookup || null;
     if (!this.client?.graphql) throw new Error('A Shopify Admin client is required.');
     if (!this.encryptionKey) throw new Error('An encryption key is required.');
   }
@@ -203,6 +210,23 @@ export class ShopifyAssignmentStore {
       nodes: [...nodesById.values()],
       compareDigest,
       metafieldId,
+    };
+  }
+
+  // Looks up a legacy assignment by kit ID without decrypting client fields.
+  async findLegacyKit(kitId) {
+    const data = await this.client.graphql(ASSIGNMENT_BY_HANDLE_QUERY, {
+      handle: { type: ASSIGNMENT_METAOBJECT_TYPE, handle: assignmentHandle(kitId) },
+    });
+    const metaobject = data?.metaobjectByHandle;
+    if (!metaobject) return null;
+    const fields = fieldMap(metaobject);
+    return {
+      id: metaobject.id,
+      kitId: fields.get('kit_id'),
+      clinicCustomerId: fields.get('clinic_customer_id'),
+      status: fields.get('status') || 'assigned',
+      createdAt: fields.get('assigned_at') || null,
     };
   }
 
@@ -314,6 +338,11 @@ export class ShopifyAssignmentStore {
     const existingKitIds = new Set(snapshot.nodes.map((node) => fieldMap(node).get('kit_id')));
     if ([...requestedKitIds].some((kitId) => existingKitIds.has(kitId))) {
       throw new DuplicateKitAssignmentError();
+    }
+    if (this.externalKitLookup) {
+      for (const kitId of requestedKitIds) {
+        if (await this.externalKitLookup(kitId)) throw new DuplicateKitAssignmentError();
+      }
     }
     if (snapshot.referenceIds.length + assignments.length > MAX_ASSIGNMENTS_PER_CLINIC) {
       throw new PortalStorageError(

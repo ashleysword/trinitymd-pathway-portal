@@ -24,7 +24,7 @@ export function jsonResponse(status, payload) {
   });
 }
 
-async function readJson(request, maxBytes = 65536) {
+export async function readJson(request, maxBytes = 65536) {
   const contentLength = Number(request.headers.get('content-length'));
   if (Number.isFinite(contentLength) && contentLength > maxBytes) {
     throw new AssignmentValidationError('Request is too large.');
@@ -132,6 +132,10 @@ export function createPortalHandler(options) {
     };
   }
 
+  const clinicRoutes = options.clinicRoutes
+    ? options.clinicRoutes({ loadCustomer: requireCustomer, nowSeconds })
+    : null;
+
   async function handleAssignments(request, context) {
     if (request.method === 'GET') {
       const assignments = await assignmentStore.listAssignments(context);
@@ -178,6 +182,12 @@ export function createPortalHandler(options) {
         await shopify.graphql('query PortalHealth { shop { id } }');
         return jsonResponse(200, { ok: true });
       }
+      if (clinicRoutes?.handles(requestUrl.pathname)) {
+        return await clinicRoutes.handle(request, requestUrl);
+      }
+      if (options.ghlSignup?.handles(requestUrl.pathname)) {
+        return await options.ghlSignup.handle(request);
+      }
       const isClinicAssignments = requestUrl.pathname === '/proxy/api/assignments';
       const isCustomerKits = requestUrl.pathname === '/proxy/api/customer-kits';
       if (!isClinicAssignments && !isCustomerKits) {
@@ -203,6 +213,7 @@ export function createPortalHandler(options) {
       if (status >= 500) logger.error('PATHWAY portal request failed.', error);
       return jsonResponse(status, {
         error: status >= 500 ? 'The secure portal could not complete that request.' : error.message,
+        ...(status < 500 && error.code ? { code: error.code } : {}),
       });
     }
   };
