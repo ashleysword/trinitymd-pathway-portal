@@ -110,6 +110,7 @@ p + p, .stack > * + * { margin-top: 12px; }
 .access aside h2 { font-size: 28px; }
 .access aside p { margin-top: 12px; color: var(--muted); font-size: 14px; line-height: 1.65; }
 .access aside .button { width: 100%; margin-top: 22px; }
+.access aside .button + .button { margin-top: 12px; }
 
 /* ---------- notices ---------- */
 .notice { margin-top: 14px; padding: 12px 14px; border-radius: 10px; font-size: 13px; line-height: 1.5; border: 1px solid transparent; }
