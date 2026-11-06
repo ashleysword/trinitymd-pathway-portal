@@ -186,6 +186,9 @@ A real kit ID is not patient information, so it's fine on the dev store.
 | L9 | Same customer **after staff remove `clinics`**, 10 PGX | Retail | Retail × 10 |
 | L10 | Signed out (guest), 10 PGX | Retail | Retail × 10 |
 
+- [x] **Step 4 result (Nov 5): pass, all 10 cases.** Test customer "Launch Test Clinic" (staff-owned alias email, no patient data), tagged `clinics` by hand; the owner signed in with the emailed code. Prices read from the cart for every case and at checkout (stopped at "Pay now") for L7, L8, L9 and L10:
+  L1 $550 · L2 $4,950 · L3 $5,000 · L4 $450 · L5 $4,050 · L6 $4,000 · **L7 $4,500 (checkout)** · **L8 $4,900 (checkout)** · L9 tag removed, 10 PGX retail $799 → $7,990 (checkout) · L10 guest, 10 PGX retail → $7,990 (checkout).
+  No order placed; cart cleared. `clinics` tag removed; the test customer is kept. Note: the TruLab product (handle `trulab-dx-pathway-genetic-test`) now displays as "Trinity Pathway NGX Genetic Test Kit"; Massy still prices it.
 - [ ] **Launch stop:** any result that differs from this table, L7 and L8 included, stops the launch. Don't publish the GHL workflow, don't open registration, record what was seen, and investigate first. Massy isn't changed by this launch, so a difference means the rules, tag or account behave differently than recorded in §1.
 - [ ] Afterwards: the `clinics` tag is removed (L9 does this). Keep or delete the test customer. No order is placed.
 
