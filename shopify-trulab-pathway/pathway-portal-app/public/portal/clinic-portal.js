@@ -160,12 +160,13 @@
       h('div', {},
         h('p', { class: 'eyebrow', text: 'Protected clinic hub' }),
         h('h1', { text: 'Approved clinic access required.' }),
-        h('p', { class: 'lede', text: 'Sign in with the email connected to your TrinityMD clinic account to register kits, follow kit status, download clinic education, and message our team. New practices can apply for wholesale access after signing in or creating an account.' })),
+        h('p', { class: 'lede', text: 'Approved clinics can register and track kits, access documents, and message our team. New clinics can apply for wholesale access below.' })),
       h('aside', {},
         h('div', { class: 'lock', 'aria-hidden': 'true', text: '●' }),
         h('h2', { text: 'Sign in to continue' }),
-        h('p', { text: 'Use your clinic account email. If your practice is new to TrinityMD, create an account first and then complete the short wholesale application.' }),
-        h('a', { class: 'button', href: state.session.loginUrl }, 'Sign in or create account ', h('span', { class: 'arrow', 'aria-hidden': 'true' })))));
+        h('p', { text: 'Use the email associated with your approved clinic account. New to TrinityMD? Complete the clinic application first.' }),
+        h('a', { class: 'button', href: state.session.loginUrl }, 'Sign in ', h('span', { class: 'arrow', 'aria-hidden': 'true' })),
+        h('a', { class: 'button button--ghost', href: `${storefront}/pages/register#clinic-registration` }, 'Create account ', h('span', { class: 'arrow', 'aria-hidden': 'true' })))));
   }
 
   function renderApplicationStatus(application) {
